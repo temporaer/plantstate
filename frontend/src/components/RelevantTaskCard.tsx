@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   Card,
-  CardActionArea,
   CardContent,
   Chip,
   Collapse,
@@ -58,76 +57,84 @@ export function RelevantTaskCard({
 
   const [expanded, setExpanded] = useState(false);
 
-  const cardBody = (
-    <CardContent sx={{ pb: 1 }}>
-      <Typography variant="h6" sx={{ mb: 0.5 }}>
-        {emoji} {item.plant_name}
-      </Typography>
-      <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
-        <Chip label={taskLabel} size="small" variant="outlined" sx={{ borderColor: "grey.300", color: "text.secondary" }} />
-        <Chip
-          label={urg.label}
-          size="small"
-          variant="outlined"
-          sx={{ borderColor: urg.color, color: urg.color }}
-        />
-        {item.priority !== "normal" && (
+  return (
+    <Card
+      sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: borderColor, cursor: "pointer" }}
+      onClick={() => setExpanded(!expanded)}
+    >
+      <CardContent sx={{ pb: 1 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            mb: 0.5,
+            ...(isClickable && {
+              "&:hover": { textDecoration: "underline" },
+              cursor: "pointer",
+            }),
+          }}
+          onClick={(e) => {
+            if (isClickable) {
+              e.stopPropagation();
+              onNavigateToPlant(item.task.plant_id);
+            }
+          }}
+        >
+          {emoji} {item.plant_name}
+        </Typography>
+        <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
+          <Chip label={taskLabel} size="small" variant="outlined" sx={{ borderColor: "grey.300", color: "text.secondary" }} />
           <Chip
-            label={prio.label}
+            label={urg.label}
             size="small"
             variant="outlined"
-            sx={{ borderColor: prio.color === "error" ? "error.main" : "info.main", color: prio.color === "error" ? "error.main" : "info.main" }}
+            sx={{ borderColor: urg.color, color: urg.color }}
           />
-        )}
-      </Stack>
-      <Stack direction="row" sx={{ alignItems: "center", gap: 0.5, cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}>
-        <Typography variant="subtitle2" color="primary">
-          {item.explanation_summary}
-        </Typography>
-        {expanded ? <ExpandLessIcon fontSize="small" color="primary" /> : <ExpandMoreIcon fontSize="small" color="primary" />}
-      </Stack>
-      <Collapse in={expanded}>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          <strong>Warum:</strong> {item.explanation_why}
-        </Typography>
-        <Typography variant="body2">
-          <strong>Wie:</strong> {item.explanation_how}
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 1.5 }}>
-          {SNOOZABLE_TYPES.has(item.task_type) && (
+          {item.priority !== "normal" && (
+            <Chip
+              label={prio.label}
+              size="small"
+              variant="outlined"
+              sx={{ borderColor: prio.color === "error" ? "error.main" : "info.main", color: prio.color === "error" ? "error.main" : "info.main" }}
+            />
+          )}
+        </Stack>
+        <Stack direction="row" sx={{ alignItems: "center", gap: 0.5 }}>
+          <Typography variant="subtitle2" color="primary">
+            {item.explanation_summary}
+          </Typography>
+          {expanded ? <ExpandLessIcon fontSize="small" color="primary" /> : <ExpandMoreIcon fontSize="small" color="primary" />}
+        </Stack>
+        <Collapse in={expanded}>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            <strong>Warum:</strong> {item.explanation_why}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Wie:</strong> {item.explanation_how}
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 1.5 }}>
+            {SNOOZABLE_TYPES.has(item.task_type) && (
+              <Button
+                size="small"
+                variant="outlined"
+                color="inherit"
+                startIcon={<ScheduleOutlinedIcon />}
+                onClick={(e) => { e.stopPropagation(); onSnooze?.(item.task.id); }}
+              >
+                In 2 Wochen
+              </Button>
+            )}
             <Button
               size="small"
               variant="outlined"
-              color="inherit"
-              startIcon={<ScheduleOutlinedIcon />}
-              onClick={(e) => { e.stopPropagation(); onSnooze?.(item.task.id); }}
+              color="success"
+              startIcon={<CheckCircleOutlinedIcon />}
+              onClick={(e) => { e.stopPropagation(); onComplete?.(item.task.id); }}
             >
-              In 2 Wochen
+              Erledigt
             </Button>
-          )}
-          <Button
-            size="small"
-            variant="outlined"
-            color="success"
-            startIcon={<CheckCircleOutlinedIcon />}
-            onClick={(e) => { e.stopPropagation(); onComplete?.(item.task.id); }}
-          >
-            Erledigt
-          </Button>
-        </Box>
-      </Collapse>
-    </CardContent>
-  );
-
-  return (
-    <Card sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: borderColor }}>
-      {isClickable ? (
-        <CardActionArea onClick={() => onNavigateToPlant(item.task.plant_id)}>
-          {cardBody}
-        </CardActionArea>
-      ) : (
-        cardBody
-      )}
+          </Box>
+        </Collapse>
+      </CardContent>
     </Card>
   );
 }
