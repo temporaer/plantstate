@@ -76,12 +76,13 @@ def compute_heatwave(data: WeatherData) -> bool:
 
 
 def compute_dry_spell(data: WeatherData) -> bool:
-    """dry_spell: 3 consecutive days < 1mm rain."""
-    days = _get_forecast_days(data.forecast, 5)
-    if len(days) < 3:
+    """dry_spell: 3 consecutive days < 1mm rain (history + forecast)."""
+    # Combine recent history and forecast for a full picture
+    all_days = list(data.history) + list(data.forecast)
+    if len(all_days) < 3:
         return False
     consecutive = 0
-    for d in days:
+    for d in all_days:
         if d.precipitation_mm < 1.0:
             consecutive += 1
             if consecutive >= 3:
@@ -92,12 +93,12 @@ def compute_dry_spell(data: WeatherData) -> bool:
 
 
 def compute_persistent_rain(data: WeatherData) -> bool:
-    """persistent_rain: 3 consecutive days >= 5mm rain."""
-    days = _get_forecast_days(data.forecast, 5)
-    if len(days) < 3:
+    """persistent_rain: 3 consecutive days >= 5mm rain (history + forecast)."""
+    all_days = list(data.history) + list(data.forecast)
+    if len(all_days) < 3:
         return False
     consecutive = 0
-    for d in days:
+    for d in all_days:
         if d.precipitation_mm >= 5.0:
             consecutive += 1
             if consecutive >= 3:

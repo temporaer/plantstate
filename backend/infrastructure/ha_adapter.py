@@ -10,6 +10,7 @@ NO domain logic here — only data mapping.
 from __future__ import annotations
 
 from collections import defaultdict
+from contextlib import suppress
 from datetime import date, timedelta
 
 import httpx
@@ -75,13 +76,16 @@ class HomeAssistantAdapter:
         return result
 
     async def _fetch_history(self, client: httpx.AsyncClient) -> list[DailyWeather]:
-        """Fetch recent temperature history from HA recorder.
+        """Fetch recent weather history from HA recorder.
 
         Uses full history (not minimal_response) to get temperature attributes.
-        Groups by day to compute daily min/max temp.
+        Groups by day to compute daily min/max temp and precipitation sum.
+        Also tries to fetch precipitation from a dedicated DWD sensor.
         """
         end = date.today()
         start = end - timedelta(days=7)
+
+        # Fetch weather entity history (temperature + possibly precipitation)
         url = (
             f"{self._base_url}/api/history/period/{start.isoformat()}"
             f"?filter_entity_id={self._weather_entity}"
@@ -95,8 +99,9 @@ class HomeAssistantAdapter:
         if not data or not data[0]:
             return []
 
-        # Group temperature readings by day
+        # Group temperature and precipitation readings by day
         daily_temps: dict[date, list[float]] = defaultdict(list)
+        daily_precip: dict[date, float] = defaultdict(float)
         for state in data[0]:
             attrs = state.get("attributes", {})
             dt_str = (state.get("last_changed") or "")[:10]
@@ -106,9 +111,36 @@ class HomeAssistantAdapter:
             temp = attrs.get("temperature")
             if temp is not None:
                 daily_temps[dt].append(float(temp))
+            # DWD may provide precipitation as an attribute
+            precip = attrs.get("precipitation")
+            if precip is not None:
+                with suppress(ValueError, TypeError):
+                    daily_precip[dt] = max(daily_precip[dt], float(precip))
 
-        # DWD doesn't provide historical precipitation in weather state,
-        # so we use 0.0 — forecast is the primary precipitation source
+        # Also try a dedicated precipitation sensor (DWD pattern)
+        # e.g. weather.karlsruhe → sensor.karlsruhe_precipitation
+        precip_entity = self._weather_entity.replace("weather.", "sensor.") + "_precipitation"
+        try:
+            precip_url = (
+                f"{self._base_url}/api/history/period/{start.isoformat()}"
+                f"?filter_entity_id={precip_entity}"
+                f"&end_time={end.isoformat()}"
+                f"&significant_changes_only=0"
+            )
+            precip_resp = await client.get(precip_url, headers=self._headers)
+            precip_resp.raise_for_status()
+            precip_data = precip_resp.json()
+            if precip_data and precip_data[0]:
+                for state in precip_data[0]:
+                    dt_str = (state.get("last_changed") or "")[:10]
+                    val = state.get("state")
+                    if dt_str and val not in (None, "unknown", "unavailable"):
+                        dt = date.fromisoformat(dt_str)
+                        with suppress(ValueError, TypeError):
+                            daily_precip[dt] = max(daily_precip[dt], float(val))
+        except (httpx.HTTPStatusError, httpx.ConnectError):
+            pass  # Sensor may not exist
+
         result: list[DailyWeather] = []
         for d in sorted(daily_temps.keys()):
             temps = daily_temps[d]
@@ -117,7 +149,7 @@ class HomeAssistantAdapter:
                     date=d,
                     temp_min=min(temps),
                     temp_max=max(temps),
-                    precipitation_mm=0.0,
+                    precipitation_mm=daily_precip.get(d, 0.0),
                 )
             )
         return result
