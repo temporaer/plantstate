@@ -66,6 +66,32 @@ function WeatherCard({ weather }: { weather: WeatherStatus }) {
           ))}
         </Stack>
 
+        {weather.history.length > 0 && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" gutterBottom>
+              Letzte Tage
+            </Typography>
+            <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
+              {weather.history.slice(-5).map((d) => (
+                <Box key={d.date} sx={{ textAlign: "center", minWidth: 70, opacity: 0.75 }}>
+                  <Typography variant="caption" sx={{ display: "block" }}>
+                    {new Date(d.date).toLocaleDateString("de-DE", { weekday: "short" })}
+                  </Typography>
+                  <Typography variant="body2">
+                    {d.temp_min.toFixed(0)}° / {d.temp_max.toFixed(0)}°
+                  </Typography>
+                  {d.precipitation_mm > 0 && (
+                    <Typography variant="caption" color="primary">
+                      {d.precipitation_mm.toFixed(1)} mm
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          </>
+        )}
+
         {weather.forecast.length > 0 && (
           <>
             <Divider sx={{ my: 2 }} />
