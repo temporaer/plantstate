@@ -3,7 +3,7 @@
     "name": "Feigenbaum",
     "botanical_name": "Ficus carica",
     "description": "Mediterraner Obstbaum, frostempfindlich in jungen Jahren. Braucht geschützten Standort.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Ficus_carica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-060.jpg/440px-Ficus_carica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-060.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Ficus_carica_L%2C_1771.jpg",
     "language": "de",
     "rules": [
       {
@@ -47,7 +47,8 @@
             "why": "Feigen brauchen anhaltende Wärme zum Ausreifen.",
             "how": "Mindestens 3 von 5 Tagen über 20°C signalisieren gute Reifebedingungen."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -55,7 +56,7 @@
     "name": "Hibiskus",
     "botanical_name": "Hibiscus syriacus",
     "description": "Winterharter Gartenhibiskus, blüht am diesjährigen Holz.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Hibiscus_syriacus_%27Oiseau_Bleu%27.jpg/440px-Hibiscus_syriacus_%27Oiseau_Bleu%27.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/98/Hibiscus_Syriacus.JPG",
     "language": "de",
     "rules": [
       {
@@ -91,7 +92,8 @@
           "summary": "Verblühtes regelmäßig entfernen",
           "why": "Fördert die Nachblüte und verhindert unnötige Samenbildung.",
           "how": "Welke Blüten mit dem Stiel abknipsen, bevor sich Samenkapseln bilden."
-        }
+        },
+        "priority": "low"
       }
     ]
   },
@@ -99,7 +101,7 @@
     "name": "Schneeball",
     "botanical_name": "Viburnum opulus",
     "description": "Einheimischer Strauch mit weißen Blütenbällen im Mai/Juni. Robust und pflegeleicht.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Viburnum_opulus_003.JPG/440px-Viburnum_opulus_003.JPG",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Viburnum_01.JPG",
     "language": "de",
     "rules": [
       {
@@ -134,7 +136,8 @@
             "why": "Im Frühjahr erkennt man Totholz am besten, wenn der Rest austreibt.",
             "how": "Warte bis die ersten grünen Knospen sichtbar sind."
           }
-        }
+        },
+        "priority": "low"
       }
     ]
   },
@@ -142,7 +145,7 @@
     "name": "Erdbeeren",
     "botanical_name": "Fragaria × ananassa",
     "description": "Mehrjährige Staude, trägt im zweiten Jahr am besten. Hochbeet oder Beet.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/PerfectStrawberry.jpg/440px-PerfectStrawberry.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Garden_strawberry_%28Fragaria_%C3%97_ananassa%29_single2.jpg",
     "language": "de",
     "rules": [
       {
@@ -184,7 +187,8 @@
             "why": "Dauerregen führt zu Grauschimmel und wässrigen Früchten.",
             "how": "Bei 3+ Regentagen möglichst trotzdem ernten, um Verluste zu minimieren."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -192,7 +196,7 @@
     "name": "Himbeeren",
     "botanical_name": "Rubus idaeus",
     "description": "Sommertragende Himbeeren am Spalier. Tragen am vorjährigen Holz.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Raspberries05.jpg/440px-Raspberries05.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Raspberry_-_halved_%28Rubus_idaeus%29.jpg",
     "language": "de",
     "rules": [
       {
@@ -229,7 +233,8 @@
             "why": "Wärme ist nötig für die finale Reifephase.",
             "how": "Mehrere warme Tage über 20°C bringen die Früchte zur Vollreife."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -237,7 +242,7 @@
     "name": "Gurke (Hochbeet)",
     "botanical_name": "Cucumis sativus",
     "description": "Wärmeliebend, im Hochbeet geschützt. Einjährige Kultur.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/ARS_cucumber.jpg/440px-ARS_cucumber.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/ARS_cucumber.jpg",
     "language": "de",
     "rules": [
       {
@@ -270,7 +275,8 @@
             "why": "Bereits ein einzelner Frost tötet die empfindlichen Jungpflanzen.",
             "how": "Das System prüft ob in den nächsten 5 Tagen Nachtfrost droht."
           }
-        }
+        },
+        "priority": "high"
       },
       {
         "task_type": "harvest",
@@ -292,7 +298,8 @@
             "why": "Gurken wachsen nur bei Wärme zügig.",
             "how": "Bei warmem Wetter können Gurken täglich mehrere Zentimeter zulegen."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -300,7 +307,7 @@
     "name": "Tomate (Hochbeet)",
     "botanical_name": "Solanum lycopersicum",
     "description": "Stabtomate im Hochbeet. Einjährige Kultur, braucht Regenschutz.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Tomato_je.jpg/440px-Tomato_je.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Tomato_je.jpg",
     "language": "de",
     "rules": [
       {
@@ -333,7 +340,8 @@
             "why": "Bereits ein einzelner Frost tötet die empfindlichen Jungpflanzen.",
             "how": "Das System prüft ob in den nächsten 5 Tagen Nachtfrost droht."
           }
-        }
+        },
+        "priority": "high"
       },
       {
         "task_type": "prune_maintenance",
@@ -371,7 +379,8 @@
             "why": "Wärme ist entscheidend für Reife und Aromabildung.",
             "how": "Warme Tage über 20°C fördern die Umfärbung und Zuckereinlagerung."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -379,7 +388,7 @@
     "name": "Thujahecke",
     "botanical_name": "Thuja occidentalis",
     "description": "Immergrüne Heckenpflanze. Vogelschutz beachten: starker Rückschnitt nur Oktober bis Ende Februar erlaubt (§39 BNatSchG). Standort: sandiger Boden – bei Trockenheit gut wässern.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Thuja_occidentalis_Morton_Arboretum.jpg/440px-Thuja_occidentalis_Morton_Arboretum.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Thuja_occidentalis.jpg",
     "language": "de",
     "rules": [
       {
@@ -460,7 +469,8 @@
             "why": "Bei Frost können frische Schnittwunden aufplatzen und es droht Frosttrocknis.",
             "how": "Warte auf eine milde Phase mit Temperaturen über 1°C."
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   },
@@ -468,7 +478,7 @@
     "name": "Dickblatt-Bergenie",
     "botanical_name": "Bergenia crassifolia",
     "description": "Robuste, immergrüne Staude mit dicken Blättern und rosa Blütenständen im Frühjahr. Guter Bodendecker, verträgt Trockenheit auf sandigem Boden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Bergenia_crassifolia_01.JPG/400px-Bergenia_crassifolia_01.JPG",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Bergenia_crassifolia_a1.jpg",
     "language": "de",
     "rules": [
       {
@@ -505,7 +515,8 @@
           "why": "Nach der Blüte sehen die braunen Stängel unschön aus und die Pflanze steckt Energie in Samenbildung statt in Blattwachstum.",
           "how": "Blütenstängel direkt über dem Blattschopf abschneiden."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -513,7 +524,7 @@
     "name": "Gemeiner Schneeball",
     "botanical_name": "Viburnum opulus",
     "description": "Heimischer Strauch mit weißen Blütentellern im Mai/Juni und leuchtend roten Beeren im Herbst. Wichtige Vogelnährpflanze.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Viburnum_opulus_002.JPG/400px-Viburnum_opulus_002.JPG",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Viburnum_01.JPG",
     "language": "de",
     "rules": [
       {
@@ -542,7 +553,8 @@
           "why": "Abgestorbene Äste sind Eintrittspforten für Pilzkrankheiten.",
           "how": "Trockene, brüchige Äste bis ins gesunde Holz zurückschneiden. Schnittwerkzeug desinfizieren."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -550,7 +562,7 @@
     "name": "Wolliger Schneeball",
     "botanical_name": "Viburnum lantana",
     "description": "Robuster heimischer Strauch mit filzigen Blättern und cremeweißen Blüten. Beeren verfärben sich von rot nach schwarz. Extrem trockenheitsverträglich – ideal für sandige Böden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Viburnum_lantana_a1.jpg/400px-Viburnum_lantana_a1.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Viburnum_lantana_a1.jpg",
     "language": "de",
     "rules": [
       {
@@ -579,7 +591,8 @@
           "why": "Abgestorbene Äste entfernen beugt Pilzbefall vor und verbessert die Luftzirkulation.",
           "how": "Abgestorbene und sich kreuzende Äste sauber herausschneiden."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -587,7 +600,7 @@
     "name": "Waldgeißbart",
     "botanical_name": "Aruncus dioicus",
     "description": "Imposante Wildstaude mit fedrigen weißen Blütenrispen. Wird bis 1,5m hoch. Bevorzugt Halbschatten und feuchten Boden – auf sandigem Boden Mulch als Verdunstungsschutz verwenden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Aruncus_dioicus_%28Goat%27s_beard%29.jpg/400px-Aruncus_dioicus_%28Goat%27s_beard%29.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Aruncus_dioicus_1549.JPG",
     "language": "de",
     "rules": [
       {
@@ -617,7 +630,7 @@
     "name": "Prächtige Fetthenne",
     "botanical_name": "Hylotelephium spectabile",
     "description": "Dickblättrige Staude mit großen rosa Blütentellern im Spätsommer. Wichtige Bienenweide. Sehr trockenheitsverträglich, ideal für sandigen Boden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sedum_spectabile_in_late_August.jpg/400px-Sedum_spectabile_in_late_August.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Sedum_spectabile_-_blossom_top_%28aka%29.jpg",
     "language": "de",
     "rules": [
       {
@@ -647,7 +660,7 @@
     "name": "Weiße Fetthenne (Blumenkasten)",
     "botanical_name": "Sedum album",
     "description": "Niedrige Polsterstaude mit weißen Sternblüten. Im Blumenkasten als pflegeleichter Bodendecker. Extrem trockenheitsverträglich.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Sedum_album_RF.jpg/400px-Sedum_album_RF.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Sedum_album_03_ies.jpg",
     "language": "de",
     "rules": [
       {
@@ -677,7 +690,7 @@
     "name": "Tulpen",
     "botanical_name": "Tulipa",
     "description": "Klassische Frühjahrsblüher aus Zwiebeln. Blühen je nach Sorte März bis Mai. Nach der Blüte das Laub einziehen lassen!",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Tulip_-_Floriade_2012.jpg/400px-Tulip_-_Floriade_2012.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%9D.JPG",
     "language": "de",
     "rules": [
       {
@@ -692,7 +705,8 @@
           "why": "Wenn Tulpen Samen bilden, schwächt das die Zwiebel für nächstes Jahr. Die Blätter MÜSSEN aber stehen bleiben!",
           "how": "Nur den Blütenkopf abbrechen, den Stängel und alle Blätter stehen lassen. Das Laub erst entfernen wenn es komplett gelb und trocken ist (ca. 6 Wochen nach Blüte)."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       },
       {
         "task_type": "cut_back",
@@ -714,7 +728,7 @@
     "name": "Kräuterbeet",
     "botanical_name": null,
     "description": "Schnittlauch (Allium schoenoprasum), Petersilie (Petroselinum crispum) und Minze (Mentha). Sandiger Boden ist für Kräuter gut – er wärmt sich schnell auf und fördert Aromabildung.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Kraeuter.jpg/400px-Kraeuter.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Allium_schoenoprasum_-_Bombus_lapidarius_-_Tootsi.jpg",
     "language": "de",
     "rules": [
       {
@@ -739,7 +753,8 @@
             "why": "Petersilie und Minze sind frostempfindlich im Neuaustrieb.",
             "how": "Nach den Eisheiligen (Mitte Mai) ist die Erntesaison sicher."
           }
-        }
+        },
+        "priority": "high"
       },
       {
         "task_type": "prune_maintenance",
@@ -768,7 +783,7 @@
     "name": "Rosmarin",
     "botanical_name": "Salvia rosmarinus",
     "description": "Mediterraner Halbstrauch, immergrün und aromatisch. Blüht violettblau im Frühjahr. Liebt sandigen, durchlässigen Boden. Winterschutz empfohlen.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Rosmarinus_officinalis_133308238.jpg/400px-Rosmarinus_officinalis_133308238.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Rosemary_in_bloom.JPG",
     "language": "de",
     "rules": [
       {
@@ -806,7 +821,8 @@
           "why": "Regelmäßiges Ernten fördert Verzweigung und buschigen Wuchs.",
           "how": "Junge Triebspitzen (5-10cm) abschneiden. Nicht mehr als ein Drittel der Pflanze auf einmal ernten."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "high"
       }
     ]
   },
@@ -814,7 +830,7 @@
     "name": "Forsythie",
     "botanical_name": "Forsythia × intermedia",
     "description": "Leuchtend gelb blühender Frühlingsstrauch, einer der ersten Blüher. Wichtiger phänologischer Zeiger für den Erstfrühling.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Forsythia_europaea_flowers.jpg/400px-Forsythia_europaea_flowers.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Forsythia_flower.JPG",
     "language": "de",
     "rules": [
       {
@@ -843,7 +859,8 @@
           "why": "Abgestorbene Triebe stören das Erscheinungsbild und können Krankheiten beherbergen.",
           "how": "Trockene, nicht austreibende Äste an der Basis entfernen."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -851,7 +868,7 @@
     "name": "Vergissmeinnicht",
     "botanical_name": "Myosotis sylvatica",
     "description": "Zarter Frühjahrsblüher mit himmelblauen Blüten. Zweijährig – sät sich selbst aus. Blüht April bis Juni.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Myosotis_scorpioides_R.jpg/400px-Myosotis_scorpioides_R.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Myosotis_arvensis_ois.JPG",
     "language": "de",
     "rules": [
       {
@@ -867,7 +884,8 @@
           "why": "Vergissmeinnicht ist zweijährig. Einige Pflanzen sollten aussamen dürfen, damit es nächstes Jahr wieder blüht.",
           "how": "Etwa die Hälfte der verblühten Pflanzen stehen lassen (für Samen). Den Rest entfernen, um Platz für Sommerblüher zu machen."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -875,7 +893,7 @@
     "name": "Kleinblütige Tamariske",
     "botanical_name": "Tamarix parviflora",
     "description": "Graziler Strauch mit federartigen rosa Blütenrispen im Frühjahr. Sehr trockenheits- und salzverträglich – perfekt für sandigen Boden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Tamarix_parviflora_1.jpg/400px-Tamarix_parviflora_1.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/74/Tamarix_tetrandra_FlowersCloseup_ParquedelasDunasTorrelaMata.jpg",
     "language": "de",
     "rules": [
       {
@@ -899,7 +917,7 @@
     "name": "Zierliche Deutzie",
     "botanical_name": "Deutzia gracilis",
     "description": "Kompakter Zierstrauch mit überhängenden weißen Blütentrauben im Mai/Juni. Wird nur 60-80cm hoch.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Deutzia_gracilis3.jpg/400px-Deutzia_gracilis3.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Deutzia_gracilis_A.jpg",
     "language": "de",
     "rules": [
       {
@@ -928,7 +946,8 @@
           "why": "Totes Holz nimmt den jungen Trieben Licht und Platz.",
           "how": "Trockene Äste bis zum nächsten gesunden Abzweig herausschneiden."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -936,7 +955,7 @@
     "name": "Lupine",
     "botanical_name": "Lupinus polyphyllus",
     "description": "Prächtige Staude mit aufrechten Blütenkerzen in vielen Farben. Stickstoff-Fixierer – verbessert sandigen Boden. Blüht Mai bis Juli.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Lupinus_polyphyllus1.jpg/400px-Lupinus_polyphyllus1.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Lupinus_polyphyllus_526960203.jpg",
     "language": "de",
     "rules": [
       {
@@ -952,7 +971,8 @@
           "why": "Wenn man die verblühten Blütenstände schnell entfernt, bilden Lupinen oft eine zweite, kleinere Blüte im Spätsommer.",
           "how": "Blütenstängel bis zum nächsten Blattansatz zurückschneiden. NICHT die Grundblätter entfernen. Nicht alle aussamen lassen – Lupinen können invasiv werden."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       },
       {
         "task_type": "cut_back",
@@ -974,7 +994,7 @@
     "name": "Echter Salbei",
     "botanical_name": "Salvia officinalis",
     "description": "Aromatischer Halbstrauch, immergrün mit graugrünen Blättern. Liebt sandigen, kalkhaltigen Boden und volle Sonne.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Salvia_officinalis_p1150380.jpg/400px-Salvia_officinalis_p1150380.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Salvia_officinalis0.jpg",
     "language": "de",
     "rules": [
       {
@@ -1012,7 +1032,8 @@
           "why": "Vor der Blüte ist das Aroma am stärksten. Regelmäßiges Ernten hält den Strauch kompakt.",
           "how": "Ganze Triebspitzen (8-10cm) abschneiden. Zum Trocknen vor der Blüte ernten – dann ist der Ölgehalt am höchsten."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "high"
       }
     ]
   },
@@ -1020,7 +1041,7 @@
     "name": "Thymian",
     "botanical_name": "Thymus vulgaris",
     "description": "Niedrige, aromatische Polsterstaude. Bienenweide und Küchenkraut. Sandiger, magerer Boden ist ideal – je ärmer der Boden, desto intensiver das Aroma.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Thymus_vulgaris2.jpg/400px-Thymus_vulgaris2.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Thymus_vulgaris1.JPG",
     "language": "de",
     "rules": [
       {
@@ -1058,7 +1079,8 @@
           "why": "Kurz vor der Blüte ist der Ölgehalt am höchsten. Auch blühender Thymian schmeckt noch gut.",
           "how": "Ganze Triebspitzen abschneiden. Zum Trocknen ganze Stängel ernten und kopfüber aufhängen."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "high"
       }
     ]
   },
@@ -1066,7 +1088,7 @@
     "name": "Brandkraut",
     "botanical_name": "Phlomis russeliana",
     "description": "Robuste Staude mit etagenförmigen gelben Blütenquirlen. Die Samenstände sind den ganzen Winter über dekorativ. Trockenheitsverträglich.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Phlomis_russeliana_01.jpg/400px-Phlomis_russeliana_01.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Phlomis0_KS.jpg",
     "language": "de",
     "rules": [
       {
@@ -1096,7 +1118,7 @@
     "name": "Englisches Hasenglöckchen",
     "botanical_name": "Hyacinthoides non-scripta",
     "description": "Zierlicher Frühjahrsblüher mit nickenden blauen Glockenblüten. Zwiebelpflanze, die sich langsam ausbreitet. Blüht April/Mai.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Hyacinthoides_non-scripta_%28Common_Bluebell%29.jpg/400px-Hyacinthoides_non-scripta_%28Common_Bluebell%29.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Hyacinthoides_non-scripta_%28Common_Bluebell%29.jpg",
     "language": "de",
     "rules": [
       {
@@ -1112,7 +1134,8 @@
           "why": "Wie bei allen Zwiebelpflanzen muss das Laub einziehen können, damit die Zwiebel Kraft für nächstes Jahr speichert.",
           "how": "Verblühte Stängel abschneiden. Das Laub erst entfernen wenn es komplett gelb und trocken ist (ca. 6 Wochen). Nicht flechten oder zusammenbinden."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -1120,7 +1143,7 @@
     "name": "Immergrüne Kriechheckenkirsche",
     "botanical_name": "Lonicera pileata",
     "description": "Niedriger, breitwüchsiger Strauch mit glänzend grünen Blättchen. Guter Bodendecker, auch unter Bäumen. Robust und anspruchslos.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Lonicera_pileata0.jpg/400px-Lonicera_pileata0.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Lonicera_ligustrina_var._yunnanensis_%28Lonicera_nitida%29_-_Botanischer_Garten%2C_Dresden%2C_Germany_-_DSC08938.JPG",
     "language": "de",
     "rules": [
       {
@@ -1172,7 +1195,7 @@
     "name": "Falscher Jasmin",
     "botanical_name": "Philadelphus coronarius",
     "description": "Üppig blühender Strauch mit intensiv duftenden weißen Blüten im Juni. Wird 2-3m hoch. Anspruchslos, auch auf sandigem Boden.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Philadelphus_coronarius1.jpg/400px-Philadelphus_coronarius1.jpg",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Philadelphus_coronarius.jpg",
     "language": "de",
     "rules": [
       {
@@ -1201,7 +1224,8 @@
           "why": "Abgestorbene Äste nehmen den jungen Trieben Licht.",
           "how": "Trockene Äste sauber herausschneiden. Sich kreuzende oder nach innen wachsende Triebe ebenfalls entfernen."
         },
-        "event_explanations": {}
+        "event_explanations": {},
+        "priority": "low"
       }
     ]
   },
@@ -1209,7 +1233,7 @@
     "name": "Garten (allgemein)",
     "botanical_name": null,
     "description": "Allgemeine Gartenarbeiten und saisonale Pflege. Standort: sandiger Boden – speichert wenig Wasser, erwärmt sich schnell, trocknet leicht aus.",
-    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Garten_im_Fr%C3%BChling.jpg/400px-Garten_im_Fr%C3%BChling.jpg",
+    "image_url": null,
     "language": "de",
     "rules": [
       {
@@ -1338,7 +1362,8 @@
             "why": "Temperaturen unter 1°C können ungeschützte Pflanzen beschädigen oder töten.",
             "how": "Frostwarnung in den nächsten 5 Tagen – jetzt handeln!"
           }
-        }
+        },
+        "priority": "high"
       }
     ]
   }

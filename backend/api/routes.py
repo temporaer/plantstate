@@ -477,7 +477,9 @@ async def proxy_image(url: str) -> FileResponse:
                 timeout=15, follow_redirects=True,
             ) as client:
                 resp = await client.get(
-                    url, headers={"User-Agent": "PlantState/1.0"},
+                    url, headers={
+                        "User-Agent": "Mozilla/5.0 (compatible; PlantState/1.0)",
+                    },
                 )
                 resp.raise_for_status()
                 cache_path.write_bytes(resp.content)

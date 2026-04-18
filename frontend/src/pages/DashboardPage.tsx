@@ -178,6 +178,12 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
                       {item.plant_name}
                     </Typography>
+                    {item.priority === "high" && (
+                      <Chip label="Wichtig" size="small" color="error" />
+                    )}
+                    {item.priority === "low" && (
+                      <Chip label="Nebensache" size="small" color="info" variant="outlined" />
+                    )}
                     <Chip
                       label={TASK_TYPE_LABELS[item.task_type] ?? item.task_type}
                       size="small"

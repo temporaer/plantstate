@@ -2,6 +2,8 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Chip,
+  Stack,
   Typography,
 } from "@mui/material";
 import type { RelevantNowItem } from "../api";
@@ -18,6 +20,18 @@ const TASK_TYPE_EMOJI: Record<string, string> = {
   remove_deadwood: "🪵",
 };
 
+const PRIORITY_CONFIG: Record<string, { label: string; color: "error" | "default" | "info" }> = {
+  high: { label: "Wichtig", color: "error" },
+  normal: { label: "Normal", color: "default" },
+  low: { label: "Nebensache", color: "info" },
+};
+
+const BORDER_COLOR: Record<string, string> = {
+  high: "error.main",
+  normal: "primary.main",
+  low: "grey.400",
+};
+
 export function RelevantTaskCard({
   item,
   onNavigateToPlant,
@@ -27,12 +41,18 @@ export function RelevantTaskCard({
 }) {
   const emoji = TASK_TYPE_EMOJI[item.task_type] ?? "📋";
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
+  const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
 
   const content = (
     <CardContent>
-      <Typography variant="h6">
-        {emoji} {item.plant_name}
-      </Typography>
+      <Stack direction="row" spacing={1} sx={{ mb: 0.5, alignItems: "center" }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          {emoji} {item.plant_name}
+        </Typography>
+        {item.priority !== "normal" && (
+          <Chip label={prio.label} color={prio.color} size="small" />
+        )}
+      </Stack>
       <Typography variant="subtitle2" color="primary" gutterBottom>
         {item.explanation_summary}
       </Typography>
@@ -46,7 +66,7 @@ export function RelevantTaskCard({
   );
 
   return (
-    <Card sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: "primary.main" }}>
+    <Card sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: BORDER_COLOR[item.priority] ?? "primary.main" }}>
       {isClickable ? (
         <CardActionArea onClick={() => onNavigateToPlant(item.task.plant_id)}>
           {content}

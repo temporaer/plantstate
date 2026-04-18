@@ -10,7 +10,7 @@ from datetime import date, datetime
 
 from sqlalchemy.orm import Session
 
-from backend.domain.enums import Season, TaskStatus
+from backend.domain.enums import Priority, Season, TaskStatus
 from backend.domain.events import compute_all_events
 from backend.domain.models import EventState, Plant, Rule, Task, WeatherData
 from backend.domain.rules import (
@@ -102,6 +102,8 @@ class PlantService:
                                 event_state=event_state,
                             )
                         )
+        priority_order = {Priority.HIGH: 0, Priority.NORMAL: 1, Priority.LOW: 2}
+        results.sort(key=lambda x: priority_order.get(x.rule.priority, 1))
         return results
 
     def get_outlook(

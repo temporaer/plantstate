@@ -40,6 +40,7 @@ export interface RelevantNowItem {
   task: Task;
   plant_name: string;
   task_type: string;
+  priority: string;
   explanation_summary: string;
   explanation_why: string;
   explanation_how: string;
@@ -49,6 +50,7 @@ export interface OutlookItem {
   task: Task;
   plant_name: string;
   task_type: string;
+  priority: string;
   planning_seasons: string[];
   explanation_summary: string;
   in_planning_window: boolean;
