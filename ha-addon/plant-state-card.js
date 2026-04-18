@@ -59,7 +59,8 @@ class PlantStateCard extends HTMLElement {
     }
     if (!slug) return;
     const target = `/hassio/ingress/${slug}` + (path ? `/#${path}` : "");
-    this._hass.navigate(target);
+    history.pushState(null, "", target);
+    window.dispatchEvent(new Event("location-changed"));
   }
 
   _render() {
