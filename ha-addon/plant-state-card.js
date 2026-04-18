@@ -32,7 +32,7 @@ class PlantStateCard extends HTMLElement {
       entity: config.entity || "sensor.garten_tasks",
       panel_url: config.panel_url || "",
       title: config.title ?? "🌱 Garten",
-      max_tasks: config.max_tasks ?? 6,
+      max_tasks: config.max_tasks ?? 20,
       ...config,
     };
   }
@@ -120,10 +120,12 @@ class PlantStateCard extends HTMLElement {
     const shown = tasks.slice(0, this._config.max_tasks);
     const chips = shown
       .map(
-        (t) =>
-          `<a class="chip" href="${this._panelHref()}" onclick="localStorage.setItem('plant-state-task','${t.task_id}')" title="${t.explanation_summary || ""}">
-            ${TASK_EMOJI[t.task_type] || "🌱"} ${t.plant_name}
-          </a>`
+        (t) => {
+          const name = (t.plant_name || "").replace(/\s*\(.*?\)\s*/g, "").trim();
+          return `<a class="chip" href="${this._panelHref()}" onclick="localStorage.setItem('plant-state-task','${t.task_id}')" title="${t.explanation_summary || ""}">
+            ${TASK_EMOJI[t.task_type] || "🌱"} ${name}
+          </a>`;
+        }
       )
       .join("");
     const overflow =
