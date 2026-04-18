@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
   Box,
@@ -53,9 +53,12 @@ function WeatherCard({ weather }: { weather: WeatherStatus }) {
             <Chip
               key={event}
               label={EVENT_LABELS[event] ?? event}
-              color={active ? "success" : "default"}
-              variant={active ? "filled" : "outlined"}
               size="small"
+              variant="outlined"
+              sx={active
+                ? { borderColor: "success.main", color: "success.main" }
+                : { borderColor: "grey.300", color: "text.disabled" }
+              }
             />
           ))}
         </Stack>
@@ -183,19 +186,19 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
                       {item.plant_name}
                     </Typography>
                     {item.priority === "high" && (
-                      <Chip label="Wichtig" size="small" color="error" />
+                      <Chip label="Wichtig" size="small" variant="outlined" sx={{ borderColor: "error.main", color: "error.main" }} />
                     )}
                     {item.priority === "low" && (
-                      <Chip label="Nebensache" size="small" color="info" variant="outlined" />
+                      <Chip label="Nebensache" size="small" variant="outlined" sx={{ borderColor: "info.main", color: "info.main" }} />
                     )}
                     <Chip
                       label={TASK_TYPE_LABELS[item.task_type] ?? item.task_type}
                       size="small"
-                      color={item.ready ? "success" : "default"}
-                      variant={item.ready ? "filled" : "outlined"}
+                      variant="outlined"
+                      sx={item.ready ? { borderColor: "success.main", color: "success.main" } : { borderColor: "grey.400", color: "text.secondary" }}
                     />
                     {item.ready && (
-                      <Chip label="✅ Bereit" size="small" color="success" />
+                      <Chip label="✅ Bereit" size="small" variant="outlined" sx={{ borderColor: "success.main", color: "success.main" }} />
                     )}
                     {!item.ready && item.blocking.map((b) => (
                       <Chip
@@ -203,7 +206,7 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
                         label={BLOCKING_LABELS[b] ?? b}
                         size="small"
                         variant="outlined"
-                        color={b === "season" ? "default" : "warning"}
+                        sx={{ borderColor: b === "season" ? "grey.400" : "warning.main", color: b === "season" ? "text.secondary" : "warning.main" }}
                       />
                     ))}
                   </Stack>
@@ -248,15 +251,15 @@ function LegendPopover() {
         </Typography>
         <Stack spacing={0.5} sx={{ mb: 1.5 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label="🔴 Akut" color="error" size="small" />
+            <Chip label="🔴 Akut" size="small" variant="outlined" sx={{ borderColor: "#d32f2f", color: "#d32f2f" }} />
             <Typography variant="caption">Jetzt handeln — Zeitfenster schließt sich</Typography>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label="🟡 Bald" color="warning" size="small" />
+            <Chip label="🟡 Bald" size="small" variant="outlined" sx={{ borderColor: "#ed6c02", color: "#ed6c02" }} />
             <Typography variant="caption">Bereit, aber noch etwas Zeit</Typography>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label="⚪ Entspannt" color="default" size="small" />
+            <Chip label="⚪ Entspannt" size="small" variant="outlined" sx={{ borderColor: "#9e9e9e", color: "#9e9e9e" }} />
             <Typography variant="caption">Breites Zeitfenster</Typography>
           </Stack>
         </Stack>
@@ -265,11 +268,11 @@ function LegendPopover() {
         </Typography>
         <Stack spacing={0.5}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label="Wichtig" color="error" size="small" variant="outlined" />
+            <Chip label="Wichtig" size="small" variant="outlined" sx={{ borderColor: "error.main", color: "error.main" }} />
             <Typography variant="caption">Schadet der Pflanze wenn's ausfällt</Typography>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <Chip label="Nebensache" color="info" size="small" variant="outlined" />
+            <Chip label="Nebensache" size="small" variant="outlined" sx={{ borderColor: "info.main", color: "info.main" }} />
             <Typography variant="caption">Optisch / kosmetisch, kein Schaden</Typography>
           </Stack>
         </Stack>
@@ -305,6 +308,24 @@ export function DashboardPage({
     queryKey: ["outlook"],
     queryFn: api.getOutlook,
     refetchInterval: 10 * 60 * 1000,
+  });
+
+  const queryClient = useQueryClient();
+
+  const completeMutation = useMutation({
+    mutationFn: api.completeTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
+      queryClient.invalidateQueries({ queryKey: ["outlook"] });
+    },
+  });
+
+  const skipMutation = useMutation({
+    mutationFn: api.skipTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
+      queryClient.invalidateQueries({ queryKey: ["outlook"] });
+    },
   });
 
   const isLoading = weatherQuery.isLoading || relevantQuery.isLoading;
@@ -357,6 +378,8 @@ export function DashboardPage({
           key={item.task.id}
           item={item}
           onNavigateToPlant={onNavigateToPlant}
+          onComplete={(id) => completeMutation.mutate(id)}
+          onSkip={(id) => skipMutation.mutate(id)}
         />
       ))}
 
