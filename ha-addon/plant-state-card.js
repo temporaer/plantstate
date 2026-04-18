@@ -45,20 +45,20 @@ class PlantStateCard extends HTMLElement {
 
   _navigate(path) {
     if (!this._hass) return;
-    // Determine the add-on slug for ingress navigation
-    let slug = this._config.addon_slug;
-    if (!slug) {
-      // Auto-detect from HA panel registry: find the hashed panel key
+    // Find the ingress panel key (e.g. af89232b_plant_state)
+    let panelKey = this._config.panel_url;
+    if (!panelKey) {
       const panels = this._hass.panels || {};
       for (const key of Object.keys(panels)) {
         if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
-          slug = key;
+          panelKey = key;
           break;
         }
       }
     }
-    if (!slug) return;
-    const target = `/hassio/ingress/${slug}` + (path ? `/#${path}` : "");
+    if (!panelKey) return;
+    // Navigate to the panel path directly (same as sidebar click)
+    const target = `/${panelKey}` + (path ? `/#${path}` : "");
     history.pushState(null, "", target);
     window.dispatchEvent(new Event("location-changed"));
   }
