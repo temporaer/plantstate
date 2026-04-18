@@ -61,7 +61,6 @@ class PlantStateCard extends HTMLElement {
     const target = `/hassio/ingress/${slug}` + (path ? `/#${path}` : "");
     this._hass.navigate(target);
   }
-  }
 
   _render() {
     const entity = this._hass?.states[this._config.entity];
