@@ -45,7 +45,6 @@ export function RelevantTaskCard({
   onSnooze?: (taskId: string) => void;
 }) {
   const taskLabel = TASK_TYPE_LABELS[item.task_type] ?? item.task_type;
-  const emoji = taskLabel.split(" ")[0] ?? "📋";
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
   const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
   const urg = URGENCY_CONFIG[item.urgency] ?? URGENCY_CONFIG.soon;
@@ -79,7 +78,7 @@ export function RelevantTaskCard({
             }
           }}
         >
-          {emoji} {item.plant_name}
+          {item.plant_name}
         </Typography>
         <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
           <Chip label={taskLabel} size="small" variant="outlined" sx={{ borderColor: "grey.300", color: "text.secondary" }} />
