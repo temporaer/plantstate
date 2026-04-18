@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import os
 from collections.abc import AsyncGenerator
@@ -705,6 +706,16 @@ MIME_MAP = {
     ".webp": "image/webp",
 }
 
+# Limit concurrent outbound image fetches to avoid Wikipedia rate-limits
+_image_fetch_semaphore: asyncio.Semaphore | None = None
+
+
+def _get_image_semaphore() -> asyncio.Semaphore:
+    global _image_fetch_semaphore  # noqa: PLW0603
+    if _image_fetch_semaphore is None:
+        _image_fetch_semaphore = asyncio.Semaphore(2)
+    return _image_fetch_semaphore
+
 
 @app.get("/images/proxy")
 async def proxy_image(url: str) -> FileResponse:
@@ -717,33 +728,34 @@ async def proxy_image(url: str) -> FileResponse:
     cache_path = IMAGE_CACHE_DIR / f"{url_hash}{suffix}"
 
     if not cache_path.exists():
-        import asyncio
-
-        last_error: str = ""
-        for attempt in range(3):
-            try:
-                async with httpx.AsyncClient(
-                    timeout=15, follow_redirects=True,
-                ) as client:
-                    resp = await client.get(
-                        url, headers={
-                            "User-Agent": "Mozilla/5.0 (compatible; PlantState/1.0)",
-                        },
-                    )
-                    if resp.status_code == 429 and attempt < 2:
-                        await asyncio.sleep(2 ** attempt)
-                        continue
-                    resp.raise_for_status()
-                    cache_path.write_bytes(resp.content)
-                    break
-            except httpx.HTTPError as e:
-                last_error = str(e)
-                if attempt < 2:
-                    await asyncio.sleep(2 ** attempt)
-        else:
-            raise HTTPException(
-                status_code=502, detail=f"Image fetch failed: {last_error}",
-            ) from None
+        async with _get_image_semaphore():
+            # Re-check after acquiring semaphore (another request may have cached it)
+            if not cache_path.exists():
+                last_error: str = ""
+                for attempt in range(3):
+                    try:
+                        async with httpx.AsyncClient(
+                            timeout=15, follow_redirects=True,
+                        ) as client:
+                            resp = await client.get(
+                                url, headers={
+                                    "User-Agent": "Mozilla/5.0 (compatible; PlantState/1.0)",
+                                },
+                            )
+                            if resp.status_code == 429 and attempt < 2:
+                                await asyncio.sleep(2 ** attempt)
+                                continue
+                            resp.raise_for_status()
+                            cache_path.write_bytes(resp.content)
+                            break
+                    except httpx.HTTPError as e:
+                        last_error = str(e)
+                        if attempt < 2:
+                            await asyncio.sleep(2 ** attempt)
+                else:
+                    raise HTTPException(
+                        status_code=502, detail=f"Image fetch failed: {last_error}",
+                    ) from None
 
     media_type = MIME_MAP.get(suffix.lower(), "image/jpeg")
     return FileResponse(
