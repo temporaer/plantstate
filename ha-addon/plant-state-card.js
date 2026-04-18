@@ -43,9 +43,22 @@ class PlantStateCard extends HTMLElement {
   }
 
   _navigate(path) {
-    if (!this._config.panel_url) return;
-    const url = this._config.panel_url + (path ? "/#" + path : "");
-    window.open(url, "_self");
+    // Auto-detect ingress panel from HA's panel registry
+    let base = this._config.panel_url;
+    if (!base && this._hass) {
+      const panels = this._hass.panels || {};
+      for (const [key, panel] of Object.entries(panels)) {
+        if (key.includes("plant_state") || (panel.title === "Garten" && panel.url_path)) {
+          base = "/" + key;
+          break;
+        }
+      }
+    }
+    if (!base) return;
+    // Use HA's standard navigation event
+    const target = base + (path ? "/#" + path : "");
+    window.history.pushState(null, "", target);
+    window.dispatchEvent(new Event("location-changed"));
   }
 
   _render() {
@@ -124,7 +137,7 @@ class PlantStateCard extends HTMLElement {
           </div>
           <div class="badges">${badges}</div>
           <div class="chips">${chips}${overflow}</div>
-          ${this._config.panel_url ? '<div class="footer"><span class="open-link">▸ Öffnen</span></div>' : ""}
+          <div class="footer"><span class="open-link">▸ Öffnen</span></div>
         </div>
       </ha-card>`;
 
