@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -58,6 +58,9 @@ export function RelevantTaskCard({
     item.priority === "low" ? "grey.400" : "primary.main";
 
   const [expanded, setExpanded] = useState(initialExpanded);
+  useEffect(() => {
+    if (initialExpanded) setExpanded(true);
+  }, [initialExpanded]);
 
   return (
     <Card
