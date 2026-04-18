@@ -1,0 +1,363 @@
+[
+  {
+    "name": "Feigenbaum",
+    "botanical_name": "Ficus carica",
+    "description": "Mediterraner Obstbaum, frostempfindlich in jungen Jahren. Braucht geschützten Standort.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Formschnitt im Frühjahr nach dem Frost",
+          "why": "Feigen treiben am einjährigen Holz. Ein Schnitt vor dem Austrieb fördert kompakten Wuchs und bessere Fruchtbildung.",
+          "how": "Tote und sich kreuzende Äste entfernen. Zu lange Triebe auf 3-5 Augen einkürzen."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frische Schnittwunden sind frostempfindlich und können bei Kälte aufplatzen.",
+            "how": "Warte bis die Nachttemperaturen zuverlässig über 1°C bleiben."
+          }
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "late_summer",
+          "autumn"
+        ],
+        "required_events": [
+          "warm_spell"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Feigen ernten wenn reif",
+          "why": "Feigen reifen nur bei ausreichend Wärme vollständig aus. In kühlen Sommern bleiben sie unreif.",
+          "how": "Reife Feigen geben auf Druck leicht nach und hängen leicht nach unten. Täglich prüfen."
+        },
+        "event_explanations": {
+          "warm_spell": {
+            "why": "Feigen brauchen anhaltende Wärme zum Ausreifen.",
+            "how": "Mindestens 3 von 5 Tagen über 20°C signalisieren gute Reifebedingungen."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Hibiskus",
+    "botanical_name": "Hibiscus syriacus",
+    "description": "Winterharter Gartenhibiskus, blüht am diesjährigen Holz.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Starker Rückschnitt im Frühjahr",
+          "why": "Hibiskus blüht am neuen Holz. Kräftiger Rückschnitt fördert viele neue Blütentriebe.",
+          "how": "Alle Triebe auf 2-3 Augen zurückschneiden. Schwache und nach innen wachsende Triebe ganz entfernen."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frischer Austrieb nach dem Schnitt ist frostempfindlich.",
+            "how": "Warte bis keine Nachtfröste mehr zu erwarten sind."
+          }
+        }
+      },
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "summer",
+          "late_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Verblühtes regelmäßig entfernen",
+          "why": "Fördert die Nachblüte und verhindert unnötige Samenbildung.",
+          "how": "Welke Blüten mit dem Stiel abknipsen, bevor sich Samenkapseln bilden."
+        }
+      }
+    ]
+  },
+  {
+    "name": "Schneeball",
+    "botanical_name": "Viburnum opulus",
+    "description": "Einheimischer Strauch mit weißen Blütenbällen im Mai/Juni. Robust und pflegeleicht.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Auslichtungsschnitt nach der Blüte",
+          "why": "Schneeball blüht am vorjährigen Holz. Schnitt nach der Blüte gibt Zeit für neues Blütenholz.",
+          "how": "Alte, verkahlte Triebe bodennah entfernen. Maximal ein Drittel der Triebe pro Jahr schneiden."
+        }
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Totholz im Frühjahr entfernen",
+          "why": "Erleichtert die Pflege und beugt Pilzkrankheiten vor.",
+          "how": "Trockene und abgestorbene Äste bis ins gesunde Holz zurückschneiden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Im Frühjahr erkennt man Totholz am besten, wenn der Rest austreibt.",
+            "how": "Warte bis die ersten grünen Knospen sichtbar sind."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Erdbeeren",
+    "botanical_name": "Fragaria × ananassa",
+    "description": "Mehrjährige Staude, trägt im zweiten Jahr am besten. Hochbeet oder Beet.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "late_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Altes Laub nach der Ernte zurückschneiden",
+          "why": "Reduziert Pilzkrankheiten und fördert kräftigen Neuaustrieb für nächstes Jahr.",
+          "how": "Alle Blätter auf 5cm über dem Herz abschneiden. Ausläufer entfernen, außer zur Vermehrung."
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [
+          "warm_spell"
+        ],
+        "forbidden_events": [
+          "persistent_rain"
+        ],
+        "explanation": {
+          "summary": "Erdbeeren bei Reife ernten",
+          "why": "Vollreife Erdbeeren sind aromatischer. Bei Regen faulen sie schnell.",
+          "how": "Morgens ernten, wenn trocken. Früchte mit Stiel abdrehen, nicht abreißen."
+        },
+        "event_explanations": {
+          "warm_spell": {
+            "why": "Wärme beschleunigt die Reife und steigert den Zuckergehalt.",
+            "how": "Bei 3+ warmen Tagen über 20°C reifen die Früchte zügig."
+          },
+          "persistent_rain": {
+            "why": "Dauerregen führt zu Grauschimmel und wässrigen Früchten.",
+            "how": "Bei 3+ Regentagen möglichst trotzdem ernten, um Verluste zu minimieren."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Himbeeren",
+    "botanical_name": "Rubus idaeus",
+    "description": "Sommertragende Himbeeren am Spalier. Tragen am vorjährigen Holz.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "late_summer",
+          "autumn"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Abgetragene Ruten nach der Ernte schneiden",
+          "why": "Sommerhimbeeren tragen am zweijährigen Holz. Alte Ruten sterben ab und nehmen Platz.",
+          "how": "Braune, abgetragene Ruten bodennah abschneiden. Kräftige grüne Jungruten stehen lassen."
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "summer",
+          "late_summer"
+        ],
+        "required_events": [
+          "warm_spell"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Himbeeren bei Vollreife pflücken",
+          "why": "Himbeeren reifen nicht nach. Nur vollreife Früchte haben volles Aroma.",
+          "how": "Reife Beeren lösen sich leicht vom Zapfen. Alle 2 Tage durchpflücken."
+        },
+        "event_explanations": {
+          "warm_spell": {
+            "why": "Wärme ist nötig für die finale Reifephase.",
+            "how": "Mehrere warme Tage über 20°C bringen die Früchte zur Vollreife."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Gurke (Hochbeet)",
+    "botanical_name": "Cucumis sativus",
+    "description": "Wärmeliebend, im Hochbeet geschützt. Einjährige Kultur.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "sow",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed",
+          "sustained_mild_nights"
+        ],
+        "forbidden_events": [
+          "frost_risk_active"
+        ],
+        "explanation": {
+          "summary": "Gurken ins Hochbeet säen nach den Eisheiligen",
+          "why": "Gurken sind extrem kälteempfindlich. Unter 10°C stellen sie das Wachstum ein.",
+          "how": "2-3 Samen pro Pflanzstelle, 2cm tief. Abstand 40cm. Boden sollte mind. 15°C warm sein."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Ein einziger Frost tötet Gurkensämlinge.",
+            "how": "Sicher nach den Eisheiligen, wenn 7 Tage und Prognose frostfrei."
+          },
+          "sustained_mild_nights": {
+            "why": "Gurken brauchen warme Nächte zum Keimen und Wachsen.",
+            "how": "Mindestens 4 von 5 Nächten über 8°C."
+          }
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "summer",
+          "late_summer"
+        ],
+        "required_events": [
+          "warm_spell"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Gurken regelmäßig ernten",
+          "why": "Überreife Gurken bremsen die Neubildung. Regelmäßiges Ernten steigert den Ertrag.",
+          "how": "Alle 2-3 Tage ernten. Frucht mit Messer abschneiden, nicht abreißen."
+        },
+        "event_explanations": {
+          "warm_spell": {
+            "why": "Gurken wachsen nur bei Wärme zügig.",
+            "how": "Bei warmem Wetter können Gurken täglich mehrere Zentimeter zulegen."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Tomate (Hochbeet)",
+    "botanical_name": "Solanum lycopersicum",
+    "description": "Stabtomate im Hochbeet. Einjährige Kultur, braucht Regenschutz.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "transplant",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed",
+          "sustained_mild_nights"
+        ],
+        "forbidden_events": [
+          "frost_risk_active"
+        ],
+        "explanation": {
+          "summary": "Vorgezogene Tomaten ins Hochbeet pflanzen",
+          "why": "Tomaten sind frostempfindlich und brauchen warmen Boden für gutes Anwachsen.",
+          "how": "Pflanzen tief setzen (bis zum ersten Blattpaar). Stab sofort einsetzen. Abstand 50cm."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frost tötet Tomatenpflanzen sofort.",
+            "how": "Erst auspflanzen wenn zuverlässig frostfrei."
+          },
+          "sustained_mild_nights": {
+            "why": "Kalte Nächte stressen junge Tomatenpflanzen und verzögern das Wachstum.",
+            "how": "Nachttemperaturen sollten möglichst über 8°C liegen."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer",
+          "summer",
+          "late_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Geiztriebe regelmäßig ausbrechen",
+          "why": "Geiztriebe kosten Energie, die besser in Früchte fließt.",
+          "how": "Seitentriebe in den Blattachseln wöchentlich ausbrechen, solange sie klein sind."
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "summer",
+          "late_summer",
+          "autumn"
+        ],
+        "required_events": [
+          "warm_spell"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Reife Tomaten ernten",
+          "why": "Vollreife Tomaten am Stock haben das beste Aroma. Grüne können nachreifen.",
+          "how": "Rote, leicht nachgebende Früchte abdrehen. Vor dem ersten Frost alle abnehmen."
+        },
+        "event_explanations": {
+          "warm_spell": {
+            "why": "Wärme ist entscheidend für Reife und Aromabildung.",
+            "how": "Warme Tage über 20°C fördern die Umfärbung und Zuckereinlagerung."
+          }
+        }
+      }
+    ]
+  }
+]
