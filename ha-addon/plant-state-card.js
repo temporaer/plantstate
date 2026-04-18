@@ -44,32 +44,30 @@ class PlantStateCard extends HTMLElement {
 
   _panelHref(path) {
     // Resolve the ingress panel URL for use in <a> tags
-    let panelKey = this._config.panel_url;
-    if (!panelKey && this._hass) {
+    let panelUrl = this._config.panel_url || "";
+    if (!panelUrl && this._hass) {
       const panels = this._hass.panels || {};
-      console.log("[plant-state-card] panels:", Object.keys(panels).filter(k => k.includes("plant")));
       for (const key of Object.keys(panels)) {
-        if (key.includes("plant_state")) {
-          console.log("[plant-state-card] panel detail:", key, JSON.stringify(panels[key]));
-        }
         if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
-          panelKey = key;
+          panelUrl = `/${key}`;
           break;
         }
       }
-      if (!panelKey) {
-        // fallback: try any key with plant_state
+      if (!panelUrl) {
         for (const key of Object.keys(panels)) {
           if (key.includes("plant_state")) {
-            panelKey = key;
+            const p = panels[key];
+            // Use the panel's url_path if it's an ingress panel
+            panelUrl = p?.url_path ? `/${p.url_path}` : `/${key}`;
             break;
           }
         }
       }
     }
-    const href = panelKey ? `/${panelKey}` + (path ? `/#${path}` : "") : "#";
-    console.log("[plant-state-card] _panelHref:", { panelKey, path, href });
-    return href;
+    // Ensure exactly one leading slash, never //
+    panelUrl = "/" + panelUrl.replace(/^\/+/, "");
+    if (!panelUrl || panelUrl === "/") return "#";
+    return panelUrl + (path ? `/#${path}` : "");
   }
 
   _render() {
