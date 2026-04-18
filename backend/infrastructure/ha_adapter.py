@@ -130,19 +130,23 @@ class HomeAssistantAdapter:
     ) -> list[dict]:
         """Fetch existing calendar events in a date range."""
         async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{self._base_url}/api/services/calendar/get_events?return_response",
-                headers=self._headers,
-                json={
-                    "entity_id": calendar_entity,
-                    "start_date_time": f"{start.isoformat()}T00:00:00",
-                    "end_date_time": f"{end.isoformat()}T23:59:59",
-                },
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            service_resp = data.get("service_response", data)
-            return service_resp.get(calendar_entity, {}).get("events", [])
+            try:
+                resp = await client.post(
+                    f"{self._base_url}/api/services/calendar/get_events?return_response",
+                    headers=self._headers,
+                    json={
+                        "entity_id": calendar_entity,
+                        "start_date_time": f"{start.isoformat()}T00:00:00",
+                        "end_date_time": f"{end.isoformat()}T23:59:59",
+                    },
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                service_resp = data.get("service_response", data)
+                return service_resp.get(calendar_entity, {}).get("events", [])
+            except httpx.HTTPStatusError:
+                # Calendar entity may not exist yet
+                return []
 
     async def sync_to_calendar(
         self,
@@ -174,16 +178,20 @@ class HomeAssistantAdapter:
             for event in events:
                 if event["summary"] in existing_summaries:
                     continue
-                await client.post(
-                    f"{self._base_url}/api/services/calendar/create_event",
-                    headers=self._headers,
-                    json={
-                        "entity_id": calendar_entity,
-                        "summary": event["summary"],
-                        "description": event.get("description", ""),
-                        "start_date": event["start_date"],
-                        "end_date": event["end_date"],
-                    },
-                )
-                created += 1
+                try:
+                    await client.post(
+                        f"{self._base_url}/api/services/calendar/create_event",
+                        headers=self._headers,
+                        json={
+                            "entity_id": calendar_entity,
+                            "summary": event["summary"],
+                            "description": event.get("description", ""),
+                            "start_date": event["start_date"],
+                            "end_date": event["end_date"],
+                        },
+                    )
+                    created += 1
+                except httpx.HTTPStatusError:
+                    # Calendar entity may not exist — skip silently
+                    break
         return created
