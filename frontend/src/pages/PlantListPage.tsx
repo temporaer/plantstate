@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Box,
@@ -7,6 +8,7 @@ import {
   Chip,
   Grid,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import { api } from "../api";
@@ -34,6 +36,19 @@ export function PlantListPage({
     queryKey: ["plants"],
     queryFn: api.listPlants,
   });
+  const [filter, setFilter] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!plants) return [];
+    if (!filter.trim()) return plants;
+    const q = filter.toLowerCase();
+    return plants.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.botanical_name?.toLowerCase().includes(q) ?? false) ||
+        p.description.toLowerCase().includes(q),
+    );
+  }, [plants, filter]);
 
   if (isLoading) return <Typography>Laden…</Typography>;
   if (error) return <Typography color="error">Fehler beim Laden</Typography>;
@@ -43,8 +58,16 @@ export function PlantListPage({
       <Typography variant="h4" gutterBottom>
         🌿 Meine Pflanzen
       </Typography>
+      <TextField
+        fullWidth
+        size="small"
+        placeholder="Pflanze suchen…"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        sx={{ mb: 2 }}
+      />
       <Grid container spacing={2}>
-        {plants?.map((plant: Plant) => (
+        {filtered.map((plant: Plant) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>
             <Card>
               <CardActionArea onClick={() => onSelect(plant.id)}>
