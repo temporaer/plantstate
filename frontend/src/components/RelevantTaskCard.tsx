@@ -59,6 +59,7 @@ export function RelevantTaskCard({
 
   return (
     <Card
+      id={`task-${item.task.id}`}
       sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: borderColor, cursor: "pointer" }}
       onClick={() => setExpanded(!expanded)}
     >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
@@ -356,6 +356,23 @@ export function DashboardPage({
   const hasHAError =
     weatherQuery.error?.message?.includes("503") ||
     relevantQuery.error?.message?.includes("503");
+
+  // Scroll to task if deep-linked from Lovelace card
+  useEffect(() => {
+    if (!relevantQuery.data) return;
+    const taskId = localStorage.getItem("plant-state-task");
+    if (taskId) {
+      localStorage.removeItem("plant-state-task");
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`task-${taskId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.style.outline = "2px solid #4caf50";
+          setTimeout(() => { el.style.outline = ""; }, 2000);
+        }
+      });
+    }
+  }, [relevantQuery.data]);
 
   return (
     <Box>
