@@ -44,21 +44,26 @@ class PlantStateCard extends HTMLElement {
 
   _navigate(path) {
     // Auto-detect ingress panel from HA's panel registry
-    let base = this._config.panel_url;
-    if (!base && this._hass) {
+    let panelKey = this._config.panel_url;
+    if (!panelKey && this._hass) {
       const panels = this._hass.panels || {};
-      for (const [key, panel] of Object.entries(panels)) {
-        if (key.includes("plant_state") || (panel.title === "Garten" && panel.url_path)) {
-          base = "/" + key;
+      for (const key of Object.keys(panels)) {
+        if (key.includes("plant_state")) {
+          panelKey = "/" + key;
           break;
         }
       }
     }
-    if (!base) return;
-    // Use HA's standard navigation event
-    const target = base + (path ? "/#" + path : "");
-    window.history.pushState(null, "", target);
-    window.dispatchEvent(new Event("location-changed"));
+    if (!panelKey) return;
+    // Navigate to the panel root — HA handles ingress session setup.
+    // The hash fragment targets a specific page inside the SPA.
+    const target = panelKey + (path ? "/#" + path : "");
+    // Use an anchor click so HA's router intercepts it properly
+    const a = document.createElement("a");
+    a.href = target;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   }
 
   _render() {
