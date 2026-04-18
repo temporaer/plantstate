@@ -11,7 +11,7 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.domain.enums import Season, TaskStatus, TaskType, WeatherEventType
+from backend.domain.enums import Priority, Season, TaskStatus, TaskType, WeatherEventType
 
 # --- Explanation models (required for LLM contract) ---
 
@@ -109,6 +109,7 @@ class Rule(BaseModel):
     planning_seasons: list[Season]
     activation: ActivationCondition
     recurrence_years: int = 1
+    priority: Priority = Priority.NORMAL
     explanation: RuleExplanation
 
 

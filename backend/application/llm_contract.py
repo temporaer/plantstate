@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from backend.domain.enums import Season, TaskType, WeatherEventType
+from backend.domain.enums import Priority, Season, TaskType, WeatherEventType
 from backend.domain.models import (
     ActivationCondition,
     EventExplanation,
@@ -28,6 +28,7 @@ class LLMRuleOutput(BaseModel):
     required_events: list[WeatherEventType] = Field(default_factory=list)
     forbidden_events: list[WeatherEventType] = Field(default_factory=list)
     recurrence_years: int = 1
+    priority: Priority = Priority.NORMAL
     explanation: RuleExplanation
     event_explanations: dict[str, EventExplanation] = Field(default_factory=dict)
 
@@ -72,6 +73,7 @@ def llm_output_to_plant(output: LLMPlantOutput) -> Plant:
                     event_explanations=event_explanations,
                 ),
                 recurrence_years=r.recurrence_years,
+                priority=r.priority,
                 explanation=r.explanation,
             )
         )

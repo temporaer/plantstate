@@ -50,6 +50,14 @@ class TaskStatus(StrEnum):
     SKIPPED = "skipped"
 
 
+class Priority(StrEnum):
+    """Task priority level."""
+
+    HIGH = "high"
+    NORMAL = "normal"
+    LOW = "low"
+
+
 # Month-to-season mapping (meteorological)
 MONTH_TO_SEASON: dict[int, Season] = {
     1: Season.WINTER,

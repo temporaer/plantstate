@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from backend.domain.enums import Season, TaskStatus, TaskType, WeatherEventType
+from backend.domain.enums import Priority, Season, TaskStatus, TaskType, WeatherEventType
 from backend.domain.models import (
     ActivationCondition,
     EventExplanation,
@@ -49,6 +49,7 @@ class PlantRepository:
                 planning_seasons=[s.value for s in rule.planning_seasons],
                 activation=rule.activation.model_dump(mode="json"),
                 recurrence_years=rule.recurrence_years,
+                priority=rule.priority.value,
                 explanation=rule.explanation.model_dump(),
             )
             row.rules.append(rule_row)
@@ -113,6 +114,7 @@ class PlantRepository:
                     planning_seasons=[Season(s) for s in r.planning_seasons],
                     activation=activation,
                     recurrence_years=r.recurrence_years,
+                    priority=Priority(r.priority) if r.priority else Priority.NORMAL,
                     explanation=RuleExplanation(**r.explanation),
                 )
             )

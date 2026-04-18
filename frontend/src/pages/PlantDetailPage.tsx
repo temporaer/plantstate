@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Box, Button, CardMedia, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { api } from "../api";
+import { api, proxyImageUrl } from "../api";
 import { RuleCard } from "../components/RuleCard";
 
 export function PlantDetailPage({
@@ -28,7 +28,7 @@ export function PlantDetailPage({
       {plant.image_url && (
         <CardMedia
           component="img"
-          image={plant.image_url}
+          image={proxyImageUrl(plant.image_url)}
           alt={plant.name}
           sx={{
             maxHeight: 280,

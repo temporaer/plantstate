@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { api } from "../api";
+import { api, proxyImageUrl } from "../api";
 import type { Plant } from "../api";
 
 const TASK_TYPE_EMOJI: Record<string, string> = {
@@ -52,7 +52,7 @@ export function PlantListPage({
                   <CardMedia
                     component="img"
                     height="160"
-                    image={plant.image_url}
+                    image={proxyImageUrl(plant.image_url)}
                     alt={plant.name}
                     sx={{ objectFit: "cover" }}
                   />

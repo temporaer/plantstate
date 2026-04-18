@@ -77,6 +77,12 @@ export interface Tip {
   detail: string;
 }
 
+/** Convert an external image URL to a proxied URL via the backend. */
+export function proxyImageUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  return `${API_BASE}/images/proxy?url=${encodeURIComponent(url)}`;
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,

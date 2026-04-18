@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
+import httpx
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -141,6 +145,7 @@ class RelevantNowItem(BaseModel):
     task: TaskResponse
     plant_name: str
     task_type: str
+    priority: str
     explanation_summary: str
     explanation_why: str
     explanation_how: str
@@ -157,6 +162,7 @@ class OutlookItemResponse(BaseModel):
     task: TaskResponse
     plant_name: str
     task_type: str
+    priority: str
     planning_seasons: list[str]
     explanation_summary: str
     in_planning_window: bool
@@ -331,6 +337,7 @@ def _outlook_response(item: OutlookItem) -> OutlookItemResponse:
         task=_task_response(item.task),
         plant_name=item.plant.name,
         task_type=item.rule.task_type.value,
+        priority=item.rule.priority.value,
         planning_seasons=[s.value for s in item.rule.planning_seasons],
         explanation_summary=item.rule.explanation.summary,
         in_planning_window=item.in_planning_window,
@@ -432,7 +439,54 @@ def _relevant_item(r: RelevantTask) -> RelevantNowItem:
         task=_task_response(r.task),
         plant_name=r.plant.name,
         task_type=r.task.task_type.value,
+        priority=r.rule.priority.value,
         explanation_summary=r.rule.explanation.summary,
         explanation_why=r.rule.explanation.why,
         explanation_how=r.rule.explanation.how,
+    )
+
+
+# --- Image proxy with disk cache ---
+
+IMAGE_CACHE_DIR = Path(os.environ.get("IMAGE_CACHE_DIR", "/tmp/plant-state-images"))
+IMAGE_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+MIME_MAP = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+}
+
+
+@app.get("/images/proxy")
+async def proxy_image(url: str) -> FileResponse:
+    """Proxy and cache external images to avoid rate limits."""
+    if not url.startswith("https://upload.wikimedia.org/"):
+        raise HTTPException(status_code=400, detail="Only Wikimedia URLs allowed")
+
+    url_hash = hashlib.sha256(url.encode()).hexdigest()[:16]
+    suffix = Path(url.split("?")[0]).suffix or ".jpg"
+    cache_path = IMAGE_CACHE_DIR / f"{url_hash}{suffix}"
+
+    if not cache_path.exists():
+        try:
+            async with httpx.AsyncClient(
+                timeout=15, follow_redirects=True,
+            ) as client:
+                resp = await client.get(
+                    url, headers={"User-Agent": "PlantState/1.0"},
+                )
+                resp.raise_for_status()
+                cache_path.write_bytes(resp.content)
+        except httpx.HTTPError as e:
+            raise HTTPException(status_code=502, detail=f"Image fetch failed: {e}") from None
+
+    media_type = MIME_MAP.get(suffix.lower(), "image/jpeg")
+    return FileResponse(
+        cache_path,
+        media_type=media_type,
+        headers={"Cache-Control": "public, max-age=604800"},
     )
