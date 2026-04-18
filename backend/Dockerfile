@@ -17,5 +17,6 @@ RUN mkdir -p /app/data
 EXPOSE 8000
 
 ENV DATABASE_URL=sqlite:///data/plant_state.db
+ENV PATH="/opt/conda/bin:$PATH"
 
 CMD ["python", "-m", "uvicorn", "backend.api.routes:app", "--host", "0.0.0.0", "--port", "8000"]
