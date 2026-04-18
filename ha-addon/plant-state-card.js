@@ -39,7 +39,13 @@ class PlantStateCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    // Only re-render when entity state actually changes
+    const entity = hass?.states[this._config?.entity];
+    const key = entity ? entity.last_updated + JSON.stringify(entity.attributes?.tasks) : "";
+    if (key !== this._lastKey) {
+      this._lastKey = key;
+      this._render();
+    }
   }
 
   _panelHref(path) {
