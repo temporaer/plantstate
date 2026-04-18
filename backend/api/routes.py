@@ -65,6 +65,27 @@ def _get_ha_adapter() -> HomeAssistantAdapter | None:
     return None
 
 
+# Keys must match what plant-state-card.js reads: t.task_id, t.plant_id,
+# t.plant_name, t.task_type, t.urgency, t.priority, t.explanation_summary
+SENSOR_TASK_KEYS = {
+    "task_id", "plant_id", "plant_name", "task_type",
+    "priority", "urgency", "explanation_summary",
+}
+
+
+def serialize_relevant_task(t: RelevantTask) -> dict[str, str]:
+    """Serialize a RelevantTask for the HA sensor / Lovelace card."""
+    return {
+        "task_id": t.task.id,
+        "plant_id": t.task.plant_id,
+        "plant_name": t.plant.name,
+        "task_type": t.rule.task_type.value,
+        "priority": t.rule.priority.value,
+        "urgency": t.urgency.value,
+        "explanation_summary": t.rule.explanation.summary,
+    }
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Base.metadata.create_all(engine)
@@ -127,16 +148,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     weather = await adapter.fetch_weather_data()
                     tasks = service.get_relevant_now(weather)
                     task_dicts = [
-                        {
-                            "task_id": t.task.id,
-                            "plant_id": t.task.plant_id,
-                            "plant_name": t.plant.name,
-                            "task_type": t.rule.task_type.value,
-                            "priority": t.rule.priority.value,
-                            "urgency": t.urgency.value,
-                            "explanation_summary": t.rule.explanation.summary,
-                        }
-                        for t in tasks
+                        serialize_relevant_task(t) for t in tasks
                     ]
                     await adapter.update_sensor(
                         "sensor.garten_tasks",
