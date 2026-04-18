@@ -1,21 +1,38 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Box,
+  Button,
   Card,
   CardActionArea,
   CardContent,
   Chip,
+  CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
+  Fab,
+  FormControl,
   Grid,
   IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  Switch,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DeleteIcon from "@mui/icons-material/Delete";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
 import CloseIcon from "@mui/icons-material/Close";
 import { api } from "../api";
 import type { Plant } from "../api";
@@ -23,17 +40,295 @@ import { PlantImage } from "../components/PlantImage";
 import { RuleCard } from "../components/RuleCard";
 import { taskTypeLabel } from "../labels";
 
+// ─── Add Plant Dialog ────────────────────────────────────────────────
+
+function AddPlantDialog({
+  open,
+  onClose,
+  onSaved,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [step, setStep] = useState(0);
+  const [plantName, setPlantName] = useState("");
+  const [method, setMethod] = useState<"prompt" | "agent" | null>(null);
+  const [prompt, setPrompt] = useState("");
+  const [agentId, setAgentId] = useState("");
+  const [jsonText, setJsonText] = useState("");
+  const [preview, setPreview] = useState<object | null>(null);
+  const [error, setError] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const { data: agents } = useQuery({
+    queryKey: ["ha-agents"],
+    queryFn: api.listHaAgents,
+    enabled: open,
+  });
+
+  const reset = () => {
+    setStep(0);
+    setPlantName("");
+    setMethod(null);
+    setPrompt("");
+    setAgentId("");
+    setJsonText("");
+    setPreview(null);
+    setError("");
+    setGenerating(false);
+    setCopied(false);
+  };
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const handleCopyPrompt = async () => {
+    setError("");
+    try {
+      const res = await api.getPlantPrompt(plantName);
+      setPrompt(res.combined_prompt);
+      setMethod("prompt");
+      setStep(1);
+    } catch (e: unknown) {
+      setError(String(e));
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!agentId) return;
+    setError("");
+    setGenerating(true);
+    try {
+      const result = await api.generatePlant(plantName, agentId);
+      setPreview(result);
+      setJsonText(JSON.stringify(result, null, 2));
+      setStep(2);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleParseJson = () => {
+    setError("");
+    try {
+      const parsed = JSON.parse(jsonText);
+      setPreview(parsed);
+      setStep(2);
+    } catch {
+      setError("Ungültiges JSON — bitte prüfen und nochmal versuchen.");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!preview) return;
+    setError("");
+    try {
+      await api.createPlant(preview);
+      onSaved();
+      handleClose();
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ pr: 6 }}>
+        🌱 Pflanze hinzufügen
+        <IconButton
+          onClick={handleClose}
+          sx={{ position: "absolute", right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <Stepper activeStep={step} sx={{ mb: 3, mt: 1 }}>
+          <Step><StepLabel>Name</StepLabel></Step>
+          <Step><StepLabel>Konfiguration</StepLabel></Step>
+          <Step><StepLabel>Vorschau</StepLabel></Step>
+        </Stepper>
+
+        {step === 0 && (
+          <Box>
+            <TextField
+              autoFocus
+              fullWidth
+              label="Pflanzenname"
+              placeholder="z.B. Tomate, Lavendel, Hortensie…"
+              value={plantName}
+              onChange={(e) => setPlantName(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <Stack spacing={1.5}>
+              <Button
+                variant="outlined"
+                startIcon={<ContentCopyIcon />}
+                onClick={handleCopyPrompt}
+                disabled={!plantName.trim()}
+              >
+                📋 Prompt für ChatGPT kopieren
+              </Button>
+              {agents && agents.length > 0 && (
+                <>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>HA Agent wählen</InputLabel>
+                    <Select
+                      value={agentId}
+                      label="HA Agent wählen"
+                      onChange={(e) => setAgentId(e.target.value)}
+                    >
+                      {agents.map((a) => (
+                        <MenuItem key={a.agent_id} value={a.agent_id}>
+                          {a.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    variant="contained"
+                    startIcon={generating ? <CircularProgress size={18} /> : <SmartToyIcon />}
+                    onClick={handleGenerate}
+                    disabled={!plantName.trim() || !agentId || generating}
+                  >
+                    {generating ? "Generiere…" : "🤖 Mit HA Agent generieren"}
+                  </Button>
+                </>
+              )}
+            </Stack>
+          </Box>
+        )}
+
+        {step === 1 && method === "prompt" && (
+          <Box>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Kopiere diesen Prompt und füge ihn in ChatGPT / Claude ein.
+              Dann paste das Ergebnis-JSON unten ein:
+            </Typography>
+            <Box sx={{ position: "relative", mb: 2 }}>
+              <TextField
+                fullWidth
+                multiline
+                minRows={6}
+                maxRows={12}
+                value={prompt}
+                InputProps={{ readOnly: true, sx: { fontFamily: "monospace", fontSize: 12 } }}
+              />
+              <Tooltip title={copied ? "Kopiert! ✓" : "Prompt kopieren"}>
+                <IconButton
+                  size="small"
+                  onClick={() => copyToClipboard(prompt)}
+                  sx={{ position: "absolute", top: 8, right: 8 }}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
+              Ergebnis-JSON einfügen:
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={6}
+              maxRows={12}
+              placeholder='{"name": "Tomate", "rules": [...] }'
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              InputProps={{ sx: { fontFamily: "monospace", fontSize: 12 } }}
+            />
+          </Box>
+        )}
+
+        {step === 2 && preview && (
+          <Box>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Vorschau — prüfe ob alles stimmt:
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={8}
+              maxRows={16}
+              value={JSON.stringify(preview, null, 2)}
+              onChange={(e) => {
+                setJsonText(e.target.value);
+                try {
+                  setPreview(JSON.parse(e.target.value));
+                  setError("");
+                } catch {
+                  setError("Ungültiges JSON");
+                }
+              }}
+              InputProps={{ sx: { fontFamily: "monospace", fontSize: 12 } }}
+            />
+          </Box>
+        )}
+
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
+      </DialogContent>
+      <DialogActions>
+        {step === 1 && method === "prompt" && (
+          <Button onClick={handleParseJson} disabled={!jsonText.trim()}>
+            Weiter →
+          </Button>
+        )}
+        {step === 2 && (
+          <Button variant="contained" onClick={handleSave}>
+            💾 Speichern
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// ─── Plant List Page ─────────────────────────────────────────────────
+
 export function PlantListPage({
   onSelect,
 }: {
   onSelect: (id: string) => void;
 }) {
+  const queryClient = useQueryClient();
   const { data: plants, isLoading, error } = useQuery({
     queryKey: ["plants"],
     queryFn: api.listPlants,
   });
   const [filter, setFilter] = useState("");
   const [rulesPlant, setRulesPlant] = useState<Plant | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<Plant | null>(null);
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
+      api.setPlantActive(id, active),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["plants"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.deletePlant(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["plants"] });
+      setDeleteConfirm(null);
+    },
+  });
 
   const filtered = useMemo(() => {
     if (!plants) return [];
@@ -66,7 +361,7 @@ export function PlantListPage({
       <Grid container spacing={2}>
         {filtered.map((plant: Plant) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>
-            <Card>
+            <Card sx={{ opacity: plant.active ? 1 : 0.5, transition: "opacity 0.2s" }}>
               <CardActionArea onClick={() => onSelect(plant.id)}>
                 <PlantImage url={plant.image_url} alt={plant.name} height={160} />
                 <CardContent>
@@ -95,23 +390,86 @@ export function PlantListPage({
                   </Stack>
                 </CardContent>
               </CardActionArea>
-              <Box sx={{ display: "flex", justifyContent: "flex-end", px: 1, pb: 0.5 }}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setRulesPlant(plant);
-                  }}
-                  aria-label="Regeln anzeigen"
-                >
-                  <InfoOutlinedIcon fontSize="small" />
-                </IconButton>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 1, pb: 0.5 }}>
+                <Tooltip title={plant.active ? "Deaktivieren" : "Aktivieren"}>
+                  <Switch
+                    size="small"
+                    checked={plant.active}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      toggleMutation.mutate({ id: plant.id, active: !plant.active });
+                    }}
+                  />
+                </Tooltip>
+                <Box>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRulesPlant(plant);
+                    }}
+                    aria-label="Regeln anzeigen"
+                  >
+                    <InfoOutlinedIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteConfirm(plant);
+                    }}
+                    aria-label="Löschen"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
 
+      {/* FAB: Add Plant */}
+      <Fab
+        color="primary"
+        onClick={() => setAddOpen(true)}
+        sx={{ position: "fixed", bottom: 24, right: 24 }}
+        aria-label="Pflanze hinzufügen"
+      >
+        <AddIcon />
+      </Fab>
+
+      {/* Add Plant Dialog */}
+      <AddPlantDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSaved={() => queryClient.invalidateQueries({ queryKey: ["plants"] })}
+      />
+
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
+        <DialogTitle>Pflanze löschen?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            <strong>{deleteConfirm?.name}</strong> und alle zugehörigen Aufgaben
+            werden unwiderruflich gelöscht.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirm(null)}>Abbrechen</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => deleteConfirm && deleteMutation.mutate(deleteConfirm.id)}
+          >
+            🗑️ Löschen
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rules Dialog */}
       <Dialog
         open={!!rulesPlant}
         onClose={() => setRulesPlant(null)}

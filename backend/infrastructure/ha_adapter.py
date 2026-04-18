@@ -222,3 +222,50 @@ class HomeAssistantAdapter:
                 return True
             except (httpx.HTTPStatusError, httpx.ConnectError):
                 return False
+
+    async def list_conversation_agents(self) -> list[dict]:
+        """List available HA conversation agents via REST API."""
+        async with httpx.AsyncClient(timeout=15) as client:
+            try:
+                resp = await client.get(
+                    f"{self._base_url}/api/states",
+                    headers=self._headers,
+                )
+                resp.raise_for_status()
+                states = resp.json()
+                agents = []
+                for s in states:
+                    eid = s.get("entity_id", "")
+                    if eid.startswith("conversation."):
+                        agents.append({
+                            "agent_id": eid,
+                            "name": s.get("attributes", {}).get(
+                                "friendly_name", eid,
+                            ),
+                        })
+                return agents
+            except (httpx.HTTPStatusError, httpx.ConnectError):
+                return []
+
+    async def conversation_process(
+        self, agent_id: str, text: str,
+    ) -> str | None:
+        """Send text to an HA conversation agent and return the response."""
+        async with httpx.AsyncClient(timeout=120) as client:
+            try:
+                resp = await client.post(
+                    f"{self._base_url}/api/conversation/process",
+                    headers=self._headers,
+                    json={"agent_id": agent_id, "text": text},
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                speech = (
+                    data.get("response", {})
+                    .get("speech", {})
+                    .get("plain", {})
+                    .get("speech", "")
+                )
+                return speech or None
+            except (httpx.HTTPStatusError, httpx.ConnectError):
+                return None

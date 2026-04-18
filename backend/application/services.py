@@ -65,6 +65,12 @@ class PlantService:
             self._session.commit()
         return result
 
+    def set_plant_active(self, plant_id: str, active: bool) -> Plant | None:
+        plant = self._plants.set_active(plant_id, active)
+        if plant:
+            self._session.commit()
+        return plant
+
     def complete_task(self, task_id: str) -> Task | None:
         task = self._tasks.update_status(task_id, TaskStatus.COMPLETED)
         if task:
@@ -101,6 +107,8 @@ class PlantService:
         results: list[RelevantTask] = []
         today = date.today()
         for plant in plants:
+            if not plant.active:
+                continue
             for rule in plant.rules:
                 if is_relevant_now(rule, event_state, current_season):
                     urgency = compute_urgency(rule, event_state, current_season)
@@ -145,6 +153,8 @@ class PlantService:
 
         results: list[OutlookItem] = []
         for plant in plants:
+            if not plant.active:
+                continue
             for rule in plant.rules:
                 tasks = task_by_rule.get(rule.id, [])
                 in_window = is_in_planning_window(rule, current_season)

@@ -38,6 +38,7 @@ class PlantRepository:
             description=plant.description,
             image_url=plant.image_url,
             language=plant.language,
+            active=plant.active,
             created_at=plant.created_at or now,
             updated_at=now,
         )
@@ -87,6 +88,16 @@ class PlantRepository:
         self._session.flush()
         return True
 
+    def set_active(self, plant_id: str, active: bool) -> Plant | None:
+        """Enable or disable a plant."""
+        row = self._session.get(PlantRow, plant_id)
+        if row is None:
+            return None
+        row.active = active
+        self._session.flush()
+        # Reload with rules
+        return self.get(plant_id)
+
     @staticmethod
     def _to_domain(row: PlantRow) -> Plant:
         rules = []
@@ -126,6 +137,7 @@ class PlantRepository:
             description=row.description,
             image_url=row.image_url,
             language=row.language,
+            active=getattr(row, "active", True),
             rules=rules,
             created_at=row.created_at,
             updated_at=row.updated_at,

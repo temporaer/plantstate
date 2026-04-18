@@ -69,6 +69,24 @@ def _get_ha_adapter() -> HomeAssistantAdapter | None:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Base.metadata.create_all(engine)
 
+    # Idempotent migration: add 'active' column if missing
+    with engine.connect() as conn:
+        cols = [r[1] for r in conn.execute(
+            __import__("sqlalchemy").text("PRAGMA table_info(plants)")
+        )]
+        if "active" not in cols:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE plants ADD COLUMN active BOOLEAN DEFAULT 1"
+                )
+            )
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "UPDATE plants SET active = 1 WHERE active IS NULL"
+                )
+            )
+            conn.commit()
+
     # Start background scheduler for periodic calendar sync
     scheduler = None
     if HA_BASE_URL and HA_TOKEN:
@@ -223,6 +241,7 @@ class PlantResponse(BaseModel):
     description: str = ""
     image_url: str | None = None
     language: str = "en"
+    active: bool = True
     rules: list[dict] = Field(default_factory=list)
 
 
@@ -328,6 +347,88 @@ def delete_plant(
     if not service.delete_plant(plant_id):
         raise HTTPException(status_code=404, detail="Plant not found")
     return {"status": "deleted"}
+
+
+class SetActiveBody(BaseModel):
+    active: bool
+
+
+@app.patch("/plants/{plant_id}/active", response_model=PlantResponse)
+def set_plant_active(
+    plant_id: str, body: SetActiveBody, service: PlantService = Depends(get_service)
+) -> PlantResponse:
+    plant = service.set_plant_active(plant_id, body.active)
+    if plant is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    return _plant_response(plant)
+
+
+@app.get("/ha/agents")
+async def list_ha_agents() -> list[dict]:
+    """List available HA conversation agents."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        return []
+    return await adapter.list_conversation_agents()
+
+
+class GenerateRequest(BaseModel):
+    plant_name: str
+    agent_id: str
+
+
+@app.post("/plants/generate")
+async def generate_plant(body: GenerateRequest) -> dict:
+    """Generate plant config via HA conversation agent."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not connected")
+
+    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}"
+    raw_response = await adapter.conversation_process(body.agent_id, combined)
+    if raw_response is None:
+        raise HTTPException(status_code=502, detail="No response from HA agent")
+
+    from backend.application.json_extract import extract_json
+    plant_json = extract_json(raw_response)
+    if plant_json is None:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "Could not extract valid JSON from agent response",
+                "raw_response": raw_response[:2000],
+            },
+        )
+
+    # Validate against our schema
+    try:
+        validated = validate_llm_output(plant_json)
+        return validated.model_dump(mode="json")
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": f"JSON does not match plant schema: {e}",
+                "raw_json": plant_json,
+            },
+        ) from e
+
+
+@app.post("/plants/prompt")
+async def get_plant_prompt(body: InterpretRequest) -> dict:
+    """Get a ready-to-paste prompt for external LLMs (ChatGPT etc)."""
+    combined = f"""{LLM_SYSTEM_PROMPT}
+
+---
+
+Generate the lifecycle JSON for this plant: {body.user_input}
+
+Output ONLY the JSON, no additional text."""
+    return {
+        "system_prompt": LLM_SYSTEM_PROMPT,
+        "user_input": body.user_input,
+        "combined_prompt": combined,
+    }
 
 
 @app.post("/tasks/{task_id}/complete", response_model=TaskResponse)
@@ -548,6 +649,7 @@ def _plant_response(plant: Plant) -> PlantResponse:
         description=plant.description,
         image_url=plant.image_url,
         language=plant.language,
+        active=plant.active,
         rules=[r.model_dump(mode="json") for r in plant.rules],
     )
 

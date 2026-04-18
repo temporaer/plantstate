@@ -7,6 +7,7 @@ export interface Plant {
   description: string;
   image_url: string | null;
   language: string;
+  active: boolean;
   rules: Rule[];
 }
 
@@ -104,6 +105,11 @@ export const api = {
     apiFetch<Plant>("/plants", { method: "POST", body: JSON.stringify(plant) }),
   deletePlant: (id: string) =>
     apiFetch<void>(`/plants/${id}`, { method: "DELETE" }),
+  setPlantActive: (id: string, active: boolean) =>
+    apiFetch<Plant>(`/plants/${id}/active`, {
+      method: "PATCH",
+      body: JSON.stringify({ active }),
+    }),
   completeTask: (id: string) =>
     apiFetch<Task>(`/tasks/${id}/complete`, { method: "POST" }),
   skipTask: (id: string) =>
@@ -118,5 +124,16 @@ export const api = {
   syncCalendar: () =>
     apiFetch<{ synced: number; calendar: string }>("/sync/calendar", {
       method: "POST",
+    }),
+  getPlantPrompt: (plantName: string) =>
+    apiFetch<{ combined_prompt: string }>("/plants/prompt", {
+      method: "POST",
+      body: JSON.stringify({ user_input: plantName }),
+    }),
+  listHaAgents: () => apiFetch<{ agent_id: string; name: string }[]>("/ha/agents"),
+  generatePlant: (plantName: string, agentId: string) =>
+    apiFetch<object>("/plants/generate", {
+      method: "POST",
+      body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
     }),
 };
