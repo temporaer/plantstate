@@ -147,15 +147,23 @@ class PlantStateCard extends HTMLElement {
     if (!this._listening) {
       this._listening = true;
       this.addEventListener("click", (e) => {
-        const target = e.target.closest("[data-plant-id], [data-filter], .open-link");
+        // Use composedPath to see through ha-card's shadow DOM boundary
+        const path = e.composedPath();
+        let target = null;
+        for (const el of path) {
+          if (el.matches && el.matches("[data-plant-id], [data-filter], .open-link")) {
+            target = el;
+            break;
+          }
+        }
         if (!target) return;
         e.preventDefault();
         e.stopPropagation();
-        if (target.dataset.plantId) {
+        if (target.dataset && target.dataset.plantId) {
           this._navigate(`/plants/${target.dataset.plantId}`);
-        } else if (target.dataset.filter) {
+        } else if (target.dataset && target.dataset.filter) {
           this._navigate("/");
-        } else if (target.classList.contains("open-link")) {
+        } else if (target.classList && target.classList.contains("open-link")) {
           this._navigate("/");
         }
       });
