@@ -14,7 +14,7 @@ import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import type { RelevantNowItem } from "../api";
-import { TASK_TYPE_TEXT } from "../labels";
+import { TASK_TYPE_EMOJI, TASK_TYPE_TEXT } from "../labels";
 
 // Task types where recurring within a season makes sense
 const SNOOZABLE_TYPES = new Set([
@@ -45,6 +45,7 @@ export function RelevantTaskCard({
   onSnooze?: (taskId: string) => void;
 }) {
   const taskText = TASK_TYPE_TEXT[item.task_type] ?? item.task_type;
+  const taskEmoji = TASK_TYPE_EMOJI[item.task_type] ?? "📋";
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
   const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
   const urg = URGENCY_CONFIG[item.urgency] ?? URGENCY_CONFIG.soon;
@@ -78,7 +79,7 @@ export function RelevantTaskCard({
             }
           }}
         >
-          {taskText} {item.plant_name}
+          {taskEmoji} {taskText} {item.plant_name}
         </Typography>
         <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
           <Chip

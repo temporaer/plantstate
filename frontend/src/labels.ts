@@ -25,6 +25,18 @@ export const TASK_TYPE_TEXT: Record<string, string> = {
   remove_deadwood: "Totholz entfernen",
 };
 
+export const TASK_TYPE_EMOJI: Record<string, string> = {
+  sow: "🌱",
+  transplant: "🌿",
+  harvest: "🍎",
+  prune_maintenance: "✂️",
+  prune_structural: "🪚",
+  cut_back: "✂️",
+  deadhead: "🌸",
+  thin_fruit: "🍏",
+  remove_deadwood: "🪵",
+};
+
 export function taskTypeLabel(type: string): string {
   return TASK_TYPE_LABELS[type] ?? type;
 }
