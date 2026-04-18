@@ -117,29 +117,52 @@ class HomeAssistantAdapter:
                 with suppress(ValueError, TypeError):
                     daily_precip[dt] = max(daily_precip[dt], float(precip))
 
-        # Also try a dedicated precipitation sensor (DWD pattern)
-        # e.g. weather.karlsruhe → sensor.karlsruhe_precipitation
-        precip_entity = self._weather_entity.replace("weather.", "sensor.") + "_precipitation"
-        try:
-            precip_url = (
-                f"{self._base_url}/api/history/period/{start.isoformat()}"
-                f"?filter_entity_id={precip_entity}"
-                f"&end_time={end.isoformat()}"
-                f"&significant_changes_only=0"
-            )
-            precip_resp = await client.get(precip_url, headers=self._headers)
-            precip_resp.raise_for_status()
-            precip_data = precip_resp.json()
-            if precip_data and precip_data[0]:
-                for state in precip_data[0]:
-                    dt_str = (state.get("last_changed") or "")[:10]
-                    val = state.get("state")
-                    if dt_str and val not in (None, "unknown", "unavailable"):
-                        dt = date.fromisoformat(dt_str)
+        # Try dedicated DWD precipitation sensor (mm/h rate → daily total)
+        # DWD uses German names: sensor.<location>_niederschlag
+        location = self._weather_entity.replace("weather.", "")
+        precip_candidates = [
+            f"sensor.{location}_niederschlag",
+            f"sensor.{location}_precipitation",
+        ]
+        for precip_entity in precip_candidates:
+            try:
+                precip_url = (
+                    f"{self._base_url}/api/history/period/{start.isoformat()}"
+                    f"?filter_entity_id={precip_entity}"
+                    f"&end_time={end.isoformat()}"
+                    f"&significant_changes_only=0"
+                )
+                precip_resp = await client.get(precip_url, headers=self._headers)
+                precip_resp.raise_for_status()
+                precip_data = precip_resp.json()
+                if precip_data and precip_data[0] and len(precip_data[0]) > 1:
+                    # Aggregate mm/h readings into daily totals
+                    # Each reading represents the rate at that moment;
+                    # multiply by hours between readings for approximate total
+                    entries = precip_data[0]
+                    for i, state in enumerate(entries):
+                        dt_str = (state.get("last_changed") or "")[:19]
+                        val = state.get("state")
+                        if not dt_str or val in (None, "unknown", "unavailable"):
+                            continue
                         with suppress(ValueError, TypeError):
-                            daily_precip[dt] = max(daily_precip[dt], float(val))
-        except (httpx.HTTPStatusError, httpx.ConnectError):
-            pass  # Sensor may not exist
+                            rate = float(val)  # mm/h
+                            dt = date.fromisoformat(dt_str[:10])
+                            # Estimate hours until next reading (or 1h default)
+                            if i + 1 < len(entries):
+                                next_dt = (entries[i + 1].get("last_changed") or "")[:19]
+                                if next_dt:
+                                    from datetime import datetime as _dt
+                                    delta = _dt.fromisoformat(next_dt) - _dt.fromisoformat(dt_str)
+                                    hours = max(delta.total_seconds() / 3600, 0)
+                                else:
+                                    hours = 1.0
+                            else:
+                                hours = 1.0
+                            daily_precip[dt] += rate * min(hours, 6.0)
+                    break  # Found a working sensor
+            except (httpx.HTTPStatusError, httpx.ConnectError):
+                continue  # Try next candidate
 
         result: list[DailyWeather] = []
         for d in sorted(daily_temps.keys()):
@@ -149,7 +172,7 @@ class HomeAssistantAdapter:
                     date=d,
                     temp_min=min(temps),
                     temp_max=max(temps),
-                    precipitation_mm=daily_precip.get(d, 0.0),
+                    precipitation_mm=round(daily_precip.get(d, 0.0), 1),
                 )
             )
         return result
