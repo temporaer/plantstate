@@ -7,6 +7,7 @@ import {
   CardContent,
   Chip,
   CircularProgress,
+  Collapse,
   Divider,
   IconButton,
   Popover,
@@ -14,6 +15,8 @@ import {
   Typography,
 } from "@mui/material";
 import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { api } from "../api";
 import type { OutlookItem, Tip, WeatherStatus } from "../api";
 import { RelevantTaskCard } from "../components/RelevantTaskCard";
@@ -139,6 +142,11 @@ const BLOCKING_LABELS: Record<string, string> = {
 };
 
 function OutlookSection({ items }: { items: OutlookItem[] }) {
+  const [openSeasons, setOpenSeasons] = useState<Record<string, boolean>>({});
+
+  const toggle = (season: string) =>
+    setOpenSeasons((prev) => ({ ...prev, [season]: !prev[season] }));
+
   // Group by season (use first planning season)
   const bySeason: Record<string, OutlookItem[]> = {};
   for (const item of items) {
@@ -157,72 +165,89 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
 
   return (
     <Box>
-      {sortedSeasons.map((season) => (
-        <Box key={season} sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-            {SEASON_LABELS[season] ?? season}
-          </Typography>
-          <Stack spacing={1}>
-            {bySeason[season].map((item) => (
-              <Card
-                key={item.task.id}
-                variant="outlined"
-                sx={{
-                  opacity: item.ready ? 1 : 0.75,
-                  borderLeft: item.ready
-                    ? "4px solid #4caf50"
-                    : item.in_planning_window
-                    ? "4px solid #ff9800"
-                    : "4px solid #bdbdbd",
-                }}
-              >
-                <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{ alignItems: "center", flexWrap: "wrap", gap: 0.5 }}
+      {sortedSeasons.map((season) => {
+        const expanded = !!openSeasons[season];
+        const count = bySeason[season].length;
+        const readyCount = bySeason[season].filter((i) => i.ready).length;
+        return (
+          <Box key={season} sx={{ mb: 1 }}>
+            <Stack
+              direction="row"
+              sx={{ alignItems: "center", cursor: "pointer", py: 0.5 }}
+              onClick={() => toggle(season)}
+            >
+              {expanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
+              <Typography variant="subtitle1" sx={{ fontWeight: 600, ml: 0.5, flexGrow: 1 }}>
+                {SEASON_LABELS[season] ?? season}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {readyCount > 0 ? `${readyCount}/${count} bereit` : `${count} Aufgaben`}
+              </Typography>
+            </Stack>
+            <Collapse in={expanded}>
+              <Stack spacing={1} sx={{ mt: 0.5, mb: 1 }}>
+                {bySeason[season].map((item) => (
+                  <Card
+                    key={item.task.id}
+                    variant="outlined"
+                    sx={{
+                      opacity: item.ready ? 1 : 0.75,
+                      borderLeft: item.ready
+                        ? "4px solid #4caf50"
+                        : item.in_planning_window
+                        ? "4px solid #ff9800"
+                        : "4px solid #bdbdbd",
+                    }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {item.plant_name}
-                    </Typography>
-                    {item.priority === "high" && (
-                      <Chip label="Wichtig" size="small" variant="outlined" sx={{ borderColor: "error.main", color: "error.main" }} />
-                    )}
-                    {item.priority === "low" && (
-                      <Chip label="Nebensache" size="small" variant="outlined" sx={{ borderColor: "info.main", color: "info.main" }} />
-                    )}
-                    <Chip
-                      label={TASK_TYPE_LABELS[item.task_type] ?? item.task_type}
-                      size="small"
-                      variant="outlined"
-                      sx={item.ready ? { borderColor: "success.main", color: "success.main" } : { borderColor: "grey.400", color: "text.secondary" }}
-                    />
-                    {item.ready && (
-                      <Chip label="✅ Bereit" size="small" variant="outlined" sx={{ borderColor: "success.main", color: "success.main" }} />
-                    )}
-                    {!item.ready && item.blocking.map((b) => (
-                      <Chip
-                        key={b}
-                        label={BLOCKING_LABELS[b] ?? b}
-                        size="small"
-                        variant="outlined"
-                        sx={{ borderColor: b === "season" ? "grey.400" : "warning.main", color: b === "season" ? "text.secondary" : "warning.main" }}
-                      />
-                    ))}
-                  </Stack>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 0.5 }}
-                  >
-                    {item.explanation_summary}
-                  </Typography>
-                </CardContent>
-              </Card>
-            ))}
-          </Stack>
-        </Box>
-      ))}
+                    <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ alignItems: "center", flexWrap: "wrap", gap: 0.5 }}
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {item.plant_name}
+                        </Typography>
+                        {item.priority === "high" && (
+                          <Chip label="Wichtig" size="small" variant="outlined" sx={{ borderColor: "error.main", color: "error.main" }} />
+                        )}
+                        {item.priority === "low" && (
+                          <Chip label="Nebensache" size="small" variant="outlined" sx={{ borderColor: "info.main", color: "info.main" }} />
+                        )}
+                        <Chip
+                          label={TASK_TYPE_LABELS[item.task_type] ?? item.task_type}
+                          size="small"
+                          variant="outlined"
+                          sx={item.ready ? { borderColor: "success.main", color: "success.main" } : { borderColor: "grey.400", color: "text.secondary" }}
+                        />
+                        {item.ready && (
+                          <Chip label="✅ Bereit" size="small" variant="outlined" sx={{ borderColor: "success.main", color: "success.main" }} />
+                        )}
+                        {!item.ready && item.blocking.map((b) => (
+                          <Chip
+                            key={b}
+                            label={BLOCKING_LABELS[b] ?? b}
+                            size="small"
+                            variant="outlined"
+                            sx={{ borderColor: b === "season" ? "grey.400" : "warning.main", color: b === "season" ? "text.secondary" : "warning.main" }}
+                          />
+                        ))}
+                      </Stack>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 0.5 }}
+                      >
+                        {item.explanation_summary}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+            </Collapse>
+          </Box>
+        );
+      })}
     </Box>
   );
 }
