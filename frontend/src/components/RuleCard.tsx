@@ -28,6 +28,16 @@ const EVENT_LABELS: Record<string, string> = {
   persistent_rain: "🌧️ Dauerregen",
 };
 
+const EVENT_CRITERIA: Record<string, string> = {
+  frost_risk_active: "min(nächste 5 Tage T_min) ≤ 1 °C",
+  frost_risk_passed: "min(letzte 7 Tage T_min) > 1 °C UND min(nächste 5 Tage T_min) > 1 °C",
+  sustained_mild_nights: "≥ 4 von 5 Nächten T_min ≥ 8 °C",
+  warm_spell: "≥ 3 von 5 Tagen T_max ≥ 20 °C",
+  heatwave: "3 aufeinanderfolgende Tage T_max ≥ 30 °C",
+  dry_spell: "3 aufeinanderfolgende Tage Niederschlag < 1 mm",
+  persistent_rain: "3 aufeinanderfolgende Tage Niederschlag ≥ 5 mm",
+};
+
 export function RuleCard({ rule }: { rule: Rule }) {
   return (
     <Card sx={{ mb: 2 }}>
@@ -38,6 +48,18 @@ export function RuleCard({ rule }: { rule: Rule }) {
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {rule.explanation.summary}
         </Typography>
+
+        <Card variant="outlined" sx={{ mb: 1.5, bgcolor: "action.hover" }}>
+          <CardContent sx={{ py: 0.75, "&:last-child": { pb: 0.75 } }}>
+            <Typography variant="caption" sx={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+              Saisons: [{rule.planning_seasons.join(", ")}]
+              {"\n"}Benötigt: [{rule.activation.required_events.join(", ") || "—"}]
+              {"\n"}Verboten: [{rule.activation.forbidden_events.join(", ") || "—"}]
+              {"\n"}Wiederholung: alle {rule.recurrence_years} Jahr(e)
+              {rule.priority ? `\nPriorität: ${rule.priority}` : ""}
+            </Typography>
+          </CardContent>
+        </Card>
 
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, my: 1.5 }}>
           {rule.planning_seasons.map((s) => (
@@ -96,6 +118,19 @@ export function RuleCard({ rule }: { rule: Rule }) {
               <Typography variant="body2" color="text.secondary">
                 {expl.how}
               </Typography>
+              {EVENT_CRITERIA[event] && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    mt: 0.5,
+                    fontFamily: "monospace",
+                    color: "text.disabled",
+                  }}
+                >
+                  ⚙️ {EVENT_CRITERIA[event]}
+                </Typography>
+              )}
             </CardContent>
           </Card>
         ))}

@@ -13,6 +13,7 @@ export interface Plant {
 export interface Rule {
   id: string;
   task_type: string;
+  priority: string;
   planning_seasons: string[];
   activation: {
     required_events: string[];
