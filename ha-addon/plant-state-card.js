@@ -121,7 +121,7 @@ class PlantStateCard extends HTMLElement {
     const chips = shown
       .map(
         (t) =>
-          `<a class="chip" href="${this._panelHref()}"${this._deepLinkAttr(`/plants/${t.plant_id}`)} title="${t.explanation_summary || ""}">
+          `<a class="chip" href="${this._panelHref()}" title="${t.explanation_summary || ""}">
             ${TASK_EMOJI[t.task_type] || "🌱"} ${t.plant_name}
           </a>`
       )
