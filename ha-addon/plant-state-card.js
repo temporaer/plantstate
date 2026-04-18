@@ -47,15 +47,29 @@ class PlantStateCard extends HTMLElement {
     let panelKey = this._config.panel_url;
     if (!panelKey && this._hass) {
       const panels = this._hass.panels || {};
+      console.log("[plant-state-card] panels:", Object.keys(panels).filter(k => k.includes("plant")));
       for (const key of Object.keys(panels)) {
+        if (key.includes("plant_state")) {
+          console.log("[plant-state-card] panel detail:", key, JSON.stringify(panels[key]));
+        }
         if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
           panelKey = key;
           break;
         }
       }
+      if (!panelKey) {
+        // fallback: try any key with plant_state
+        for (const key of Object.keys(panels)) {
+          if (key.includes("plant_state")) {
+            panelKey = key;
+            break;
+          }
+        }
+      }
     }
-    if (!panelKey) return "#";
-    return `/${panelKey}` + (path ? `/#${path}` : "");
+    const href = panelKey ? `/${panelKey}` + (path ? `/#${path}` : "") : "#";
+    console.log("[plant-state-card] _panelHref:", { panelKey, path, href });
+    return href;
   }
 
   _render() {
