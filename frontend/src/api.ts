@@ -5,6 +5,7 @@ export interface Plant {
   name: string;
   botanical_name: string | null;
   description: string;
+  image_url: string | null;
   language: string;
   rules: Rule[];
 }
@@ -70,6 +71,12 @@ export interface DailyWeather {
   precipitation_mm: number;
 }
 
+export interface Tip {
+  icon: string;
+  title: string;
+  detail: string;
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -91,6 +98,7 @@ export const api = {
   skipTask: (id: string) =>
     apiFetch<Task>(`/tasks/${id}/skip`, { method: "POST" }),
   getWeatherStatus: () => apiFetch<WeatherStatus>("/dashboard/weather"),
+  getTips: () => apiFetch<Tip[]>("/dashboard/tips"),
   getOutlook: () => apiFetch<OutlookItem[]>("/dashboard/outlook"),
   getRelevantNowLive: () =>
     apiFetch<RelevantNowItem[]>("/dashboard/relevant-now-live"),

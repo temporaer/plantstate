@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "../api";
-import type { OutlookItem, WeatherStatus } from "../api";
+import type { OutlookItem, Tip, WeatherStatus } from "../api";
 import { RelevantTaskCard } from "../components/RelevantTaskCard";
 
 const SEASON_LABELS: Record<string, string> = {
@@ -83,6 +83,28 @@ function WeatherCard({ weather }: { weather: WeatherStatus }) {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function TipsSection({ tips }: { tips: Tip[] }) {
+  if (tips.length === 0) return null;
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Stack spacing={1}>
+        {tips.map((tip, i) => (
+          <Card key={i} variant="outlined" sx={{ bgcolor: "action.hover" }}>
+            <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {tip.icon} {tip.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {tip.detail}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+    </Box>
   );
 }
 
@@ -199,6 +221,12 @@ export function DashboardPage() {
     refetchInterval: 5 * 60 * 1000,
   });
 
+  const tipsQuery = useQuery({
+    queryKey: ["tips"],
+    queryFn: api.getTips,
+    refetchInterval: 10 * 60 * 1000,
+  });
+
   const relevantQuery = useQuery({
     queryKey: ["relevant-now"],
     queryFn: api.getRelevantNowLive,
@@ -232,6 +260,15 @@ export function DashboardPage() {
       )}
 
       {weatherQuery.data && <WeatherCard weather={weatherQuery.data} />}
+
+      {tipsQuery.data && tipsQuery.data.length > 0 && (
+        <>
+          <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>
+            💡 Tipps & Hinweise
+          </Typography>
+          <TipsSection tips={tipsQuery.data} />
+        </>
+      )}
 
       <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>
         Jetzt relevant

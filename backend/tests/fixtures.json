@@ -455,5 +455,883 @@
         }
       }
     ]
+  },
+  {
+    "name": "Dickblatt-Bergenie",
+    "botanical_name": "Bergenia crassifolia",
+    "description": "Robuste, immergrüne Staude mit dicken Blättern und rosa Blütenständen im Frühjahr. Guter Bodendecker, verträgt Trockenheit auf sandigem Boden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Bergenia_crassifolia_01.JPG/400px-Bergenia_crassifolia_01.JPG",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Alte, braune Blätter im Frühjahr entfernen",
+          "why": "Über den Winter werden viele Blätter braun. Das Entfernen fördert den frischen Austrieb und beugt Schneckenverstecken vor.",
+          "how": "Braune und beschädigte Blätter bodennah abschneiden. Grüne Blätter stehen lassen – sie treiben die Photosynthese an."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Die alten Blätter schützen die Pflanze vor Frost. Erst entfernen, wenn kein Frost mehr droht.",
+            "how": "Warte bis die Nächte zuverlässig über 1°C bleiben."
+          }
+        }
+      },
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "spring",
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Verblühte Blütenstände abschneiden",
+          "why": "Nach der Blüte sehen die braunen Stängel unschön aus und die Pflanze steckt Energie in Samenbildung statt in Blattwachstum.",
+          "how": "Blütenstängel direkt über dem Blattschopf abschneiden."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Gemeiner Schneeball",
+    "botanical_name": "Viburnum opulus",
+    "description": "Heimischer Strauch mit weißen Blütentellern im Mai/Juni und leuchtend roten Beeren im Herbst. Wichtige Vogelnährpflanze.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Viburnum_opulus_002.JPG/400px-Viburnum_opulus_002.JPG",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Auslichtungsschnitt nach der Blüte",
+          "why": "Schneeball blüht am alten Holz. Ein Schnitt direkt nach der Blüte gibt der Pflanze Zeit, neue Blütenknospen für nächstes Jahr zu bilden.",
+          "how": "Nur ältere, verkahlte Triebe bodennah entfernen. Maximal ein Drittel der Triebe pro Jahr schneiden. Junge Triebe stehen lassen."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Totholz und erfrorene Triebe entfernen",
+          "why": "Abgestorbene Äste sind Eintrittspforten für Pilzkrankheiten.",
+          "how": "Trockene, brüchige Äste bis ins gesunde Holz zurückschneiden. Schnittwerkzeug desinfizieren."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Wolliger Schneeball",
+    "botanical_name": "Viburnum lantana",
+    "description": "Robuster heimischer Strauch mit filzigen Blättern und cremeweißen Blüten. Beeren verfärben sich von rot nach schwarz. Extrem trockenheitsverträglich – ideal für sandige Böden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Viburnum_lantana_a1.jpg/400px-Viburnum_lantana_a1.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Leichter Formschnitt nach der Blüte",
+          "why": "Blüht am vorjährigen Holz. Schnitt nach der Blüte erhält die natürliche Form und fördert neue Blütentriebe.",
+          "how": "Nur störende oder zu lange Triebe einkürzen. Nicht ins alte Holz schneiden. Natürlichen Wuchs erhalten."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Totholz im Vorfrühling entfernen",
+          "why": "Abgestorbene Äste entfernen beugt Pilzbefall vor und verbessert die Luftzirkulation.",
+          "how": "Abgestorbene und sich kreuzende Äste sauber herausschneiden."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Waldgeißbart",
+    "botanical_name": "Aruncus dioicus",
+    "description": "Imposante Wildstaude mit fedrigen weißen Blütenrispen. Wird bis 1,5m hoch. Bevorzugt Halbschatten und feuchten Boden – auf sandigem Boden Mulch als Verdunstungsschutz verwenden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Aruncus_dioicus_%28Goat%27s_beard%29.jpg/400px-Aruncus_dioicus_%28Goat%27s_beard%29.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Alte Stängel im Frühjahr bodennah abschneiden",
+          "why": "Die vorjährigen Stängel stehen über Winter als Insektenversteck. Im Frühjahr müssen sie für den Neuaustrieb weichen.",
+          "how": "Alle alten Triebe auf 5-10cm über dem Boden kappen. Den Mulch um die Pflanze erneuern – besonders wichtig auf sandigem Boden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Die alten Stängel schützen die Knospen am Boden vor Spätfrost.",
+            "how": "Warte bis keine Nachtfröste mehr erwartet werden."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Prächtige Fetthenne",
+    "botanical_name": "Hylotelephium spectabile",
+    "description": "Dickblättrige Staude mit großen rosa Blütentellern im Spätsommer. Wichtige Bienenweide. Sehr trockenheitsverträglich, ideal für sandigen Boden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Sedum_spectabile_in_late_August.jpg/400px-Sedum_spectabile_in_late_August.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Vertrocknete Stängel im Frühjahr abschneiden",
+          "why": "Die Samenstände sind im Winter hübsch und bieten Insekten Unterschlupf. Erst im Frühjahr entfernen, wenn der Neuaustrieb sichtbar wird.",
+          "how": "Alte Stängel bodennah abschneiden. Vorsicht: die neuen Triebe sprießen schon früh aus der Basis."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Die alten Stängel schützen die jungen Austriebe vor Spätfrost.",
+            "how": "Warte bis die Nächte zuverlässig frostfrei sind."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Weiße Fetthenne (Blumenkasten)",
+    "botanical_name": "Sedum album",
+    "description": "Niedrige Polsterstaude mit weißen Sternblüten. Im Blumenkasten als pflegeleichter Bodendecker. Extrem trockenheitsverträglich.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Sedum_album_RF.jpg/400px-Sedum_album_RF.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Abgestorbene Polster im Frühjahr aufräumen",
+          "why": "Nach dem Winter können einzelne Teile des Polsters abgestorben sein. Das Entfernen fördert frisches Wachstum.",
+          "how": "Braune, vertrocknete Teile vorsichtig herausziehen. Der Blumenkasten braucht guten Wasserabzug – Staunässe vermeiden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Sedum im Blumenkasten ist frostempfindlicher als im Beet, da der Kasten schneller durchfriert.",
+            "how": "Warte auf frostfreie Nächte bevor du aufräumst."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Tulpen",
+    "botanical_name": "Tulipa",
+    "description": "Klassische Frühjahrsblüher aus Zwiebeln. Blühen je nach Sorte März bis Mai. Nach der Blüte das Laub einziehen lassen!",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Tulip_-_Floriade_2012.jpg/400px-Tulip_-_Floriade_2012.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Verblühte Tulpenköpfe abknipsen",
+          "why": "Wenn Tulpen Samen bilden, schwächt das die Zwiebel für nächstes Jahr. Die Blätter MÜSSEN aber stehen bleiben!",
+          "how": "Nur den Blütenkopf abbrechen, den Stängel und alle Blätter stehen lassen. Das Laub erst entfernen wenn es komplett gelb und trocken ist (ca. 6 Wochen nach Blüte)."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Eingetrocknetes Tulpenlaub entfernen",
+          "why": "Wenn das Laub komplett gelb und trocken ist, hat die Zwiebel alle Nährstoffe gespeichert. Jetzt kann aufgeräumt werden.",
+          "how": "Gelbes Laub einfach abziehen oder abschneiden. Zwiebeln im Boden lassen oder ausgraben und trocken lagern."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Kräuterbeet",
+    "botanical_name": null,
+    "description": "Schnittlauch (Allium schoenoprasum), Petersilie (Petroselinum crispum) und Minze (Mentha). Sandiger Boden ist für Kräuter gut – er wärmt sich schnell auf und fördert Aromabildung.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Kraeuter.jpg/400px-Kraeuter.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "spring",
+          "early_summer",
+          "summer",
+          "late_summer"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Kräuter regelmäßig ernten",
+          "why": "Regelmäßige Ernte fördert buschiges Wachstum und verhindert Blüte (die das Aroma verschlechtert).",
+          "how": "Schnittlauch: Halme 2cm über dem Boden abschneiden. Petersilie: äußere Stiele zuerst. Minze: Triebspitzen ernten – sie wuchert sonst! Auf sandigem Boden bei Trockenheit regelmäßig gießen."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Petersilie und Minze sind frostempfindlich im Neuaustrieb.",
+            "how": "Nach den Eisheiligen (Mitte Mai) ist die Erntesaison sicher."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Minze teilen und Kräuterbeet vorbereiten",
+          "why": "Minze breitet sich über Ausläufer stark aus und muss regelmäßig begrenzt werden. Schnittlauch profitiert vom Teilen alle 3 Jahre.",
+          "how": "Minze-Ausläufer großzügig ausstechen. Schnittlauch-Horst teilen und neu setzen. Petersilie ggf. nachsäen (zweijährig)."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frisch geteilte Pflanzen sind frostempfindlich.",
+            "how": "Warte auf frostfreie Nächte."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Rosmarin",
+    "botanical_name": "Salvia rosmarinus",
+    "description": "Mediterraner Halbstrauch, immergrün und aromatisch. Blüht violettblau im Frühjahr. Liebt sandigen, durchlässigen Boden. Winterschutz empfohlen.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Rosmarinus_officinalis_133308238.jpg/400px-Rosmarinus_officinalis_133308238.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Rosmarin nach dem Frost in Form schneiden",
+          "why": "Ohne Schnitt verholzt Rosmarin und wird von unten kahl. Ein jährlicher Schnitt hält ihn kompakt und produktiv.",
+          "how": "Um ein Drittel einkürzen, aber NIE ins alte, braune Holz schneiden – Rosmarin treibt daraus nicht wieder aus. Nur im grünen Bereich schneiden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Rosmarin ist frostempfindlich. Schnitt bei Frost kann die Pflanze stark schädigen.",
+            "how": "Warte bis die Nächte zuverlässig über 1°C bleiben."
+          }
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "spring",
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Rosmarin-Triebspitzen regelmäßig ernten",
+          "why": "Regelmäßiges Ernten fördert Verzweigung und buschigen Wuchs.",
+          "how": "Junge Triebspitzen (5-10cm) abschneiden. Nicht mehr als ein Drittel der Pflanze auf einmal ernten."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Forsythie",
+    "botanical_name": "Forsythia × intermedia",
+    "description": "Leuchtend gelb blühender Frühlingsstrauch, einer der ersten Blüher. Wichtiger phänologischer Zeiger für den Erstfrühling.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Forsythia_europaea_flowers.jpg/400px-Forsythia_europaea_flowers.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Sofort nach der Blüte schneiden!",
+          "why": "Forsythie blüht am vorjährigen Holz. Wer zu spät schneidet, schneidet die Blüten des nächsten Jahres weg. Der Schnitt muss direkt nach dem Verblühen erfolgen.",
+          "how": "Jedes Jahr ein Drittel der ältesten Triebe bodennah entfernen. Zu lange Triebe über einer nach außen zeigenden Knospe einkürzen."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Totholz vor der Blüte entfernen",
+          "why": "Abgestorbene Triebe stören das Erscheinungsbild und können Krankheiten beherbergen.",
+          "how": "Trockene, nicht austreibende Äste an der Basis entfernen."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Vergissmeinnicht",
+    "botanical_name": "Myosotis sylvatica",
+    "description": "Zarter Frühjahrsblüher mit himmelblauen Blüten. Zweijährig – sät sich selbst aus. Blüht April bis Juni.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Myosotis_scorpioides_R.jpg/400px-Myosotis_scorpioides_R.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "spring",
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Verblühtes entfernen – aber Selbstaussaat zulassen",
+          "why": "Vergissmeinnicht ist zweijährig. Einige Pflanzen sollten aussamen dürfen, damit es nächstes Jahr wieder blüht.",
+          "how": "Etwa die Hälfte der verblühten Pflanzen stehen lassen (für Samen). Den Rest entfernen, um Platz für Sommerblüher zu machen."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Kleinblütige Tamariske",
+    "botanical_name": "Tamarix parviflora",
+    "description": "Graziler Strauch mit federartigen rosa Blütenrispen im Frühjahr. Sehr trockenheits- und salzverträglich – perfekt für sandigen Boden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Tamarix_parviflora_1.jpg/400px-Tamarix_parviflora_1.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "spring",
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Direkt nach der Blüte kräftig zurückschneiden",
+          "why": "Tamarix parviflora blüht am vorjährigen Holz. Schnitt direkt nach der Blüte (Mai/Juni) gibt maximale Zeit für neue Blütentriebe.",
+          "how": "Abgeblühte Triebe um die Hälfte bis zwei Drittel einkürzen. Die Pflanze verträgt auch starken Rückschnitt gut."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Zierliche Deutzie",
+    "botanical_name": "Deutzia gracilis",
+    "description": "Kompakter Zierstrauch mit überhängenden weißen Blütentrauben im Mai/Juni. Wird nur 60-80cm hoch.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Deutzia_gracilis3.jpg/400px-Deutzia_gracilis3.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Nach der Blüte abgeblühte Triebe einkürzen",
+          "why": "Deutzie blüht am vorjährigen Holz. Schnitt direkt nach der Blüte fördert neue Triebe, die nächstes Jahr blühen.",
+          "how": "Abgeblühte Triebe auf einen kräftigen Seitentrieb oder eine nach außen zeigende Knospe zurückschneiden. Alle 3 Jahre die ältesten Triebe bodennah entfernen."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Abgestorbene Triebe im Vorfrühling entfernen",
+          "why": "Totes Holz nimmt den jungen Trieben Licht und Platz.",
+          "how": "Trockene Äste bis zum nächsten gesunden Abzweig herausschneiden."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Lupine",
+    "botanical_name": "Lupinus polyphyllus",
+    "description": "Prächtige Staude mit aufrechten Blütenkerzen in vielen Farben. Stickstoff-Fixierer – verbessert sandigen Boden. Blüht Mai bis Juli.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Lupinus_polyphyllus1.jpg/400px-Lupinus_polyphyllus1.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Verblühte Blütenkerzen sofort abschneiden – Nachblüte!",
+          "why": "Wenn man die verblühten Blütenstände schnell entfernt, bilden Lupinen oft eine zweite, kleinere Blüte im Spätsommer.",
+          "how": "Blütenstängel bis zum nächsten Blattansatz zurückschneiden. NICHT die Grundblätter entfernen. Nicht alle aussamen lassen – Lupinen können invasiv werden."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "autumn"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Im Herbst bodennah zurückschneiden",
+          "why": "Nach dem ersten Frost stirbt das Laub ab. Ein Rückschnitt verhindert Fäulnis und bereitet die Pflanze auf den Winter vor.",
+          "how": "Alle Triebe auf 5cm über dem Boden kappen. Die Wurzeln überwintern und treiben im Frühjahr neu aus."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Echter Salbei",
+    "botanical_name": "Salvia officinalis",
+    "description": "Aromatischer Halbstrauch, immergrün mit graugrünen Blättern. Liebt sandigen, kalkhaltigen Boden und volle Sonne.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Salvia_officinalis_p1150380.jpg/400px-Salvia_officinalis_p1150380.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Salbei im Frühjahr kräftig zurückschneiden",
+          "why": "Ohne Schnitt verholzt Salbei schnell und wird blattarm. Ein jährlicher Rückschnitt hält ihn buschig und produktiv.",
+          "how": "Um die Hälfte bis zwei Drittel einkürzen, aber mindestens 2-3 Augenpaare am Trieb lassen. Nicht ins kahle Holz schneiden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Salbei ist bedingt winterhart. Schnitt bei Frost kann die Pflanze schwächen.",
+            "how": "Warte bis die Nächte frostfrei sind und der Neuaustrieb beginnt."
+          }
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "spring",
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Salbeiblätter regelmäßig ernten",
+          "why": "Vor der Blüte ist das Aroma am stärksten. Regelmäßiges Ernten hält den Strauch kompakt.",
+          "how": "Ganze Triebspitzen (8-10cm) abschneiden. Zum Trocknen vor der Blüte ernten – dann ist der Ölgehalt am höchsten."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Thymian",
+    "botanical_name": "Thymus vulgaris",
+    "description": "Niedrige, aromatische Polsterstaude. Bienenweide und Küchenkraut. Sandiger, magerer Boden ist ideal – je ärmer der Boden, desto intensiver das Aroma.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Thymus_vulgaris2.jpg/400px-Thymus_vulgaris2.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Thymian im Frühjahr kräftig zurückschneiden",
+          "why": "Thymian verholzt schnell und wird von innen kahl. Ein beherzter Rückschnitt im Frühjahr verjüngt die Pflanze.",
+          "how": "Um die Hälfte einkürzen, aber nicht ins kahle Holz schneiden – nur bis dorthin, wo noch grüne Blättchen sitzen."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frische Triebe nach dem Schnitt sind frostgefährdet.",
+            "how": "Warte auf frostfreie Nächte."
+          }
+        }
+      },
+      {
+        "task_type": "harvest",
+        "planning_seasons": [
+          "spring",
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Thymian vor und während der Blüte ernten",
+          "why": "Kurz vor der Blüte ist der Ölgehalt am höchsten. Auch blühender Thymian schmeckt noch gut.",
+          "how": "Ganze Triebspitzen abschneiden. Zum Trocknen ganze Stängel ernten und kopfüber aufhängen."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Brandkraut",
+    "botanical_name": "Phlomis russeliana",
+    "description": "Robuste Staude mit etagenförmigen gelben Blütenquirlen. Die Samenstände sind den ganzen Winter über dekorativ. Trockenheitsverträglich.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Phlomis_russeliana_01.jpg/400px-Phlomis_russeliana_01.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "cut_back",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Alte Blütenstängel im Frühjahr abschneiden",
+          "why": "Die Samenstände sind im Winter dekorativ und bieten Insekten Schutz. Erst im Frühjahr entfernen, wenn der Neuaustrieb beginnt.",
+          "how": "Alle alten Stängel bodennah abschneiden. Das alte Laub am Boden entfernen. Neues Laub treibt aus der Rosette."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Die alten Stängel und das Laub schützen die Knospen vor Spätfrost.",
+            "how": "Warte bis die Nächte frostfrei bleiben."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Englisches Hasenglöckchen",
+    "botanical_name": "Hyacinthoides non-scripta",
+    "description": "Zierlicher Frühjahrsblüher mit nickenden blauen Glockenblüten. Zwiebelpflanze, die sich langsam ausbreitet. Blüht April/Mai.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Hyacinthoides_non-scripta_%28Common_Bluebell%29.jpg/400px-Hyacinthoides_non-scripta_%28Common_Bluebell%29.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "deadhead",
+        "planning_seasons": [
+          "spring",
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Nach der Blüte Stängel entfernen, Laub stehen lassen",
+          "why": "Wie bei allen Zwiebelpflanzen muss das Laub einziehen können, damit die Zwiebel Kraft für nächstes Jahr speichert.",
+          "how": "Verblühte Stängel abschneiden. Das Laub erst entfernen wenn es komplett gelb und trocken ist (ca. 6 Wochen). Nicht flechten oder zusammenbinden."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Immergrüne Kriechheckenkirsche",
+    "botanical_name": "Lonicera pileata",
+    "description": "Niedriger, breitwüchsiger Strauch mit glänzend grünen Blättchen. Guter Bodendecker, auch unter Bäumen. Robust und anspruchslos.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Lonicera_pileata0.jpg/400px-Lonicera_pileata0.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [
+          "heatwave"
+        ],
+        "explanation": {
+          "summary": "Nach der Blüte in Form schneiden",
+          "why": "Ein Formschnitt nach der Blüte hält den Bodendecker kompakt und verhindert, dass er andere Pflanzen überwuchert.",
+          "how": "Mit der Heckenschere gleichmäßig in Form schneiden. Verträgt auch stärkeren Rückschnitt. Vogelschutzzeit beachten – vor dem Schnitt auf Nester prüfen."
+        },
+        "event_explanations": {
+          "heatwave": {
+            "why": "Bei starker Hitze trocknen die Schnittstellen schnell aus.",
+            "how": "Bei Temperaturen über 30°C nicht schneiden."
+          }
+        }
+      },
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "autumn",
+          "winter"
+        ],
+        "required_events": [],
+        "forbidden_events": [
+          "frost_risk_active"
+        ],
+        "explanation": {
+          "summary": "Stärkerer Rückschnitt im Herbst/Winter (außerhalb Vogelschutzzeit)",
+          "why": "Falls die Heckenkirsche zu stark gewuchert ist, kann sie außerhalb der Vogelschutzzeit (1.10.-28.2.) kräftig zurückgeschnitten werden.",
+          "how": "Überlange Triebe auf die gewünschte Höhe zurückschneiden. Die Pflanze treibt zuverlässig wieder aus."
+        },
+        "event_explanations": {
+          "frost_risk_active": {
+            "why": "Bei Frost können Schnittwunden Frostschäden verursachen.",
+            "how": "Warte auf eine milde Phase."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Falscher Jasmin",
+    "botanical_name": "Philadelphus coronarius",
+    "description": "Üppig blühender Strauch mit intensiv duftenden weißen Blüten im Juni. Wird 2-3m hoch. Anspruchslos, auch auf sandigem Boden.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Philadelphus_coronarius1.jpg/400px-Philadelphus_coronarius1.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Sofort nach der Blüte auslichten",
+          "why": "Falscher Jasmin blüht am vorjährigen Holz. Der Schnitt muss direkt nach der Blüte erfolgen, damit neue Blütentriebe für nächstes Jahr wachsen können.",
+          "how": "Die ältesten (dicksten) Triebe bodennah entfernen – maximal ein Drittel pro Jahr. Abgeblühte Triebe auf einen kräftigen Seitentrieb einkürzen."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "remove_deadwood",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Totholz im Vorfrühling entfernen",
+          "why": "Abgestorbene Äste nehmen den jungen Trieben Licht.",
+          "how": "Trockene Äste sauber herausschneiden. Sich kreuzende oder nach innen wachsende Triebe ebenfalls entfernen."
+        },
+        "event_explanations": {}
+      }
+    ]
+  },
+  {
+    "name": "Garten (allgemein)",
+    "botanical_name": null,
+    "description": "Allgemeine Gartenarbeiten und saisonale Pflege. Standort: sandiger Boden – speichert wenig Wasser, erwärmt sich schnell, trocknet leicht aus.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Garten_im_Fr%C3%BChling.jpg/400px-Garten_im_Fr%C3%BChling.jpg",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Beete aufräumen und Winterschutz entfernen",
+          "why": "Wenn kein Frost mehr droht, müssen Vlies, Reisig und Laubschichten entfernt werden, damit die Pflanzen Licht und Luft bekommen.",
+          "how": "Winterschutz abräumen. Abgestorbene Staudenreste abschneiden. Beete vorsichtig lockern. Kompost oder Mulch auf die Beete verteilen – besonders wichtig auf sandigem Boden als Verdunstungsschutz."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Zu frühes Entfernen des Winterschutzes setzt empfindliche Pflanzen Spätfrost aus.",
+            "how": "Warte bis die Nächte zuverlässig über 1°C bleiben."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [
+          "dry_spell"
+        ],
+        "explanation": {
+          "summary": "Beete mulchen und Unkraut jäten",
+          "why": "Eine Mulchschicht (5-8cm) ist auf sandigem Boden besonders wichtig: sie hält Feuchtigkeit, unterdrückt Unkraut und verbessert langfristig die Bodenstruktur.",
+          "how": "Erst gründlich jäten, dann mulchen. Geeignet: Rindenmulch, Rasenschnitt, Holzhäcksel. Nicht direkt an Stängel/Stämme mulchen (Fäulnisgefahr)."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Mulch isoliert den Boden – zu früh aufgebrachter Mulch hält die Kälte im Boden.",
+            "how": "Warte bis der Boden sich erwärmt hat."
+          },
+          "dry_spell": {
+            "why": "Vor dem Mulchen sollte der Boden gut durchfeuchtet sein, sonst trocknet er unter der Mulchschicht aus.",
+            "how": "Erst gründlich wässern, dann mulchen."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer",
+          "summer"
+        ],
+        "required_events": [
+          "dry_spell"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Tief wässern bei Trockenheit (sandiger Boden!)",
+          "why": "Sandiger Boden kann Wasser schlecht speichern. Bei Trockenheit muss tief und selten gegossen werden – lieber 1x gründlich als 5x oberflächlich.",
+          "how": "Morgens oder abends gießen. Pro Quadratmeter 20 Liter auf einmal. Rasensprenger sind weniger effektiv als gezieltes Gießen. Mulch reduziert die Verdunstung um bis zu 50%."
+        },
+        "event_explanations": {
+          "dry_spell": {
+            "why": "3+ Tage ohne Regen auf sandigem Boden bedeutet akuten Trockenstress für viele Pflanzen.",
+            "how": "Besonders Flachwurzler, Neuanpflanzungen und Kübelpflanzen prüfen."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "spring",
+          "early_summer"
+        ],
+        "required_events": [
+          "persistent_rain"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Schneckenkontrolle nach Dauerregen",
+          "why": "Nach mehrtägigem Regen sind Schnecken besonders aktiv. Sandiger Boden trocknet zwar schnell ab, aber frische Triebe sind gefährdet.",
+          "how": "Abends Schnecken absammeln. Schneckenkorn sparsam einsetzen. Bierfallen locken auch Schnecken aus Nachbargärten an – besser: Schneckenzäune um gefährdete Beete."
+        },
+        "event_explanations": {
+          "persistent_rain": {
+            "why": "Schnecken brauchen Feuchtigkeit. Nach 3+ Regentagen explodiert die Aktivität.",
+            "how": "Besonders Salatbeete, Hostas und junge Stauden kontrollieren."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "autumn"
+        ],
+        "required_events": [],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Garten winterfest machen",
+          "why": "Im Herbst werden die Beete für den Winter vorbereitet. Empfindliche Pflanzen brauchen Schutz, der Kompost muss umgesetzt werden.",
+          "how": "Laub zusammenrechen (auf Beeten als Mulch liegen lassen, auf Rasen entfernen). Frostempfindliche Pflanzen (Feige, Rosmarin) mit Vlies einpacken. Wasseranschlüsse abstellen. Hochbeet mit Laub/Stroh abdecken."
+        },
+        "event_explanations": {}
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "autumn",
+          "winter"
+        ],
+        "required_events": [
+          "frost_risk_active"
+        ],
+        "forbidden_events": [],
+        "explanation": {
+          "summary": "Frostschutz kontrollieren",
+          "why": "Bei akuter Frostgefahr müssen empfindliche Pflanzen geschützt sein. Besonders Kübelpflanzen, mediterrane Gewächse und frisch gepflanzte Gehölze.",
+          "how": "Vlies und Jutesäcke um empfindliche Pflanzen wickeln. Kübelpflanzen an die Hauswand rücken. Wurzelbereich mit Laub oder Stroh abdecken. Wasserleitungen im Garten abstellen."
+        },
+        "event_explanations": {
+          "frost_risk_active": {
+            "why": "Temperaturen unter 1°C können ungeschützte Pflanzen beschädigen oder töten.",
+            "how": "Frostwarnung in den nächsten 5 Tagen – jetzt handeln!"
+          }
+        }
+      }
+    ]
   }
 ]

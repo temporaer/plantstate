@@ -92,7 +92,7 @@ class TestPlantCRUD:
             assert resp.status_code == 200, f"Failed for {plant_data['name']}: {resp.text}"
 
         resp = client.get("/plants")
-        assert len(resp.json()) == 8
+        assert len(resp.json()) == len(plants)
 
 
 class TestTaskActions:

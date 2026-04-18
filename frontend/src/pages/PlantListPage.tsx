@@ -4,6 +4,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  CardMedia,
   Chip,
   Grid,
   Stack,
@@ -47,6 +48,15 @@ export function PlantListPage({
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>
             <Card>
               <CardActionArea onClick={() => onSelect(plant.id)}>
+                {plant.image_url && (
+                  <CardMedia
+                    component="img"
+                    height="160"
+                    image={plant.image_url}
+                    alt={plant.name}
+                    sx={{ objectFit: "cover" }}
+                  />
+                )}
                 <CardContent>
                   <Typography variant="h6">{plant.name}</Typography>
                   {plant.botanical_name && (

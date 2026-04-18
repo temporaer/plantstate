@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, CardMedia, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { api } from "../api";
 import { RuleCard } from "../components/RuleCard";
@@ -24,6 +24,21 @@ export function PlantDetailPage({
       <Button startIcon={<ArrowBackIcon />} onClick={onBack} sx={{ mb: 2 }}>
         Zurück
       </Button>
+
+      {plant.image_url && (
+        <CardMedia
+          component="img"
+          image={plant.image_url}
+          alt={plant.name}
+          sx={{
+            maxHeight: 280,
+            objectFit: "cover",
+            borderRadius: 2,
+            mb: 2,
+          }}
+        />
+      )}
+
       <Typography variant="h4" gutterBottom>
         {plant.name}
       </Typography>

@@ -22,6 +22,7 @@ from backend.application.services import OutlookItem, PlantService, RelevantTask
 from backend.domain.events import compute_all_events
 from backend.domain.models import DailyWeather, Plant, WeatherData
 from backend.domain.rules import get_current_season
+from backend.domain.tips import get_tips
 from backend.infrastructure.database import Base
 from backend.infrastructure.ha_adapter import HomeAssistantAdapter
 
@@ -122,6 +123,7 @@ class PlantResponse(BaseModel):
     name: str
     botanical_name: str | None = None
     description: str = ""
+    image_url: str | None = None
     language: str = "en"
     rules: list[dict] = Field(default_factory=list)
 
@@ -161,6 +163,12 @@ class OutlookItemResponse(BaseModel):
     conditions_met: bool
     blocking: list[str]
     ready: bool
+
+
+class TipResponse(BaseModel):
+    icon: str
+    title: str
+    detail: str
 
 
 # --- Routes ---
@@ -287,6 +295,24 @@ async def get_weather_status() -> WeatherStatusResponse:
     )
 
 
+@app.get("/dashboard/tips", response_model=list[TipResponse])
+async def get_garden_tips() -> list[TipResponse]:
+    """Get contextual garden tips based on current season and weather."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(
+            status_code=503, detail="Home Assistant not configured",
+        )
+    weather = await adapter.fetch_weather_data()
+    events = compute_all_events(weather)
+    season = get_current_season()
+    tips = get_tips(season, events)
+    return [
+        TipResponse(icon=t.icon, title=t.title, detail=t.detail)
+        for t in tips
+    ]
+
+
 @app.get("/dashboard/relevant-now-live", response_model=list[RelevantNowItem])
 async def get_relevant_now_live(
     service: PlantService = Depends(get_service),
@@ -384,6 +410,7 @@ def _plant_response(plant: Plant) -> PlantResponse:
         name=plant.name,
         botanical_name=plant.botanical_name,
         description=plant.description,
+        image_url=plant.image_url,
         language=plant.language,
         rules=[r.model_dump(mode="json") for r in plant.rules],
     )

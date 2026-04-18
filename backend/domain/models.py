@@ -124,6 +124,7 @@ class Plant(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     botanical_name: str | None = None
     description: str = ""
+    image_url: str | None = None
     language: str = "en"
     rules: list[Rule] = Field(default_factory=list)
     created_at: datetime | None = None
