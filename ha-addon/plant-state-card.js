@@ -59,7 +59,10 @@ class PlantStateCard extends HTMLElement {
       console.log("[plant-state-card] candidates:", candidates, "ingress:", ingress, "→", panelKey);
     }
     if (!panelKey || panelKey === "/") return;
-    window.location.href = panelKey + (path ? "/#" + path : "");
+    // Use HA's SPA navigation (pushState + event) to avoid full page reload
+    const target = panelKey + (path ? "/#" + path : "");
+    history.pushState(null, "", target);
+    window.dispatchEvent(new CustomEvent("location-changed"));
   }
 
   _render() {
