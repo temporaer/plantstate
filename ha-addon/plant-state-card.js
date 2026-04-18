@@ -43,37 +43,40 @@ class PlantStateCard extends HTMLElement {
   }
 
   _panelHref(path) {
-    let panelUrl = "";
-    // Always auto-detect from hass.panels first
-    if (this._hass) {
-      const panels = this._hass.panels || {};
-      // Prefer hashed key (e.g. af89232b_plant_state)
+    if (!this._hass) return "#";
+    const panels = this._hass.panels || {};
+
+    // Find our panel (prefer hashed key like af89232b_plant_state)
+    let panel = null;
+    let panelKey = null;
+    for (const key of Object.keys(panels)) {
+      if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
+        panel = panels[key];
+        panelKey = key;
+        break;
+      }
+    }
+    if (!panel) {
       for (const key of Object.keys(panels)) {
-        if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
-          panelUrl = `/${key}`;
+        if (key.includes("plant_state") && !key.includes("/")) {
+          panel = panels[key];
+          panelKey = key;
           break;
         }
       }
-      // Fallback: any panel with plant_state that is NOT an ingress path
-      if (!panelUrl) {
-        for (const key of Object.keys(panels)) {
-          if (key.includes("plant_state") && !key.includes("/")) {
-            panelUrl = `/${key}`;
-            break;
-          }
-        }
-      }
     }
-    // Last resort: config value, but strip hassio/ingress paths
-    if (!panelUrl && this._config.panel_url) {
-      const raw = this._config.panel_url.replace(/^\/+/, "");
-      if (!raw.startsWith("hassio/ingress")) {
-        panelUrl = "/" + raw;
-      }
+    if (!panel) return "#";
+    console.log("[plant-state-card] panel object:", panelKey, JSON.stringify(panel));
+
+    // For deep links, try to use the ingress URL which preserves hash fragments
+    const ingress = panel.config?.ingress || panel.ingress_url;
+    if (path && ingress) {
+      return String(ingress).replace(/\/+$/, "") + `/#${path}`;
     }
-    console.log("[plant-state-card] _panelHref:", panelUrl, path);
-    if (!panelUrl) return "#";
-    return panelUrl + (path ? `/#${path}` : "");
+
+    // Default: panel URL (opens the app root)
+    const base = `/${panel.url_path || panelKey}`;
+    return path ? base + `/#${path}` : base;
   }
 
   _render() {
