@@ -12,11 +12,13 @@ rest_command:
     url: "http://PLANT_STATE_IP:8000/dashboard/relevant-now-live"
     method: GET
 
-# --- Step 2: Template sensor (updates hourly) ---
+# --- Step 2: Template sensor (updates every 15min + on HA start) ---
 template:
   - trigger:
       - trigger: time_pattern
-        hours: "/1"
+        minutes: "/15"
+      - trigger: homeassistant
+        event: start
     action:
       - action: rest_command.garten_aufgaben
         response_variable: result
