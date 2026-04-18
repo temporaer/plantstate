@@ -35,6 +35,7 @@ export interface Task {
   task_type: string;
   status: string;
   year: number;
+  snoozed_until: string | null;
 }
 
 export interface RelevantNowItem {
@@ -107,6 +108,8 @@ export const api = {
     apiFetch<Task>(`/tasks/${id}/complete`, { method: "POST" }),
   skipTask: (id: string) =>
     apiFetch<Task>(`/tasks/${id}/skip`, { method: "POST" }),
+  snoozeTask: (id: string, days = 14) =>
+    apiFetch<Task>(`/tasks/${id}/snooze?days=${days}`, { method: "POST" }),
   getWeatherStatus: () => apiFetch<WeatherStatus>("/dashboard/weather"),
   getTips: () => apiFetch<Tip[]>("/dashboard/tips"),
   getOutlook: () => apiFetch<OutlookItem[]>("/dashboard/outlook"),

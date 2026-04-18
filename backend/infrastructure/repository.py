@@ -5,7 +5,7 @@ Converts between domain models and database rows.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -148,6 +148,7 @@ class TaskRepository:
             year=task.year,
             activated_at=task.activated_at,
             completed_at=task.completed_at,
+            snoozed_until=task.snoozed_until,
         )
         self._session.merge(row)
         self._session.flush()
@@ -181,6 +182,14 @@ class TaskRepository:
         self._session.flush()
         return self._to_domain(row)
 
+    def snooze(self, task_id: str, until: date) -> Task | None:
+        row = self._session.get(TaskRow, task_id)
+        if row is None:
+            return None
+        row.snoozed_until = until
+        self._session.flush()
+        return self._to_domain(row)
+
     @staticmethod
     def _to_domain(row: TaskRow) -> Task:
         return Task(
@@ -192,4 +201,5 @@ class TaskRepository:
             year=row.year,
             activated_at=row.activated_at,
             completed_at=row.completed_at,
+            snoozed_until=row.snoozed_until,
         )

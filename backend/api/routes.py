@@ -139,6 +139,7 @@ class TaskResponse(BaseModel):
     task_type: str
     status: str
     year: int
+    snoozed_until: str | None = None
 
 
 class RelevantNowItem(BaseModel):
@@ -250,6 +251,18 @@ def skip_task(
     task_id: str, service: PlantService = Depends(get_service)
 ) -> TaskResponse:
     task = service.skip_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return _task_response(task)
+
+
+@app.post("/tasks/{task_id}/snooze", response_model=TaskResponse)
+def snooze_task(
+    task_id: str,
+    days: int = 14,
+    service: PlantService = Depends(get_service),
+) -> TaskResponse:
+    task = service.snooze_task(task_id, days=days)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return _task_response(task)
@@ -432,6 +445,7 @@ def _task_response(task: Any) -> TaskResponse:
         task_type=task.task_type.value,
         status=task.status.value,
         year=task.year,
+        snoozed_until=str(task.snoozed_until) if task.snoozed_until else None,
     )
 
 

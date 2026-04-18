@@ -77,6 +77,15 @@ class PlantService:
             self._session.commit()
         return task
 
+    def snooze_task(self, task_id: str, days: int = 14) -> Task | None:
+        """Snooze a task for a number of days (default 14)."""
+        from datetime import timedelta
+        until = date.today() + timedelta(days=days)
+        task = self._tasks.snooze(task_id, until)
+        if task:
+            self._session.commit()
+        return task
+
     def get_relevant_now(self, weather_data: WeatherData) -> list[RelevantTask]:
         """Get all tasks that are relevant right now."""
         event_state = compute_all_events(weather_data)
@@ -90,12 +99,16 @@ class PlantService:
             task_by_rule.setdefault(t.rule_id, []).append(t)
 
         results: list[RelevantTask] = []
+        today = date.today()
         for plant in plants:
             for rule in plant.rules:
                 if is_relevant_now(rule, event_state, current_season):
                     urgency = compute_urgency(rule, event_state, current_season)
                     tasks = task_by_rule.get(rule.id, [])
                     for task in tasks:
+                        # Skip snoozed tasks
+                        if task.snoozed_until and task.snoozed_until > today:
+                            continue
                         results.append(
                             RelevantTask(
                                 task=task,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String, Text, func
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -60,5 +60,6 @@ class TaskRow(Base):
     year: Mapped[int] = mapped_column(nullable=False)
     activated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    snoozed_until: Mapped[datetime | None] = mapped_column(Date, nullable=True)
 
     plant: Mapped[PlantRow] = relationship(back_populates="tasks")

@@ -9,11 +9,16 @@ import {
   Typography,
 } from "@mui/material";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import SkipNextOutlinedIcon from "@mui/icons-material/SkipNextOutlined";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import type { RelevantNowItem } from "../api";
 import { TASK_TYPE_LABELS } from "../labels";
 
-const PRIORITY_CONFIG: Record<string, { label: string; color: "error" | "default" | "info" }> = {
+// Task types where recurring within a season makes sense
+const SNOOZABLE_TYPES = new Set([
+  "harvest", "deadhead", "prune_maintenance",
+]);
+
+const PRIORITY_CONFIG: Record<string, { label: string; color: string }> = {
   high: { label: "Wichtig", color: "error" },
   normal: { label: "Normal", color: "default" },
   low: { label: "Nebensache", color: "info" },
@@ -29,12 +34,12 @@ export function RelevantTaskCard({
   item,
   onNavigateToPlant,
   onComplete,
-  onSkip,
+  onSnooze,
 }: {
   item: RelevantNowItem;
   onNavigateToPlant?: (plantId: string) => void;
   onComplete?: (taskId: string) => void;
-  onSkip?: (taskId: string) => void;
+  onSnooze?: (taskId: string) => void;
 }) {
   const taskLabel = TASK_TYPE_LABELS[item.task_type] ?? item.task_type;
   const emoji = taskLabel.split(" ")[0] ?? "📋";
@@ -91,18 +96,20 @@ export function RelevantTaskCard({
         cardBody
       )}
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, px: 2, pb: 1.5 }}>
+        {SNOOZABLE_TYPES.has(item.task_type) && (
+          <Button
+            size="small"
+            variant="outlined"
+            color="inherit"
+            startIcon={<ScheduleOutlinedIcon />}
+            onClick={(e) => { e.stopPropagation(); onSnooze?.(item.task.id); }}
+          >
+            In 2 Wochen
+          </Button>
+        )}
         <Button
           size="small"
           variant="outlined"
-          color="inherit"
-          startIcon={<SkipNextOutlinedIcon />}
-          onClick={(e) => { e.stopPropagation(); onSkip?.(item.task.id); }}
-        >
-          Überspringen
-        </Button>
-        <Button
-          size="small"
-          variant="contained"
           color="success"
           startIcon={<CheckCircleOutlinedIcon />}
           onClick={(e) => { e.stopPropagation(); onComplete?.(item.task.id); }}

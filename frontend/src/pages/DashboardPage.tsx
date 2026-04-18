@@ -320,11 +320,10 @@ export function DashboardPage({
     },
   });
 
-  const skipMutation = useMutation({
-    mutationFn: api.skipTask,
+  const snoozeMutation = useMutation({
+    mutationFn: (id: string) => api.snoozeTask(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
-      queryClient.invalidateQueries({ queryKey: ["outlook"] });
     },
   });
 
@@ -379,7 +378,7 @@ export function DashboardPage({
           item={item}
           onNavigateToPlant={onNavigateToPlant}
           onComplete={(id) => completeMutation.mutate(id)}
-          onSkip={(id) => skipMutation.mutate(id)}
+          onSnooze={(id) => snoozeMutation.mutate(id)}
         />
       ))}
 

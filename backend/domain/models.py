@@ -148,6 +148,7 @@ class Task(BaseModel):
     year: int
     activated_at: datetime | None = None
     completed_at: datetime | None = None
+    snoozed_until: date | None = None
 
 
 # --- Calendar projection ---
