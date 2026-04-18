@@ -1,0 +1,64 @@
+# =============================================================================
+# Plant-State — Home Assistant Configuration
+# =============================================================================
+# Add these sections to your configuration.yaml
+# Replace PLANT_STATE_IP with your host IP (e.g. 192.168.1.176)
+# Then restart HA.
+# =============================================================================
+
+# --- Step 1: REST command to fetch task data ---
+rest_command:
+  garten_aufgaben:
+    url: "http://PLANT_STATE_IP:8000/dashboard/relevant-now-live"
+    method: GET
+
+# --- Step 2: Template sensor (updates hourly) ---
+template:
+  - trigger:
+      - trigger: time_pattern
+        hours: "/1"
+    action:
+      - action: rest_command.garten_aufgaben
+        response_variable: result
+    sensor:
+      - name: "Garten Tasks"
+        unique_id: garten_tasks_sensor
+        state: "{{ (result.content | from_json) | length }}"
+        icon: mdi:flower-tulip
+        unit_of_measurement: "Aufgaben"
+        attributes:
+          tasks: "{{ result.content }}"
+
+# =============================================================================
+# Step 3: Lovelace Markdown Card
+# =============================================================================
+# In your HA dashboard, add a Manual Card and paste this YAML:
+#
+# type: markdown
+# title: 🌱 Garten
+# content: >-
+#   {% set data = state_attr('sensor.garten_tasks', 'tasks') %}
+#   {% if data %}
+#   {% set tasks = data | from_json %}
+#   {% set labels = {
+#     'sow': '🌱 Aussaat',
+#     'transplant': '🌿 Auspflanzen',
+#     'harvest': '🍎 Ernte',
+#     'prune_maintenance': '✂️ Pflegeschnitt',
+#     'prune_structural': '🪚 Formschnitt',
+#     'cut_back': '✂️ Rückschnitt',
+#     'deadhead': '🌸 Verblühtes entfernen',
+#     'thin_fruit': '🍏 Fruchtausdünnung',
+#     'remove_deadwood': '🪵 Totholz entfernen'
+#   } %}
+#   {% set urg = {'acute': '🔴', 'soon': '🟡', 'relaxed': '⚪'} %}
+#   {% for t in tasks %}
+#   {{ urg.get(t.urgency, '⚪') }} **{{ labels.get(t.task_type, t.task_type) }}** {{ t.plant_name }}
+#   <small>{{ t.explanation_summary }}</small>
+#
+#   {% endfor %}
+#   {% else %}
+#   Keine Aufgaben gerade — alles gut! 🎉
+#   {% endif %}
+
+
