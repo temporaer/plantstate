@@ -57,10 +57,8 @@ class PlantStateCard extends HTMLElement {
       }
     }
     if (!panelKey) return;
-    // Navigate to the panel path directly (same as sidebar click)
-    const target = `/${panelKey}` + (path ? `/#${path}` : "");
-    history.pushState(null, "", target);
-    window.dispatchEvent(new Event("location-changed"));
+    // Full navigation to panel path (same as clicking the sidebar link)
+    window.open(`/${panelKey}` + (path ? `/#${path}` : ""), "_self");
   }
 
   _render() {
