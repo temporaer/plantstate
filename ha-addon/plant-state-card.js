@@ -43,30 +43,36 @@ class PlantStateCard extends HTMLElement {
   }
 
   _panelHref(path) {
-    // Resolve the ingress panel URL for use in <a> tags
-    let panelUrl = this._config.panel_url || "";
-    if (!panelUrl && this._hass) {
+    let panelUrl = "";
+    // Always auto-detect from hass.panels first
+    if (this._hass) {
       const panels = this._hass.panels || {};
+      // Prefer hashed key (e.g. af89232b_plant_state)
       for (const key of Object.keys(panels)) {
         if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
           panelUrl = `/${key}`;
           break;
         }
       }
+      // Fallback: any panel with plant_state that is NOT an ingress path
       if (!panelUrl) {
         for (const key of Object.keys(panels)) {
-          if (key.includes("plant_state")) {
-            const p = panels[key];
-            // Use the panel's url_path if it's an ingress panel
-            panelUrl = p?.url_path ? `/${p.url_path}` : `/${key}`;
+          if (key.includes("plant_state") && !key.includes("/")) {
+            panelUrl = `/${key}`;
             break;
           }
         }
       }
     }
-    // Ensure exactly one leading slash, never //
-    panelUrl = "/" + panelUrl.replace(/^\/+/, "");
-    if (!panelUrl || panelUrl === "/") return "#";
+    // Last resort: config value, but strip hassio/ingress paths
+    if (!panelUrl && this._config.panel_url) {
+      const raw = this._config.panel_url.replace(/^\/+/, "");
+      if (!raw.startsWith("hassio/ingress")) {
+        panelUrl = "/" + raw;
+      }
+    }
+    console.log("[plant-state-card] _panelHref:", panelUrl, path);
+    if (!panelUrl) return "#";
     return panelUrl + (path ? `/#${path}` : "");
   }
 
