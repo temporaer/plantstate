@@ -367,5 +367,93 @@
         }
       }
     ]
+  },
+  {
+    "name": "Thujahecke",
+    "botanical_name": "Thuja occidentalis",
+    "description": "Immergrüne Heckenpflanze. Vogelschutz beachten: starker Rückschnitt nur Oktober bis Ende Februar erlaubt (§39 BNatSchG). Standort: sandiger Boden – bei Trockenheit gut wässern.",
+    "language": "de",
+    "rules": [
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "early_summer"
+        ],
+        "required_events": [
+          "frost_risk_passed"
+        ],
+        "forbidden_events": [
+          "heatwave",
+          "dry_spell"
+        ],
+        "explanation": {
+          "summary": "Erster leichter Formschnitt im Frühsommer",
+          "why": "Der erste Schnitt kürzt den Frühjahrsaustrieb ein und hält die Hecke in Form. Nur der diesjährige Zuwachs wird geschnitten – das ist als schonender Formschnitt auch während der Vogelschutzzeit erlaubt (§39 BNatSchG).",
+          "how": "Nur die grünen Triebspitzen kappen, nicht ins alte Holz schneiden. Thuja treibt aus altem Holz nicht wieder aus! Bei sandigem Boden vorher gut wässern, damit die Pflanze den Schnitt besser verkraftet. Am besten an einem bewölkten Tag schneiden."
+        },
+        "event_explanations": {
+          "frost_risk_passed": {
+            "why": "Frisch geschnittene Triebe sind frostempfindlich.",
+            "how": "Warte bis die Nächte zuverlässig über 1°C bleiben."
+          },
+          "heatwave": {
+            "why": "Bei Hitze verdunstet die Pflanze über die Schnittflächen zu viel Wasser – besonders problematisch auf sandigem Boden.",
+            "how": "Nicht schneiden wenn 3+ Tage über 30°C angesagt sind."
+          },
+          "dry_spell": {
+            "why": "Auf sandigem Boden trocknet der Wurzelbereich schnell aus. Ein Schnitt bei Trockenheit stresst die Pflanze zusätzlich.",
+            "how": "Bei Trockenheit erst gründlich wässern und ein paar Tage warten, bevor geschnitten wird."
+          }
+        }
+      },
+      {
+        "task_type": "prune_maintenance",
+        "planning_seasons": [
+          "late_summer"
+        ],
+        "required_events": [],
+        "forbidden_events": [
+          "heatwave",
+          "dry_spell"
+        ],
+        "explanation": {
+          "summary": "Zweiter Formschnitt im Spätsommer",
+          "why": "Der zweite Schnitt bringt die Hecke vor dem Winter in eine saubere Form. Der Zuwachs seit Juni wird eingekürzt. Auch dieser schonende Formschnitt ist während der Vogelschutzzeit erlaubt.",
+          "how": "Wieder nur grüne Triebspitzen kappen. Die Hecke sollte unten breiter als oben sein (Trapezform), damit auch die unteren Zweige Licht bekommen. Vorher auf Vogelnester prüfen – falls ein Nest gefunden wird, den Schnitt an der Stelle auslassen."
+        },
+        "event_explanations": {
+          "heatwave": {
+            "why": "Hitzestress + Schnitt = doppelte Belastung, besonders auf sandigem Boden.",
+            "how": "Warte bis die Temperaturen unter 30°C fallen."
+          },
+          "dry_spell": {
+            "why": "Sandiger Boden speichert wenig Wasser. Bei Trockenheit erst wässern.",
+            "how": "Tiefgründig wässern (20 Liter pro Laufmeter), 2 Tage warten, dann schneiden."
+          }
+        }
+      },
+      {
+        "task_type": "prune_structural",
+        "planning_seasons": [
+          "autumn",
+          "winter"
+        ],
+        "required_events": [],
+        "forbidden_events": [
+          "frost_risk_active"
+        ],
+        "explanation": {
+          "summary": "Starker Rückschnitt nur im Herbst/Winter (Vogelschutz)",
+          "why": "Laut Bundesnaturschutzgesetz §39 ist ein starker Rückschnitt von Hecken nur vom 1. Oktober bis Ende Februar erlaubt. In dieser Zeit brüten keine Vögel in der Hecke.",
+          "how": "Falls die Hecke zu breit oder hoch geworden ist, kann jetzt stärker geschnitten werden. Aber Vorsicht: Thuja treibt aus altem, braunem Holz NICHT wieder aus. Maximal bis zur Grenze des grünen Nadelbereichs schneiden."
+        },
+        "event_explanations": {
+          "frost_risk_active": {
+            "why": "Bei Frost können frische Schnittwunden aufplatzen und es droht Frosttrocknis.",
+            "how": "Warte auf eine milde Phase mit Temperaturen über 1°C."
+          }
+        }
+      }
+    ]
   }
 ]
