@@ -26,6 +26,7 @@ const URG_COLOR = { acute: "#ef5350", soon: "#ffb74d", relaxed: "#bdbdbd" };
 class PlantStateCard extends HTMLElement {
   _config = {};
   _hass = null;
+  _listening = false;
 
   setConfig(config) {
     this._config = {
@@ -142,22 +143,22 @@ class PlantStateCard extends HTMLElement {
         </div>
       </ha-card>`;
 
-    // --- Event listeners ---
-    this.querySelectorAll(".chip[data-plant-id]").forEach((el) =>
-      el.addEventListener("click", (e) => {
+    // --- Delegated click handler (survives re-renders) ---
+    if (!this._listening) {
+      this._listening = true;
+      this.addEventListener("click", (e) => {
+        const target = e.target.closest("[data-plant-id], [data-filter], .open-link");
+        if (!target) return;
+        e.preventDefault();
         e.stopPropagation();
-        this._navigate(`/plants/${el.dataset.plantId}`);
-      })
-    );
-    this.querySelectorAll(".badge[data-filter]").forEach((el) =>
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this._navigate("/");
-      })
-    );
-    const openLink = this.querySelector(".open-link");
-    if (openLink) {
-      openLink.addEventListener("click", () => this._navigate("/"));
+        if (target.dataset.plantId) {
+          this._navigate(`/plants/${target.dataset.plantId}`);
+        } else if (target.dataset.filter) {
+          this._navigate("/");
+        } else if (target.classList.contains("open-link")) {
+          this._navigate("/");
+        }
+      });
     }
   }
 
