@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -5,11 +6,14 @@ import {
   CardActionArea,
   CardContent,
   Chip,
+  Collapse,
   Stack,
   Typography,
 } from "@mui/material";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import type { RelevantNowItem } from "../api";
 import { TASK_TYPE_LABELS } from "../labels";
 
@@ -52,6 +56,8 @@ export function RelevantTaskCard({
     item.priority === "high" ? "warning.main" :
     item.priority === "low" ? "grey.400" : "primary.main";
 
+  const [expanded, setExpanded] = useState(false);
+
   const cardBody = (
     <CardContent sx={{ pb: 1 }}>
       <Stack direction="row" spacing={1} sx={{ mb: 0.5, alignItems: "center", flexWrap: "wrap" }}>
@@ -74,15 +80,20 @@ export function RelevantTaskCard({
           />
         )}
       </Stack>
-      <Typography variant="subtitle2" color="primary" gutterBottom>
-        {item.explanation_summary}
-      </Typography>
-      <Typography variant="body2" sx={{ mt: 1 }}>
-        <strong>Warum:</strong> {item.explanation_why}
-      </Typography>
-      <Typography variant="body2">
-        <strong>Wie:</strong> {item.explanation_how}
-      </Typography>
+      <Stack direction="row" sx={{ alignItems: "center", gap: 0.5, cursor: "pointer" }} onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}>
+        <Typography variant="subtitle2" color="primary">
+          {item.explanation_summary}
+        </Typography>
+        {expanded ? <ExpandLessIcon fontSize="small" color="primary" /> : <ExpandMoreIcon fontSize="small" color="primary" />}
+      </Stack>
+      <Collapse in={expanded}>
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          <strong>Warum:</strong> {item.explanation_why}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Wie:</strong> {item.explanation_how}
+        </Typography>
+      </Collapse>
     </CardContent>
   );
 
