@@ -46,7 +46,11 @@ function AppContent() {
       </AppBar>
 
       <Container maxWidth="md" sx={{ py: 3 }}>
-        {view.page === "dashboard" && <DashboardPage />}
+        {view.page === "dashboard" && (
+          <DashboardPage
+            onNavigateToPlant={(id) => setView({ page: "detail", id })}
+          />
+        )}
         {view.page === "list" && (
           <PlantListPage
             onSelect={(id) => setView({ page: "detail", id })}

@@ -214,7 +214,11 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
   );
 }
 
-export function DashboardPage() {
+export function DashboardPage({
+  onNavigateToPlant,
+}: {
+  onNavigateToPlant?: (plantId: string) => void;
+}) {
   const weatherQuery = useQuery({
     queryKey: ["weather"],
     queryFn: api.getWeatherStatus,
@@ -282,7 +286,11 @@ export function DashboardPage() {
       )}
 
       {relevantQuery.data?.map((item) => (
-        <RelevantTaskCard key={item.task.id} item={item} />
+        <RelevantTaskCard
+          key={item.task.id}
+          item={item}
+          onNavigateToPlant={onNavigateToPlant}
+        />
       ))}
 
       <Divider sx={{ my: 3 }} />
