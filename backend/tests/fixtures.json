@@ -259,6 +259,10 @@
           "sustained_mild_nights": {
             "why": "Gurken brauchen warme Nächte zum Keimen und Wachsen.",
             "how": "Mindestens 4 von 5 Nächten über 8°C."
+          },
+          "frost_risk_active": {
+            "why": "Bereits ein einzelner Frost tötet die empfindlichen Jungpflanzen.",
+            "how": "Das System prüft ob in den nächsten 5 Tagen Nachtfrost droht."
           }
         }
       },
@@ -317,6 +321,10 @@
           "sustained_mild_nights": {
             "why": "Kalte Nächte stressen junge Tomatenpflanzen und verzögern das Wachstum.",
             "how": "Nachttemperaturen sollten möglichst über 8°C liegen."
+          },
+          "frost_risk_active": {
+            "why": "Bereits ein einzelner Frost tötet die empfindlichen Jungpflanzen.",
+            "how": "Das System prüft ob in den nächsten 5 Tagen Nachtfrost droht."
           }
         }
       },

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,13 +12,14 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from backend.application.llm_contract import llm_output_to_plant, validate_llm_output
 from backend.application.services import PlantService, RelevantTask
-from backend.domain.models import Plant, WeatherData
+from backend.domain.models import DailyWeather, Plant, WeatherData
 from backend.infrastructure.database import Base
 
-DATABASE_URL = "sqlite:///plant_state.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///plant_state.db")
 
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 
 
@@ -47,6 +49,45 @@ def get_db() -> Session:  # type: ignore[misc]
 
 def get_service(db: Session = Depends(get_db)) -> PlantService:
     return PlantService(db)
+
+
+# --- Request models ---
+
+
+class DailyWeatherInput(BaseModel):
+    date: str
+    temp_min: float
+    temp_max: float
+    precipitation_mm: float = 0.0
+
+
+class WeatherDataInput(BaseModel):
+    history: list[DailyWeatherInput] = Field(default_factory=list)
+    forecast: list[DailyWeatherInput] = Field(default_factory=list)
+
+    def to_domain(self) -> WeatherData:
+        from datetime import date as date_type
+
+        return WeatherData(
+            history=[
+                DailyWeather(
+                    date=date_type.fromisoformat(d.date),
+                    temp_min=d.temp_min,
+                    temp_max=d.temp_max,
+                    precipitation_mm=d.precipitation_mm,
+                )
+                for d in self.history
+            ],
+            forecast=[
+                DailyWeather(
+                    date=date_type.fromisoformat(d.date),
+                    temp_min=d.temp_min,
+                    temp_max=d.temp_max,
+                    precipitation_mm=d.precipitation_mm,
+                )
+                for d in self.forecast
+            ],
+        )
 
 
 # --- Response models ---
@@ -83,7 +124,10 @@ class RelevantNowItem(BaseModel):
 
 
 @app.post("/plants", response_model=PlantResponse)
-def create_plant(plant: Plant, service: PlantService = Depends(get_service)) -> PlantResponse:
+def create_plant(body: dict[str, Any], service: PlantService = Depends(get_service)) -> PlantResponse:
+    """Create a plant from JSON (same schema as LLM output)."""
+    validated = validate_llm_output(body)
+    plant = llm_output_to_plant(validated)
     saved = service.add_plant(plant)
     return _plant_response(saved)
 
@@ -145,9 +189,10 @@ def skip_task(
 
 @app.post("/dashboard/relevant-now", response_model=list[RelevantNowItem])
 def get_relevant_now(
-    weather_data: WeatherData,
+    weather_input: WeatherDataInput,
     service: PlantService = Depends(get_service),
 ) -> list[RelevantNowItem]:
+    weather_data = weather_input.to_domain()
     results = service.get_relevant_now(weather_data)
     return [_relevant_item(r) for r in results]
 
