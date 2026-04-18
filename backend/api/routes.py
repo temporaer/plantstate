@@ -125,7 +125,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                     if adapter is None:
                         return
                     weather = await adapter.fetch_weather_data()
-                    tasks = service.get_relevant_now_live(weather)
+                    tasks = service.get_relevant_now(weather)
                     task_dicts = [
                         {
                             "task_id": t.task.id,
