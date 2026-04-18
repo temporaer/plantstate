@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -87,6 +87,38 @@ def serialize_relevant_task(t: RelevantTask) -> dict[str, str]:
     }
 
 
+async def _push_sensor_update() -> None:
+    """Push current relevant tasks to HA sensor (fire-and-forget)."""
+    import json
+    import logging
+    log = logging.getLogger("plant_state.sensor")
+    try:
+        adapter = _get_ha_adapter()
+        if adapter is None:
+            return
+        db = SessionLocal()
+        try:
+            service = PlantService(db)
+            weather = await adapter.fetch_weather_data()
+            tasks = service.get_relevant_now(weather)
+            task_dicts = [serialize_relevant_task(t) for t in tasks]
+            await adapter.update_sensor(
+                "sensor.garten_tasks",
+                state=str(len(task_dicts)),
+                attributes={
+                    "friendly_name": "Garten Aufgaben",
+                    "icon": "mdi:flower-tulip",
+                    "unit_of_measurement": "Aufgaben",
+                    "tasks": json.dumps(task_dicts),
+                },
+            )
+            log.info("Sensor update (task change): %d tasks", len(task_dicts))
+        finally:
+            db.close()
+    except Exception:
+        log.exception("Sensor update after task change failed")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Base.metadata.create_all(engine)
@@ -134,43 +166,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             except Exception:
                 log.exception("Calendar sync failed")
 
-        async def scheduled_sensor_update() -> None:
-            """Push task data to HA sensor every 15 minutes."""
-            import json
-            import logging
-            log = logging.getLogger("plant_state.scheduler")
-            try:
-                db = SessionLocal()
-                try:
-                    service = PlantService(db)
-                    adapter = _get_ha_adapter()
-                    if adapter is None:
-                        return
-                    weather = await adapter.fetch_weather_data()
-                    tasks = service.get_relevant_now(weather)
-                    task_dicts = [
-                        serialize_relevant_task(t) for t in tasks
-                    ]
-                    await adapter.update_sensor(
-                        "sensor.garten_tasks",
-                        state=str(len(task_dicts)),
-                        attributes={
-                            "friendly_name": "Garten Aufgaben",
-                            "icon": "mdi:flower-tulip",
-                            "unit_of_measurement": "Aufgaben",
-                            "tasks": json.dumps(task_dicts),
-                        },
-                    )
-                    log.info("Sensor update: %d tasks", len(task_dicts))
-                finally:
-                    db.close()
-            except Exception:
-                log.exception("Sensor update failed")
-
         scheduler = AsyncIOScheduler()
         scheduler.add_job(scheduled_calendar_sync, "interval", hours=6, id="calendar_sync")
-        scheduler.add_job(scheduled_sensor_update, "interval", minutes=15, id="sensor_update")
-        scheduler.add_job(scheduled_sensor_update, "date", id="sensor_update_boot")
+        scheduler.add_job(_push_sensor_update, "interval", minutes=15, id="sensor_update")
+        scheduler.add_job(_push_sensor_update, "date", id="sensor_update_boot")
         scheduler.start()
 
     yield
@@ -446,21 +445,23 @@ Output ONLY the JSON, no additional text."""
 
 @app.post("/tasks/{task_id}/complete", response_model=TaskResponse)
 def complete_task(
-    task_id: str, service: PlantService = Depends(get_service)
+    task_id: str, bg: BackgroundTasks, service: PlantService = Depends(get_service)
 ) -> TaskResponse:
     task = service.complete_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    bg.add_task(_push_sensor_update)
     return _task_response(task)
 
 
 @app.post("/tasks/{task_id}/skip", response_model=TaskResponse)
 def skip_task(
-    task_id: str, service: PlantService = Depends(get_service)
+    task_id: str, bg: BackgroundTasks, service: PlantService = Depends(get_service)
 ) -> TaskResponse:
     task = service.skip_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    bg.add_task(_push_sensor_update)
     return _task_response(task)
 
 
@@ -468,11 +469,13 @@ def skip_task(
 def snooze_task(
     task_id: str,
     days: int = 14,
+    bg: BackgroundTasks = BackgroundTasks(),
     service: PlantService = Depends(get_service),
 ) -> TaskResponse:
     task = service.snooze_task(task_id, days=days)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
+    bg.add_task(_push_sensor_update)
     return _task_response(task)
 
 
