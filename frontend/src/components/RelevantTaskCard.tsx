@@ -60,10 +60,10 @@ export function RelevantTaskCard({
 
   const cardBody = (
     <CardContent sx={{ pb: 1 }}>
-      <Stack direction="row" spacing={1} sx={{ mb: 0.5, alignItems: "center", flexWrap: "wrap" }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          {emoji} {item.plant_name}
-        </Typography>
+      <Typography variant="h6" sx={{ mb: 0.5 }}>
+        {emoji} {item.plant_name}
+      </Typography>
+      <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
         <Chip label={taskLabel} size="small" variant="outlined" sx={{ borderColor: "grey.300", color: "text.secondary" }} />
         <Chip
           label={urg.label}
