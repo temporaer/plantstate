@@ -54,6 +54,8 @@ class PlantStateCard extends HTMLElement {
       // Pick the one that looks like an ingress panel (has hex prefix), or first match
       const ingress = candidates.find((k) => /^[0-9a-f]{8}_/.test(k));
       panelKey = "/" + (ingress || candidates[0] || "");
+      console.log("[plant-state-card] panels:", Object.keys(panels).filter(k => k.includes("plant")));
+      console.log("[plant-state-card] candidates:", candidates, "ingress:", ingress, "→", panelKey);
     }
     if (!panelKey || panelKey === "/") return;
     window.location.href = panelKey + (path ? "/#" + path : "");
@@ -61,6 +63,7 @@ class PlantStateCard extends HTMLElement {
 
   _render() {
     const entity = this._hass?.states[this._config.entity];
+    console.log("[plant-state-card] render, panels:", this._hass ? Object.keys(this._hass.panels || {}).filter(k => k.includes("plant")) : "no hass");
 
     // --- Loading / not found ---
     if (!entity) {
