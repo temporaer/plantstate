@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "../api";
-import type { WeatherStatus } from "../api";
+import type { OutlookItem, WeatherStatus } from "../api";
 import { RelevantTaskCard } from "../components/RelevantTaskCard";
 
 const SEASON_LABELS: Record<string, string> = {
@@ -86,17 +86,129 @@ function WeatherCard({ weather }: { weather: WeatherStatus }) {
   );
 }
 
+const TASK_TYPE_LABELS: Record<string, string> = {
+  sow: "🌱 Aussaat",
+  transplant: "🌿 Auspflanzen",
+  harvest: "🍎 Ernte",
+  prune_maintenance: "✂️ Pflegeschnitt",
+  prune_structural: "🪚 Formschnitt",
+  cut_back: "✂️ Rückschnitt",
+  deadhead: "🌸 Verblühtes entfernen",
+  thin_fruit: "🍏 Fruchtausdünnung",
+  remove_deadwood: "🪵 Totholz entfernen",
+};
+
+const BLOCKING_LABELS: Record<string, string> = {
+  season: "Andere Jahreszeit",
+  "waiting:frost_risk_passed": "Warte auf frostfreie Nächte",
+  "waiting:sustained_mild_nights": "Warte auf milde Nächte (≥8°C)",
+  "waiting:warm_spell": "Warte auf Wärmephase",
+  "waiting:frost_risk_active": "Warte auf Frost",
+  "blocked:frost_risk_active": "Frostgefahr aktiv",
+  "blocked:heatwave": "Hitzewelle aktiv",
+  "blocked:persistent_rain": "Dauerregen aktiv",
+};
+
+function OutlookSection({ items }: { items: OutlookItem[] }) {
+  // Group by season (use first planning season)
+  const bySeason: Record<string, OutlookItem[]> = {};
+  for (const item of items) {
+    const season = item.planning_seasons[0] ?? "unknown";
+    if (!bySeason[season]) bySeason[season] = [];
+    bySeason[season].push(item);
+  }
+
+  const seasonOrder = [
+    "early_spring", "spring", "early_summer", "summer",
+    "late_summer", "autumn", "winter",
+  ];
+  const sortedSeasons = Object.keys(bySeason).sort(
+    (a, b) => seasonOrder.indexOf(a) - seasonOrder.indexOf(b)
+  );
+
+  return (
+    <Box>
+      {sortedSeasons.map((season) => (
+        <Box key={season} sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+            {SEASON_LABELS[season] ?? season}
+          </Typography>
+          <Stack spacing={1}>
+            {bySeason[season].map((item) => (
+              <Card
+                key={item.task.id}
+                variant="outlined"
+                sx={{
+                  opacity: item.ready ? 1 : 0.75,
+                  borderLeft: item.ready
+                    ? "4px solid #4caf50"
+                    : item.in_planning_window
+                    ? "4px solid #ff9800"
+                    : "4px solid #bdbdbd",
+                }}
+              >
+                <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: "center", flexWrap: "wrap", gap: 0.5 }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {item.plant_name}
+                    </Typography>
+                    <Chip
+                      label={TASK_TYPE_LABELS[item.task_type] ?? item.task_type}
+                      size="small"
+                      color={item.ready ? "success" : "default"}
+                      variant={item.ready ? "filled" : "outlined"}
+                    />
+                    {item.ready && (
+                      <Chip label="✅ Bereit" size="small" color="success" />
+                    )}
+                    {!item.ready && item.blocking.map((b) => (
+                      <Chip
+                        key={b}
+                        label={BLOCKING_LABELS[b] ?? b}
+                        size="small"
+                        variant="outlined"
+                        color={b === "season" ? "default" : "warning"}
+                      />
+                    ))}
+                  </Stack>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 0.5 }}
+                  >
+                    {item.explanation_summary}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 export function DashboardPage() {
   const weatherQuery = useQuery({
     queryKey: ["weather"],
     queryFn: api.getWeatherStatus,
-    refetchInterval: 5 * 60 * 1000, // refresh every 5 min
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const relevantQuery = useQuery({
     queryKey: ["relevant-now"],
     queryFn: api.getRelevantNowLive,
     refetchInterval: 5 * 60 * 1000,
+  });
+
+  const outlookQuery = useQuery({
+    queryKey: ["outlook"],
+    queryFn: api.getOutlook,
+    refetchInterval: 10 * 60 * 1000,
   });
 
   const isLoading = weatherQuery.isLoading || relevantQuery.isLoading;
@@ -135,6 +247,25 @@ export function DashboardPage() {
       {relevantQuery.data?.map((item) => (
         <RelevantTaskCard key={item.task.id} item={item} />
       ))}
+
+      <Divider sx={{ my: 3 }} />
+
+      <Typography variant="h5" gutterBottom>
+        🗓️ Jahresausblick
+      </Typography>
+
+      {outlookQuery.isLoading && <CircularProgress size={24} />}
+
+      {outlookQuery.data && outlookQuery.data.length === 0 && (
+        <Typography color="text.secondary">
+          Keine Aufgaben geplant. Füge Pflanzen hinzu, um den Ausblick zu
+          sehen.
+        </Typography>
+      )}
+
+      {outlookQuery.data && outlookQuery.data.length > 0 && (
+        <OutlookSection items={outlookQuery.data} />
+      )}
     </Box>
   );
 }

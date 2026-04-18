@@ -18,7 +18,7 @@ from backend.application.llm_contract import (
     llm_output_to_plant,
     validate_llm_output,
 )
-from backend.application.services import PlantService, RelevantTask
+from backend.application.services import OutlookItem, PlantService, RelevantTask
 from backend.domain.events import compute_all_events
 from backend.domain.models import DailyWeather, Plant, WeatherData
 from backend.domain.rules import get_current_season
@@ -149,6 +149,18 @@ class WeatherStatusResponse(BaseModel):
     events: dict[str, bool]
     forecast: list[dict]
     history: list[dict]
+
+
+class OutlookItemResponse(BaseModel):
+    task: TaskResponse
+    plant_name: str
+    task_type: str
+    planning_seasons: list[str]
+    explanation_summary: str
+    in_planning_window: bool
+    conditions_met: bool
+    blocking: list[str]
+    ready: bool
 
 
 # --- Routes ---
@@ -286,6 +298,52 @@ async def get_relevant_now_live(
     weather = await adapter.fetch_weather_data()
     results = service.get_relevant_now(weather)
     return [_relevant_item(r) for r in results]
+
+
+def _outlook_response(item: OutlookItem) -> OutlookItemResponse:
+    return OutlookItemResponse(
+        task=_task_response(item.task),
+        plant_name=item.plant.name,
+        task_type=item.rule.task_type.value,
+        planning_seasons=[s.value for s in item.rule.planning_seasons],
+        explanation_summary=item.rule.explanation.summary,
+        in_planning_window=item.in_planning_window,
+        conditions_met=item.conditions_met,
+        blocking=item.blocking,
+        ready=item.in_planning_window and item.conditions_met,
+    )
+
+
+@app.get(
+    "/dashboard/outlook",
+    response_model=list[OutlookItemResponse],
+)
+async def get_outlook(
+    service: PlantService = Depends(get_service),
+) -> list[OutlookItemResponse]:
+    """Yearly outlook: all tasks with season and readiness info."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(
+            status_code=503, detail="Home Assistant not configured",
+        )
+    weather = await adapter.fetch_weather_data()
+    items = service.get_outlook(weather)
+    return [_outlook_response(i) for i in items]
+
+
+@app.post(
+    "/dashboard/outlook",
+    response_model=list[OutlookItemResponse],
+)
+def get_outlook_with_weather(
+    weather_input: WeatherDataInput,
+    service: PlantService = Depends(get_service),
+) -> list[OutlookItemResponse]:
+    """Outlook with explicit weather data (for testing without HA)."""
+    weather_data = weather_input.to_domain()
+    items = service.get_outlook(weather_data)
+    return [_outlook_response(i) for i in items]
 
 
 @app.post("/sync/calendar")

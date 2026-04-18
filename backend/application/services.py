@@ -10,10 +10,15 @@ from datetime import date, datetime
 
 from sqlalchemy.orm import Session
 
-from backend.domain.enums import TaskStatus
+from backend.domain.enums import Season, TaskStatus
 from backend.domain.events import compute_all_events
 from backend.domain.models import EventState, Plant, Rule, Task, WeatherData
-from backend.domain.rules import get_current_season, is_relevant_now
+from backend.domain.rules import (
+    are_activation_conditions_met,
+    get_current_season,
+    is_in_planning_window,
+    is_relevant_now,
+)
 from backend.infrastructure.repository import PlantRepository, TaskRepository
 
 
@@ -99,6 +104,65 @@ class PlantService:
                         )
         return results
 
+    def get_outlook(
+        self, weather_data: WeatherData,
+    ) -> list[OutlookItem]:
+        """Get all tasks for the year with season and readiness info."""
+        event_state = compute_all_events(weather_data)
+        current_season = get_current_season()
+        plants = self._plants.list_all()
+        active_tasks = self._tasks.list_active()
+
+        task_by_rule: dict[str, list[Task]] = {}
+        for t in active_tasks:
+            task_by_rule.setdefault(t.rule_id, []).append(t)
+
+        # Season ordering for sorting
+        season_order = list(Season)
+
+        results: list[OutlookItem] = []
+        for plant in plants:
+            for rule in plant.rules:
+                tasks = task_by_rule.get(rule.id, [])
+                in_window = is_in_planning_window(rule, current_season)
+                conditions_met = are_activation_conditions_met(
+                    rule.activation, event_state,
+                )
+
+                # Determine what's blocking activation
+                blocking: list[str] = []
+                if not in_window:
+                    blocking.append("season")
+                if not conditions_met:
+                    for evt in rule.activation.required_events:
+                        if not event_state.is_active(evt):
+                            blocking.append(f"waiting:{evt.value}")
+                    for evt in rule.activation.forbidden_events:
+                        if event_state.is_active(evt):
+                            blocking.append(f"blocked:{evt.value}")
+
+                # Pick earliest planning season for sort order
+                earliest_season_idx = min(
+                    (season_order.index(s) for s in rule.planning_seasons),
+                    default=0,
+                )
+
+                for task in tasks:
+                    results.append(
+                        OutlookItem(
+                            task=task,
+                            plant=plant,
+                            rule=rule,
+                            in_planning_window=in_window,
+                            conditions_met=conditions_met,
+                            blocking=blocking,
+                            season_sort=earliest_season_idx,
+                        )
+                    )
+
+        results.sort(key=lambda x: x.season_sort)
+        return results
+
 
 class RelevantTask:
     """A task that is currently relevant, with its context."""
@@ -114,3 +178,25 @@ class RelevantTask:
         self.plant = plant
         self.rule = rule
         self.event_state = event_state
+
+
+class OutlookItem:
+    """A task in the yearly outlook, with readiness info."""
+
+    def __init__(
+        self,
+        task: Task,
+        plant: Plant,
+        rule: Rule,
+        in_planning_window: bool,
+        conditions_met: bool,
+        blocking: list[str],
+        season_sort: int,
+    ) -> None:
+        self.task = task
+        self.plant = plant
+        self.rule = rule
+        self.in_planning_window = in_planning_window
+        self.conditions_met = conditions_met
+        self.blocking = blocking
+        self.season_sort = season_sort
