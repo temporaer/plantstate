@@ -33,13 +33,15 @@ def are_activation_conditions_met(
     All required_events must be active.
     No forbidden_events may be active.
     """
-    for event in activation.required_events:
-        if not event_state.is_active(event):
-            return False
-    for event in activation.forbidden_events:
-        if event_state.is_active(event):
-            return False
-    return True
+    if not all(
+        event_state.is_active(event)
+        for event in activation.required_events
+    ):
+        return False
+    return all(
+        not event_state.is_active(event)
+        for event in activation.forbidden_events
+    )
 
 
 def is_relevant_now(

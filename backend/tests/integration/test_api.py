@@ -103,11 +103,19 @@ class TestTaskActions:
         # Use weather that triggers relevant-now for early_spring rules
         weather = {
             "history": [
-                {"date": f"2026-03-{25+i:02d}", "temp_min": 5.0, "temp_max": 15.0, "precipitation_mm": 0.0}
+                {
+                    "date": f"2026-03-{25+i:02d}",
+                    "temp_min": 5.0, "temp_max": 15.0,
+                    "precipitation_mm": 0.0,
+                }
                 for i in range(7)
             ],
             "forecast": [
-                {"date": f"2026-04-{1+i:02d}", "temp_min": 8.0, "temp_max": 22.0, "precipitation_mm": 0.0}
+                {
+                    "date": f"2026-04-{1+i:02d}",
+                    "temp_min": 8.0, "temp_max": 22.0,
+                    "precipitation_mm": 0.0,
+                }
                 for i in range(5)
             ],
         }
@@ -124,7 +132,11 @@ class TestRelevantNow:
         weather = {
             "history": [],
             "forecast": [
-                {"date": f"2026-04-0{i+1}", "temp_min": 5.0, "temp_max": 15.0, "precipitation_mm": 0.0}
+                {
+                    "date": f"2026-04-0{i+1}",
+                    "temp_min": 5.0, "temp_max": 15.0,
+                    "precipitation_mm": 0.0,
+                }
                 for i in range(5)
             ],
         }

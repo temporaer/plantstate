@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,15 +13,34 @@ from pydantic import BaseModel, Field
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from backend.application.llm_contract import llm_output_to_plant, validate_llm_output
+from backend.application.llm_contract import (
+    LLM_SYSTEM_PROMPT,
+    llm_output_to_plant,
+    validate_llm_output,
+)
 from backend.application.services import PlantService, RelevantTask
+from backend.domain.events import compute_all_events
 from backend.domain.models import DailyWeather, Plant, WeatherData
+from backend.domain.rules import get_current_season
 from backend.infrastructure.database import Base
+from backend.infrastructure.ha_adapter import HomeAssistantAdapter
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///plant_state.db")
 
 engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
+
+# HA config from environment
+HA_BASE_URL = os.environ.get("HA_BASE_URL", "")
+HA_TOKEN = os.environ.get("HA_TOKEN", "")
+HA_WEATHER_ENTITY = os.environ.get("HA_WEATHER_ENTITY", "weather.karlsruhe")
+HA_CALENDAR_ENTITY = os.environ.get("HA_CALENDAR_ENTITY", "calendar.garden")
+
+
+def _get_ha_adapter() -> HomeAssistantAdapter | None:
+    if HA_BASE_URL and HA_TOKEN:
+        return HomeAssistantAdapter(HA_BASE_URL, HA_TOKEN, HA_WEATHER_ENTITY)
+    return None
 
 
 @asynccontextmanager
@@ -90,6 +110,10 @@ class WeatherDataInput(BaseModel):
         )
 
 
+class InterpretRequest(BaseModel):
+    user_input: str
+
+
 # --- Response models ---
 
 
@@ -120,11 +144,38 @@ class RelevantNowItem(BaseModel):
     explanation_how: str
 
 
+class WeatherStatusResponse(BaseModel):
+    season: str
+    events: dict[str, bool]
+    forecast: list[dict]
+    history: list[dict]
+
+
 # --- Routes ---
 
 
+@app.post("/plants/interpret")
+async def interpret_plant(body: InterpretRequest) -> dict:
+    """Interpret a plant description via LLM. Returns the system prompt
+    and expected schema so any LLM client can generate the structured output.
+
+    In production, this would call an LLM API. For now, returns the contract
+    so the caller (or a separate LLM service) can generate the JSON.
+    """
+    return {
+        "system_prompt": LLM_SYSTEM_PROMPT,
+        "user_input": body.user_input,
+        "instruction": (
+            "Send the system_prompt and user_input to your LLM. "
+            "Validate the response JSON via POST /plants before saving."
+        ),
+    }
+
+
 @app.post("/plants", response_model=PlantResponse)
-def create_plant(body: dict[str, Any], service: PlantService = Depends(get_service)) -> PlantResponse:
+def create_plant(
+    body: dict[str, Any], service: PlantService = Depends(get_service)
+) -> PlantResponse:
     """Create a plant from JSON (same schema as LLM output)."""
     validated = validate_llm_output(body)
     plant = llm_output_to_plant(validated)
@@ -139,7 +190,9 @@ def list_plants(service: PlantService = Depends(get_service)) -> list[PlantRespo
 
 
 @app.get("/plants/{plant_id}", response_model=PlantResponse)
-def get_plant(plant_id: str, service: PlantService = Depends(get_service)) -> PlantResponse:
+def get_plant(
+    plant_id: str, service: PlantService = Depends(get_service)
+) -> PlantResponse:
     plant = service.get_plant(plant_id)
     if plant is None:
         raise HTTPException(status_code=404, detail="Plant not found")
@@ -147,7 +200,9 @@ def get_plant(plant_id: str, service: PlantService = Depends(get_service)) -> Pl
 
 
 @app.delete("/plants/{plant_id}")
-def delete_plant(plant_id: str, service: PlantService = Depends(get_service)) -> dict:
+def delete_plant(
+    plant_id: str, service: PlantService = Depends(get_service)
+) -> dict:
     if not service.delete_plant(plant_id):
         raise HTTPException(status_code=404, detail="Plant not found")
     return {"status": "deleted"}
@@ -160,14 +215,7 @@ def complete_task(
     task = service.complete_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    return TaskResponse(
-        id=task.id,
-        plant_id=task.plant_id,
-        rule_id=task.rule_id,
-        task_type=task.task_type.value,
-        status=task.status.value,
-        year=task.year,
-    )
+    return _task_response(task)
 
 
 @app.post("/tasks/{task_id}/skip", response_model=TaskResponse)
@@ -177,14 +225,7 @@ def skip_task(
     task = service.skip_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    return TaskResponse(
-        id=task.id,
-        plant_id=task.plant_id,
-        rule_id=task.rule_id,
-        task_type=task.task_type.value,
-        status=task.status.value,
-        year=task.year,
-    )
+    return _task_response(task)
 
 
 @app.post("/dashboard/relevant-now", response_model=list[RelevantNowItem])
@@ -195,6 +236,85 @@ def get_relevant_now(
     weather_data = weather_input.to_domain()
     results = service.get_relevant_now(weather_data)
     return [_relevant_item(r) for r in results]
+
+
+@app.get("/dashboard/weather", response_model=WeatherStatusResponse)
+async def get_weather_status() -> WeatherStatusResponse:
+    """Fetch current weather from HA and compute event state."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not configured")
+    weather = await adapter.fetch_weather_data()
+    events = compute_all_events(weather)
+    season = get_current_season()
+    return WeatherStatusResponse(
+        season=season.value,
+        events={
+            "frost_risk_active": events.frost_risk_active,
+            "frost_risk_passed": events.frost_risk_passed,
+            "sustained_mild_nights": events.sustained_mild_nights,
+            "warm_spell": events.warm_spell,
+            "heatwave": events.heatwave,
+            "dry_spell": events.dry_spell,
+            "persistent_rain": events.persistent_rain,
+        },
+        forecast=[
+            {
+                "date": str(d.date), "temp_min": d.temp_min,
+                "temp_max": d.temp_max, "precipitation_mm": d.precipitation_mm,
+            }
+            for d in weather.forecast
+        ],
+        history=[
+            {
+                "date": str(d.date), "temp_min": d.temp_min,
+                "temp_max": d.temp_max, "precipitation_mm": d.precipitation_mm,
+            }
+            for d in weather.history
+        ],
+    )
+
+
+@app.get("/dashboard/relevant-now-live", response_model=list[RelevantNowItem])
+async def get_relevant_now_live(
+    service: PlantService = Depends(get_service),
+) -> list[RelevantNowItem]:
+    """Fetch weather from HA and compute relevant tasks in one call."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not configured")
+    weather = await adapter.fetch_weather_data()
+    results = service.get_relevant_now(weather)
+    return [_relevant_item(r) for r in results]
+
+
+@app.post("/sync/calendar")
+async def sync_calendar(
+    service: PlantService = Depends(get_service),
+) -> dict:
+    """Sync active tasks to HA calendar."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not configured")
+    weather = await adapter.fetch_weather_data()
+    results = service.get_relevant_now(weather)
+
+    from datetime import date, timedelta
+
+    today = date.today()
+    events = []
+    for r in results:
+        events.append({
+            "summary": f"{r.plant.name}: {r.rule.explanation.summary}",
+            "description": f"{r.rule.explanation.why}\n\n{r.rule.explanation.how}",
+            "start_date": today.isoformat(),
+            "end_date": (today + timedelta(days=7)).isoformat(),
+        })
+
+    if events:
+        await adapter.sync_to_calendar(HA_CALENDAR_ENTITY, events)
+
+    return {"synced": len(events), "calendar": HA_CALENDAR_ENTITY}
 
 
 # --- Helpers ---
@@ -211,16 +331,20 @@ def _plant_response(plant: Plant) -> PlantResponse:
     )
 
 
+def _task_response(task: Any) -> TaskResponse:
+    return TaskResponse(
+        id=task.id,
+        plant_id=task.plant_id,
+        rule_id=task.rule_id,
+        task_type=task.task_type.value,
+        status=task.status.value,
+        year=task.year,
+    )
+
+
 def _relevant_item(r: RelevantTask) -> RelevantNowItem:
     return RelevantNowItem(
-        task=TaskResponse(
-            id=r.task.id,
-            plant_id=r.task.plant_id,
-            rule_id=r.task.rule_id,
-            task_type=r.task.task_type.value,
-            status=r.task.status.value,
-            year=r.task.year,
-        ),
+        task=_task_response(r.task),
         plant_name=r.plant.name,
         task_type=r.task.task_type.value,
         explanation_summary=r.rule.explanation.summary,

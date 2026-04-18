@@ -17,7 +17,6 @@ from backend.domain.models import (
     RuleExplanation,
 )
 
-
 # --- LLM Output Contract ---
 
 

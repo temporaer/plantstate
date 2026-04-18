@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 from backend.domain.enums import TaskStatus
 from backend.domain.events import compute_all_events
-from backend.domain.models import EventState, Plant, Task, WeatherData
+from backend.domain.models import EventState, Plant, Rule, Task, WeatherData
 from backend.domain.rules import get_current_season, is_relevant_now
 from backend.infrastructure.repository import PlantRepository, TaskRepository
 
@@ -107,7 +107,7 @@ class RelevantTask:
         self,
         task: Task,
         plant: Plant,
-        rule: "backend.domain.models.Rule",
+        rule: Rule,
         event_state: EventState,
     ) -> None:
         self.task = task

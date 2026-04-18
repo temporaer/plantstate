@@ -20,7 +20,10 @@ from backend.domain.models import DailyWeather, WeatherData
 class HomeAssistantAdapter:
     """Adapter for Home Assistant REST API."""
 
-    def __init__(self, base_url: str, token: str, weather_entity: str = "weather.karlsruhe") -> None:
+    def __init__(
+        self, base_url: str, token: str,
+        weather_entity: str = "weather.karlsruhe",
+    ) -> None:
         self._base_url = base_url.rstrip("/")
         self._token = token
         self._weather_entity = weather_entity

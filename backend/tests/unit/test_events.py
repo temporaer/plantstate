@@ -2,8 +2,6 @@
 
 from datetime import date
 
-import pytest
-
 from backend.domain.events import (
     compute_all_events,
     compute_dry_spell,

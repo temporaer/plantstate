@@ -13,7 +13,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from backend.domain.enums import Season, TaskStatus, TaskType, WeatherEventType
 
-
 # --- Explanation models (required for LLM contract) ---
 
 

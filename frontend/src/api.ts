@@ -44,6 +44,20 @@ export interface RelevantNowItem {
   explanation_how: string;
 }
 
+export interface WeatherStatus {
+  season: string;
+  events: Record<string, boolean>;
+  forecast: DailyWeather[];
+  history: DailyWeather[];
+}
+
+export interface DailyWeather {
+  date: string;
+  temp_min: number;
+  temp_max: number;
+  precipitation_mm: number;
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -64,9 +78,11 @@ export const api = {
     apiFetch<Task>(`/tasks/${id}/complete`, { method: "POST" }),
   skipTask: (id: string) =>
     apiFetch<Task>(`/tasks/${id}/skip`, { method: "POST" }),
-  getRelevantNow: (weatherData: object) =>
-    apiFetch<RelevantNowItem[]>("/dashboard/relevant-now", {
+  getWeatherStatus: () => apiFetch<WeatherStatus>("/dashboard/weather"),
+  getRelevantNowLive: () =>
+    apiFetch<RelevantNowItem[]>("/dashboard/relevant-now-live"),
+  syncCalendar: () =>
+    apiFetch<{ synced: number; calendar: string }>("/sync/calendar", {
       method: "POST",
-      body: JSON.stringify(weatherData),
     }),
 };

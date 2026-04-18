@@ -95,8 +95,14 @@ class PlantRepository:
                 event_explanations[WeatherEventType(k)] = EventExplanation(**v)
 
             activation = ActivationCondition(
-                required_events=[WeatherEventType(e) for e in activation_data.get("required_events", [])],
-                forbidden_events=[WeatherEventType(e) for e in activation_data.get("forbidden_events", [])],
+                required_events=[
+                    WeatherEventType(e)
+                    for e in activation_data.get("required_events", [])
+                ],
+                forbidden_events=[
+                    WeatherEventType(e)
+                    for e in activation_data.get("forbidden_events", [])
+                ],
                 event_explanations=event_explanations,
             )
             rules.append(

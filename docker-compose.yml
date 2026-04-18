@@ -6,12 +6,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app/backend
       - db-data:/app/data
     env_file:
       - .env
     environment:
       - DATABASE_URL=sqlite:///data/plant_state.db
+    restart: unless-stopped
 
   frontend:
     build:
@@ -21,6 +21,7 @@ services:
       - "3000:80"
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   db-data:
