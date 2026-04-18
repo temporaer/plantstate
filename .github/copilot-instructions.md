@@ -54,6 +54,9 @@ python -m pytest backend/tests/ -x -q      # 87+ tests, all must pass
 # Frontend
 cd frontend && npm run build               # full build (tsc + vite) — MUST pass before commit
 
+# Lovelace card JS
+node -c ha-addon/plant-state-card.js       # syntax check — MUST pass before commit
+
 # Docker (standalone dev)
 docker compose up --build
 
@@ -71,6 +74,7 @@ The version in `ha-addon/config.yaml` is the **only** version that matters for t
 
 - **Commit frequently** with small, focused commits.
 - **Always run `ruff check backend/` and `python -m pytest backend/tests/ -x -q` before committing.**
+- **Always run `node -c ha-addon/plant-state-card.js` before committing card changes.** A syntax error breaks the entire card registration in HA.
 - **Always run `npm run build` in `frontend/` before committing frontend changes.** Do NOT rely on `tsc --noEmit` alone — it type-checks against locally installed packages, which may differ from what Docker installs. `npm run build` (tsc + vite) catches the same errors the Docker build will hit.
 - Two GitHub accounts: `temporaer` (personal, for push) and `haschulz_microsoft` (EMU, default). Switch with `gh auth switch --user temporaer` before push, switch back after.
 - GitHub Actions (`.github/workflows/addon-build.yml`) builds `Dockerfile.addon` on push to main and pushes to GHCR.
