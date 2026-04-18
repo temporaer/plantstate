@@ -122,14 +122,58 @@ class HomeAssistantAdapter:
             )
         return result
 
+    async def get_calendar_events(
+        self,
+        calendar_entity: str,
+        start: date,
+        end: date,
+    ) -> list[dict]:
+        """Fetch existing calendar events in a date range."""
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                f"{self._base_url}/api/services/calendar/get_events?return_response",
+                headers=self._headers,
+                json={
+                    "entity_id": calendar_entity,
+                    "start_date_time": f"{start.isoformat()}T00:00:00",
+                    "end_date_time": f"{end.isoformat()}T23:59:59",
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            service_resp = data.get("service_response", data)
+            return service_resp.get(calendar_entity, {}).get("events", [])
+
     async def sync_to_calendar(
         self,
         calendar_entity: str,
         events: list[dict],
-    ) -> None:
-        """Sync task events to a HA calendar entity."""
+    ) -> int:
+        """Sync task events to a HA calendar entity (idempotent).
+
+        Checks existing events by summary to avoid duplicates.
+        Returns number of newly created events.
+        """
+        if not events:
+            return 0
+
+        # Find date range of events to sync
+        all_starts = [date.fromisoformat(e["start_date"]) for e in events]
+        all_ends = [date.fromisoformat(e["end_date"]) for e in events]
+        range_start = min(all_starts)
+        range_end = max(all_ends)
+
+        # Fetch existing events to avoid duplicates
+        existing = await self.get_calendar_events(
+            calendar_entity, range_start, range_end,
+        )
+        existing_summaries = {e.get("summary", "") for e in existing}
+
+        created = 0
         async with httpx.AsyncClient(timeout=30) as client:
             for event in events:
+                if event["summary"] in existing_summaries:
+                    continue
                 await client.post(
                     f"{self._base_url}/api/services/calendar/create_event",
                     headers=self._headers,
@@ -141,3 +185,5 @@ class HomeAssistantAdapter:
                         "end_date": event["end_date"],
                     },
                 )
+                created += 1
+        return created

@@ -6,6 +6,7 @@ import hashlib
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -51,7 +52,40 @@ def _get_ha_adapter() -> HomeAssistantAdapter | None:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Base.metadata.create_all(engine)
+
+    # Start background scheduler for periodic calendar sync
+    scheduler = None
+    if HA_BASE_URL and HA_TOKEN:
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+        async def scheduled_calendar_sync() -> None:
+            """Run calendar sync every 6 hours."""
+            import logging
+            log = logging.getLogger("plant_state.scheduler")
+            try:
+                db = SessionLocal()
+                try:
+                    service = PlantService(db)
+                    adapter = _get_ha_adapter()
+                    if adapter is None:
+                        return
+                    weather = await adapter.fetch_weather_data()
+                    events = _build_calendar_events(service, weather)
+                    created = await adapter.sync_to_calendar(HA_CALENDAR_ENTITY, events)
+                    log.info("Calendar sync: %d new events (of %d relevant)", created, len(events))
+                finally:
+                    db.close()
+            except Exception:
+                log.exception("Calendar sync failed")
+
+        scheduler = AsyncIOScheduler()
+        scheduler.add_job(scheduled_calendar_sync, "interval", hours=6, id="calendar_sync")
+        scheduler.start()
+
     yield
+
+    if scheduler is not None:
+        scheduler.shutdown()
 
 
 app = FastAPI(title="Plant-State", version="0.1.0", lifespan=lifespan)
@@ -393,33 +427,54 @@ def get_outlook_with_weather(
     return [_outlook_response(i) for i in items]
 
 
+# German task type labels for calendar events
+_TASK_TYPE_DE: dict[str, str] = {
+    "sow": "Aussaat",
+    "transplant": "Auspflanzen",
+    "harvest": "Ernte",
+    "prune_maintenance": "Pflegeschnitt",
+    "prune_structural": "Formschnitt",
+    "cut_back": "Rückschnitt",
+    "deadhead": "Verblühtes entfernen",
+    "thin_fruit": "Fruchtausdünnung",
+    "remove_deadwood": "Totholz entfernen",
+}
+
+
+def _build_calendar_events(
+    service: PlantService, weather: WeatherData,
+) -> list[dict]:
+    """Build calendar event dicts from relevant-now tasks."""
+    results = service.get_relevant_now(weather)
+    today = date.today()
+    events = []
+    for r in results:
+        task_label = _TASK_TYPE_DE.get(r.rule.task_type.value, r.rule.task_type.value)
+        events.append({
+            "summary": f"{task_label}: {r.plant.name}",
+            "description": (
+                f"{r.rule.explanation.summary}\n\n"
+                f"Warum: {r.rule.explanation.why}\n\n"
+                f"Wie: {r.rule.explanation.how}"
+            ),
+            "start_date": today.isoformat(),
+            "end_date": (today + timedelta(days=7)).isoformat(),
+        })
+    return events
+
+
 @app.post("/sync/calendar")
 async def sync_calendar(
     service: PlantService = Depends(get_service),
 ) -> dict:
-    """Sync active tasks to HA calendar."""
+    """Sync active tasks to HA calendar (idempotent)."""
     adapter = _get_ha_adapter()
     if adapter is None:
         raise HTTPException(status_code=503, detail="Home Assistant not configured")
     weather = await adapter.fetch_weather_data()
-    results = service.get_relevant_now(weather)
-
-    from datetime import date, timedelta
-
-    today = date.today()
-    events = []
-    for r in results:
-        events.append({
-            "summary": f"{r.plant.name}: {r.rule.explanation.summary}",
-            "description": f"{r.rule.explanation.why}\n\n{r.rule.explanation.how}",
-            "start_date": today.isoformat(),
-            "end_date": (today + timedelta(days=7)).isoformat(),
-        })
-
-    if events:
-        await adapter.sync_to_calendar(HA_CALENDAR_ENTITY, events)
-
-    return {"synced": len(events), "calendar": HA_CALENDAR_ENTITY}
+    events = _build_calendar_events(service, weather)
+    created = await adapter.sync_to_calendar(HA_CALENDAR_ENTITY, events)
+    return {"synced": created, "total_relevant": len(events), "calendar": HA_CALENDAR_ENTITY}
 
 
 # --- Helpers ---
