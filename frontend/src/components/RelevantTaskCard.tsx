@@ -7,18 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { RelevantNowItem } from "../api";
-
-const TASK_TYPE_EMOJI: Record<string, string> = {
-  sow: "🌱",
-  transplant: "🌿",
-  harvest: "🍎",
-  prune_maintenance: "✂️",
-  prune_structural: "🪚",
-  cut_back: "✂️",
-  deadhead: "🌸",
-  thin_fruit: "🍏",
-  remove_deadwood: "🪵",
-};
+import { TASK_TYPE_LABELS } from "../labels";
 
 const PRIORITY_CONFIG: Record<string, { label: string; color: "error" | "default" | "info" }> = {
   high: { label: "Wichtig", color: "error" },
@@ -39,7 +28,8 @@ export function RelevantTaskCard({
   item: RelevantNowItem;
   onNavigateToPlant?: (plantId: string) => void;
 }) {
-  const emoji = TASK_TYPE_EMOJI[item.task_type] ?? "📋";
+  const taskLabel = TASK_TYPE_LABELS[item.task_type] ?? item.task_type;
+  const emoji = taskLabel.split(" ")[0] ?? "📋";
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
   const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
 
@@ -49,6 +39,7 @@ export function RelevantTaskCard({
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           {emoji} {item.plant_name}
         </Typography>
+        <Chip label={taskLabel} size="small" variant="outlined" />
         {item.priority !== "normal" && (
           <Chip label={prio.label} color={prio.color} size="small" />
         )}

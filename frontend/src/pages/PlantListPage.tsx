@@ -6,26 +6,22 @@ import {
   CardActionArea,
   CardContent,
   Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import { api } from "../api";
 import type { Plant } from "../api";
 import { PlantImage } from "../components/PlantImage";
-
-const TASK_TYPE_EMOJI: Record<string, string> = {
-  sow: "🌱",
-  transplant: "🌿",
-  harvest: "🍎",
-  prune_maintenance: "✂️",
-  prune_structural: "🪚",
-  cut_back: "✂️",
-  deadhead: "🌸",
-  thin_fruit: "🍏",
-  remove_deadwood: "🪵",
-};
+import { RuleCard } from "../components/RuleCard";
+import { taskTypeLabel } from "../labels";
 
 export function PlantListPage({
   onSelect,
@@ -37,6 +33,7 @@ export function PlantListPage({
     queryFn: api.listPlants,
   });
   const [filter, setFilter] = useState("");
+  const [rulesPlant, setRulesPlant] = useState<Plant | null>(null);
 
   const filtered = useMemo(() => {
     if (!plants) return [];
@@ -90,7 +87,7 @@ export function PlantListPage({
                     {plant.rules.map((r) => (
                       <Chip
                         key={r.id}
-                        label={`${TASK_TYPE_EMOJI[r.task_type] ?? ""} ${r.task_type}`}
+                        label={taskTypeLabel(r.task_type)}
                         size="small"
                         variant="outlined"
                       />
@@ -98,10 +95,50 @@ export function PlantListPage({
                   </Stack>
                 </CardContent>
               </CardActionArea>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", px: 1, pb: 0.5 }}>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRulesPlant(plant);
+                  }}
+                  aria-label="Regeln anzeigen"
+                >
+                  <InfoOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      <Dialog
+        open={!!rulesPlant}
+        onClose={() => setRulesPlant(null)}
+        maxWidth="sm"
+        fullWidth
+        scroll="paper"
+      >
+        {rulesPlant && (
+          <>
+            <DialogTitle sx={{ pr: 6 }}>
+              {rulesPlant.name} — Pflege-Regeln
+              <IconButton
+                onClick={() => setRulesPlant(null)}
+                sx={{ position: "absolute", right: 8, top: 8 }}
+                aria-label="Schließen"
+              >
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent dividers>
+              {rulesPlant.rules.map((rule) => (
+                <RuleCard key={rule.id} rule={rule} />
+              ))}
+            </DialogContent>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }

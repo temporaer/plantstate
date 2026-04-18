@@ -6,18 +6,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { Rule } from "../api";
-
-const TASK_TYPE_LABELS: Record<string, string> = {
-  sow: "🌱 Aussaat",
-  transplant: "🌿 Auspflanzen",
-  harvest: "🍎 Ernte",
-  prune_maintenance: "✂️ Pflegeschnitt",
-  prune_structural: "🪚 Formschnitt",
-  cut_back: "✂️ Rückschnitt",
-  deadhead: "🌸 Verblühtes entfernen",
-  thin_fruit: "🍏 Fruchtausdünnung",
-  remove_deadwood: "🪵 Totholz entfernen",
-};
+import { TASK_TYPE_LABELS } from "../labels";
 
 const SEASON_LABELS: Record<string, string> = {
   early_spring: "Vorfrühling",
