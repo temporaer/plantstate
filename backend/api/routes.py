@@ -130,11 +130,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                         {
                             "task_id": t.task.id,
                             "plant_id": t.task.plant_id,
-                            "plant_name": t.plant_name,
-                            "task_type": t.task_type,
-                            "priority": t.priority,
-                            "urgency": t.urgency,
-                            "explanation_summary": t.explanation_summary,
+                            "plant_name": t.plant.name,
+                            "task_type": t.rule.task_type.value,
+                            "priority": t.rule.priority.value,
+                            "urgency": t.urgency.value,
+                            "explanation_summary": t.rule.explanation.summary,
                         }
                         for t in tasks
                     ]
