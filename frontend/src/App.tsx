@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import {
@@ -10,6 +9,14 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { theme } from "./theme";
 import { PlantListPage } from "./pages/PlantListPage";
 import { PlantDetailPage } from "./pages/PlantDetailPage";
@@ -17,11 +24,18 @@ import { DashboardPage } from "./pages/DashboardPage";
 
 const queryClient = new QueryClient();
 
-type View = { page: "list" } | { page: "detail"; id: string } | { page: "dashboard" };
+function PlantDetailRoute() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  if (!id) return null;
+  return <PlantDetailPage plantId={id} onBack={() => navigate(-1)} />;
+}
 
 function AppContent() {
-  const [view, setView] = useState<View>({ page: "dashboard" });
-  const tabIndex = view.page === "dashboard" ? 0 : 1;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const tabIndex = location.pathname.startsWith("/plants") ? 1 : 0;
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -33,9 +47,7 @@ function AppContent() {
         </Toolbar>
         <Tabs
           value={tabIndex}
-          onChange={(_, v) =>
-            setView(v === 0 ? { page: "dashboard" } : { page: "list" })
-          }
+          onChange={(_, v) => navigate(v === 0 ? "/" : "/plants")}
           textColor="inherit"
           indicatorColor="secondary"
           sx={{ px: 2 }}
@@ -46,22 +58,25 @@ function AppContent() {
       </AppBar>
 
       <Container maxWidth="md" sx={{ py: 3 }}>
-        {view.page === "dashboard" && (
-          <DashboardPage
-            onNavigateToPlant={(id) => setView({ page: "detail", id })}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <DashboardPage
+                onNavigateToPlant={(id) => navigate(`/plants/${id}`)}
+              />
+            }
           />
-        )}
-        {view.page === "list" && (
-          <PlantListPage
-            onSelect={(id) => setView({ page: "detail", id })}
+          <Route
+            path="/plants"
+            element={
+              <PlantListPage
+                onSelect={(id) => navigate(`/plants/${id}`)}
+              />
+            }
           />
-        )}
-        {view.page === "detail" && (
-          <PlantDetailPage
-            plantId={view.id}
-            onBack={() => setView({ page: "list" })}
-          />
-        )}
+          <Route path="/plants/:id" element={<PlantDetailRoute />} />
+        </Routes>
       </Container>
     </Box>
   );
@@ -69,11 +84,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppContent />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <AppContent />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
   );
 }
