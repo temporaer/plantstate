@@ -38,11 +38,13 @@ export function RelevantTaskCard({
   onNavigateToPlant,
   onComplete,
   onSnooze,
+  initialExpanded = false,
 }: {
   item: RelevantNowItem;
   onNavigateToPlant?: (plantId: string) => void;
   onComplete?: (taskId: string) => void;
   onSnooze?: (taskId: string) => void;
+  initialExpanded?: boolean;
 }) {
   const taskText = TASK_TYPE_TEXT[item.task_type] ?? item.task_type;
   const taskEmoji = TASK_TYPE_EMOJI[item.task_type] ?? "📋";
@@ -55,7 +57,7 @@ export function RelevantTaskCard({
     item.priority === "high" ? "warning.main" :
     item.priority === "low" ? "grey.400" : "primary.main";
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initialExpanded);
 
   return (
     <Card

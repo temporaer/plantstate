@@ -358,11 +358,13 @@ export function DashboardPage({
     relevantQuery.error?.message?.includes("503");
 
   // Scroll to task if deep-linked from Lovelace card
+  const [deepLinkedTaskId, setDeepLinkedTaskId] = useState<string | null>(null);
   useEffect(() => {
     if (!relevantQuery.data) return;
     const taskId = localStorage.getItem("plant-state-task");
     if (taskId) {
       localStorage.removeItem("plant-state-task");
+      setDeepLinkedTaskId(taskId);
       requestAnimationFrame(() => {
         const el = document.getElementById(`task-${taskId}`);
         if (el) {
@@ -418,6 +420,7 @@ export function DashboardPage({
         <RelevantTaskCard
           key={item.task.id}
           item={item}
+          initialExpanded={item.task.id === deepLinkedTaskId}
           onNavigateToPlant={onNavigateToPlant}
           onComplete={(id) => completeMutation.mutate(id)}
           onSnooze={(id) => snoozeMutation.mutate(id)}
