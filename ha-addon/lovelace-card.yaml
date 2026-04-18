@@ -4,6 +4,7 @@ content: >-
   {% set data = state_attr('sensor.garten_tasks', 'tasks') %}
   {% if data %}
   {% set tasks = data | from_json %}
+  {% set url = 'http://PLANT_STATE_IP:3000' %}
   {% set labels = {
     'sow': '🌱 Aussaat',
     'transplant': '🌿 Auspflanzen',
@@ -22,24 +23,26 @@ content: >-
   {% if acute | length > 0 %}
   🔴 **Akut** ({{ acute | length }})
   {% for t in acute %}
-  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} [**{{ t.plant_name }}**]({{ url }}/plants/{{ t.task.plant_id }})
   > {{ t.explanation_summary }}
   {% endfor %}
   {% endif %}
   {% if soon | length > 0 %}
   🟡 **Bald** ({{ soon | length }})
   {% for t in soon %}
-  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} [**{{ t.plant_name }}**]({{ url }}/plants/{{ t.task.plant_id }})
   > {{ t.explanation_summary }}
   {% endfor %}
   {% endif %}
   {% if relaxed | length > 0 %}
   ⚪ **Entspannt** ({{ relaxed | length }})
   {% for t in relaxed %}
-  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} [**{{ t.plant_name }}**]({{ url }}/plants/{{ t.task.plant_id }})
   > {{ t.explanation_summary }}
   {% endfor %}
   {% endif %}
+  ---
+  [🌐 Garten öffnen]({{ url }})
   {% else %}
   Keine Aufgaben gerade — alles gut! 🎉
   {% endif %}
