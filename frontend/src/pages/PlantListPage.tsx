@@ -224,7 +224,7 @@ function AddPlantDialog({
                 minRows={6}
                 maxRows={12}
                 value={prompt}
-                InputProps={{ readOnly: true, sx: { fontFamily: "monospace", fontSize: 12 } }}
+                slotProps={{ input: { readOnly: true, sx: { fontFamily: "monospace", fontSize: 12 } } }}
               />
               <Tooltip title={copied ? "Kopiert! ✓" : "Prompt kopieren"}>
                 <IconButton
@@ -247,7 +247,7 @@ function AddPlantDialog({
               placeholder='{"name": "Tomate", "rules": [...] }'
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              InputProps={{ sx: { fontFamily: "monospace", fontSize: 12 } }}
+              slotProps={{ input: { sx: { fontFamily: "monospace", fontSize: 12 } } }}
             />
           </Box>
         )}
@@ -272,7 +272,7 @@ function AddPlantDialog({
                   setError("Ungültiges JSON");
                 }
               }}
-              InputProps={{ sx: { fontFamily: "monospace", fontSize: 12 } }}
+              slotProps={{ input: { sx: { fontFamily: "monospace", fontSize: 12 } } }}
             />
           </Box>
         )}
