@@ -47,23 +47,16 @@ class PlantStateCard extends HTMLElement {
     let panelKey = this._config.panel_url;
     if (!panelKey && this._hass) {
       const panels = this._hass.panels || {};
-      for (const key of Object.keys(panels)) {
-        if (key.includes("plant_state")) {
-          panelKey = "/" + key;
-          break;
-        }
-      }
+      // Prefer the hashed slug (e.g. af89232b_plant_state) over local_ prefix
+      const candidates = Object.keys(panels).filter((k) =>
+        k.endsWith("plant_state")
+      );
+      // Pick the one that looks like an ingress panel (has hex prefix), or first match
+      const ingress = candidates.find((k) => /^[0-9a-f]{8}_/.test(k));
+      panelKey = "/" + (ingress || candidates[0] || "");
     }
-    if (!panelKey) return;
-    // Navigate to the panel root — HA handles ingress session setup.
-    // The hash fragment targets a specific page inside the SPA.
-    const target = panelKey + (path ? "/#" + path : "");
-    // Use an anchor click so HA's router intercepts it properly
-    const a = document.createElement("a");
-    a.href = target;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    if (!panelKey || panelKey === "/") return;
+    window.location.href = panelKey + (path ? "/#" + path : "");
   }
 
   _render() {
