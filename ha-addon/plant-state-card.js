@@ -47,36 +47,29 @@ class PlantStateCard extends HTMLElement {
     const panels = this._hass.panels || {};
 
     // Find our panel (prefer hashed key like af89232b_plant_state)
-    let panel = null;
     let panelKey = null;
     for (const key of Object.keys(panels)) {
       if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
-        panel = panels[key];
         panelKey = key;
         break;
       }
     }
-    if (!panel) {
+    if (!panelKey) {
       for (const key of Object.keys(panels)) {
         if (key.includes("plant_state") && !key.includes("/")) {
-          panel = panels[key];
           panelKey = key;
           break;
         }
       }
     }
-    if (!panel) return "#";
-    console.log("[plant-state-card] panel object:", panelKey, JSON.stringify(panel));
+    if (!panelKey) return "#";
+    return `/${panelKey}`;
+  }
 
-    // For deep links, try to use the ingress URL which preserves hash fragments
-    const ingress = panel.config?.ingress || panel.ingress_url;
-    if (path && ingress) {
-      return String(ingress).replace(/\/+$/, "") + `/#${path}`;
-    }
-
-    // Default: panel URL (opens the app root)
-    const base = `/${panel.url_path || panelKey}`;
-    return path ? base + `/#${path}` : base;
+  // For deep links: store route in localStorage so the SPA picks it up
+  _deepLinkAttr(path) {
+    if (!path || path === "/") return "";
+    return ` onclick="localStorage.setItem('plant-state-route','${path}')"`;
   }
 
   _render() {
@@ -111,7 +104,7 @@ class PlantStateCard extends HTMLElement {
       .filter((u) => counts[u] > 0)
       .map(
         (u) =>
-          `<a class="badge" style="--c:${URG_COLOR[u]}" href="${this._panelHref("/")}">
+          `<a class="badge" style="--c:${URG_COLOR[u]}" href="${this._panelHref()}">
             ${URG[u]} ${counts[u]} ${URG_LABEL[u]}
           </a>`
       )
@@ -122,7 +115,7 @@ class PlantStateCard extends HTMLElement {
     const chips = shown
       .map(
         (t) =>
-          `<a class="chip" href="${this._panelHref(`/plants/${t.plant_id}`)}" title="${t.explanation_summary || ""}">
+          `<a class="chip" href="${this._panelHref()}"${this._deepLinkAttr(`/plants/${t.plant_id}`)} title="${t.explanation_summary || ""}">
             ${TASK_EMOJI[t.task_type] || "🌱"} ${t.plant_name}
           </a>`
       )
@@ -155,7 +148,7 @@ class PlantStateCard extends HTMLElement {
           </div>
           <div class="badges">${badges}</div>
           <div class="chips">${chips}${overflow}</div>
-          <div class="footer"><a class="open-link" href="${this._panelHref("/")}">▸ Öffnen</a></div>
+          <div class="footer"><a class="open-link" href="${this._panelHref()}">▸ Öffnen</a></div>
         </div>
       </ha-card>`;
   }

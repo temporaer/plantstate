@@ -17,6 +17,7 @@ import {
   useLocation,
   useParams,
 } from "react-router-dom";
+import { useEffect } from "react";
 import { theme } from "./theme";
 import { PlantListPage } from "./pages/PlantListPage";
 import { PlantDetailPage } from "./pages/PlantDetailPage";
@@ -34,6 +35,15 @@ function PlantDetailRoute() {
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Deep link from Lovelace card: read route from localStorage
+  useEffect(() => {
+    const route = localStorage.getItem("plant-state-route");
+    if (route) {
+      localStorage.removeItem("plant-state-route");
+      navigate(route);
+    }
+  }, [navigate]);
 
   const tabIndex = location.pathname.startsWith("/plants") ? 1 : 0;
 
