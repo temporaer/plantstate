@@ -13,7 +13,6 @@ from datetime import date
 from backend.domain.enums import MONTH_TO_SEASON, Season, Urgency, WeatherEventType
 from backend.domain.models import ActivationCondition, EventState, Rule
 
-
 # Events that signal immediate time pressure when they are a required trigger
 _TRANSIENT_DANGER_EVENTS = {
     WeatherEventType.FROST_RISK_ACTIVE,

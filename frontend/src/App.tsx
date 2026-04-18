@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   useNavigate,
@@ -84,13 +84,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <AppContent />
         </ThemeProvider>
       </QueryClientProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

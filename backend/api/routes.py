@@ -37,10 +37,26 @@ engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_threa
 SessionLocal = sessionmaker(bind=engine)
 
 # HA config from environment
-HA_BASE_URL = os.environ.get("HA_BASE_URL", "")
-HA_TOKEN = os.environ.get("HA_TOKEN", "")
-HA_WEATHER_ENTITY = os.environ.get("HA_WEATHER_ENTITY", "weather.karlsruhe")
-HA_CALENDAR_ENTITY = os.environ.get("HA_CALENDAR_ENTITY", "calendar.garden")
+# HA add-on auto-detection: Supervisor API
+SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN", "")
+if SUPERVISOR_TOKEN:
+    HA_BASE_URL = os.environ.get("HA_BASE_URL", "http://supervisor/core")
+    HA_TOKEN = SUPERVISOR_TOKEN
+    # Read options from /data/options.json if available
+    _options_path = Path("/data/options.json")
+    if _options_path.exists():
+        import json
+        _options = json.loads(_options_path.read_text())
+        HA_WEATHER_ENTITY = _options.get("weather_entity", "weather.home")
+        HA_CALENDAR_ENTITY = _options.get("calendar_entity", "calendar.garden")
+    else:
+        HA_WEATHER_ENTITY = os.environ.get("HA_WEATHER_ENTITY", "weather.home")
+        HA_CALENDAR_ENTITY = os.environ.get("HA_CALENDAR_ENTITY", "calendar.garden")
+else:
+    HA_BASE_URL = os.environ.get("HA_BASE_URL", "")
+    HA_TOKEN = os.environ.get("HA_TOKEN", "")
+    HA_WEATHER_ENTITY = os.environ.get("HA_WEATHER_ENTITY", "weather.karlsruhe")
+    HA_CALENDAR_ENTITY = os.environ.get("HA_CALENDAR_ENTITY", "calendar.garden")
 
 
 def _get_ha_adapter() -> HomeAssistantAdapter | None:
@@ -577,3 +593,32 @@ async def proxy_image(url: str) -> FileResponse:
         media_type=media_type,
         headers={"Cache-Control": "public, max-age=604800"},
     )
+
+
+# --- Static file serving for HA add-on mode (single process) ---
+_FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend_dist"
+if not _FRONTEND_DIR.exists():
+    _FRONTEND_DIR = Path("/app/frontend_dist")
+
+if _FRONTEND_DIR.exists():
+    # SPA fallback: serve index.html for any non-API, non-file route
+    _index_html = _FRONTEND_DIR / "index.html"
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def _spa_fallback(full_path: str) -> FileResponse:
+        file_path = _FRONTEND_DIR / full_path
+        if full_path and file_path.exists() and file_path.is_file():
+            suffix = file_path.suffix.lower()
+            ct = {
+                ".js": "application/javascript",
+                ".css": "text/css",
+                ".html": "text/html",
+                ".json": "application/json",
+                ".svg": "image/svg+xml",
+                ".png": "image/png",
+                ".ico": "image/x-icon",
+                ".woff": "font/woff",
+                ".woff2": "font/woff2",
+            }.get(suffix, "application/octet-stream")
+            return FileResponse(file_path, media_type=ct)
+        return FileResponse(_index_html, media_type="text/html")

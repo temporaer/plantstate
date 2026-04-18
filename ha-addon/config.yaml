@@ -1,0 +1,23 @@
+name: Plant-State
+version: "0.2.0"
+slug: plant_state
+description: "Wetterbasierte Gartenplanung – Aufgaben, Kalender, Lifecycle"
+url: https://github.com/temporaer/plantstate
+arch:
+  - amd64
+startup: application
+boot: auto
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:flower
+panel_title: Garten
+homeassistant_api: true
+map:
+  - addon_config:rw
+options:
+  weather_entity: "weather.home"
+  calendar_entity: "calendar.garden"
+schema:
+  weather_entity: str
+  calendar_entity: str
+image: ghcr.io/temporaer/plantstate-addon-{arch}
