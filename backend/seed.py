@@ -15,6 +15,13 @@ def main() -> None:
         plants = json.load(f)
 
     with httpx.Client(base_url=API_BASE, timeout=30) as client:
+        # Delete existing plants first (idempotent re-seed)
+        existing = client.get("/plants").json()
+        for p in existing:
+            client.delete(f"/plants/{p['id']}")
+        if existing:
+            print(f"  🗑️  Deleted {len(existing)} existing plants")
+
         for plant_data in plants:
             resp = client.post("/plants", json=plant_data)
             if resp.status_code == 200:

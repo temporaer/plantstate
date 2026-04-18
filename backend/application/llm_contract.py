@@ -38,6 +38,7 @@ class LLMPlantOutput(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     botanical_name: str | None = None
     description: str = ""
+    image_url: str | None = None
     language: str = Field(..., pattern=r"^(de|en)$")
     rules: list[LLMRuleOutput] = Field(..., min_length=1)
 
@@ -79,6 +80,7 @@ def llm_output_to_plant(output: LLMPlantOutput) -> Plant:
         name=output.name,
         botanical_name=output.botanical_name,
         description=output.description,
+        image_url=output.image_url,
         language=output.language,
         rules=rules,
     )

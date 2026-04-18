@@ -3,6 +3,7 @@
     "name": "Feigenbaum",
     "botanical_name": "Ficus carica",
     "description": "Mediterraner Obstbaum, frostempfindlich in jungen Jahren. Braucht geschützten Standort.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Ficus_carica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-060.jpg/440px-Ficus_carica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-060.jpg",
     "language": "de",
     "rules": [
       {
@@ -54,6 +55,7 @@
     "name": "Hibiskus",
     "botanical_name": "Hibiscus syriacus",
     "description": "Winterharter Gartenhibiskus, blüht am diesjährigen Holz.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Hibiscus_syriacus_%27Oiseau_Bleu%27.jpg/440px-Hibiscus_syriacus_%27Oiseau_Bleu%27.jpg",
     "language": "de",
     "rules": [
       {
@@ -97,6 +99,7 @@
     "name": "Schneeball",
     "botanical_name": "Viburnum opulus",
     "description": "Einheimischer Strauch mit weißen Blütenbällen im Mai/Juni. Robust und pflegeleicht.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Viburnum_opulus_003.JPG/440px-Viburnum_opulus_003.JPG",
     "language": "de",
     "rules": [
       {
@@ -139,6 +142,7 @@
     "name": "Erdbeeren",
     "botanical_name": "Fragaria × ananassa",
     "description": "Mehrjährige Staude, trägt im zweiten Jahr am besten. Hochbeet oder Beet.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/PerfectStrawberry.jpg/440px-PerfectStrawberry.jpg",
     "language": "de",
     "rules": [
       {
@@ -188,6 +192,7 @@
     "name": "Himbeeren",
     "botanical_name": "Rubus idaeus",
     "description": "Sommertragende Himbeeren am Spalier. Tragen am vorjährigen Holz.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Raspberries05.jpg/440px-Raspberries05.jpg",
     "language": "de",
     "rules": [
       {
@@ -232,6 +237,7 @@
     "name": "Gurke (Hochbeet)",
     "botanical_name": "Cucumis sativus",
     "description": "Wärmeliebend, im Hochbeet geschützt. Einjährige Kultur.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/ARS_cucumber.jpg/440px-ARS_cucumber.jpg",
     "language": "de",
     "rules": [
       {
@@ -294,6 +300,7 @@
     "name": "Tomate (Hochbeet)",
     "botanical_name": "Solanum lycopersicum",
     "description": "Stabtomate im Hochbeet. Einjährige Kultur, braucht Regenschutz.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Tomato_je.jpg/440px-Tomato_je.jpg",
     "language": "de",
     "rules": [
       {
@@ -372,6 +379,7 @@
     "name": "Thujahecke",
     "botanical_name": "Thuja occidentalis",
     "description": "Immergrüne Heckenpflanze. Vogelschutz beachten: starker Rückschnitt nur Oktober bis Ende Februar erlaubt (§39 BNatSchG). Standort: sandiger Boden – bei Trockenheit gut wässern.",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Thuja_occidentalis_Morton_Arboretum.jpg/440px-Thuja_occidentalis_Morton_Arboretum.jpg",
     "language": "de",
     "rules": [
       {
