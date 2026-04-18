@@ -4,14 +4,14 @@ import {
   Card,
   CardActionArea,
   CardContent,
-  CardMedia,
   Chip,
   Grid,
   Stack,
   Typography,
 } from "@mui/material";
-import { api, proxyImageUrl } from "../api";
+import { api } from "../api";
 import type { Plant } from "../api";
+import { PlantImage } from "../components/PlantImage";
 
 const TASK_TYPE_EMOJI: Record<string, string> = {
   sow: "🌱",
@@ -48,15 +48,7 @@ export function PlantListPage({
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>
             <Card>
               <CardActionArea onClick={() => onSelect(plant.id)}>
-                {plant.image_url && (
-                  <CardMedia
-                    component="img"
-                    height="160"
-                    image={proxyImageUrl(plant.image_url)}
-                    alt={plant.name}
-                    sx={{ objectFit: "cover" }}
-                  />
-                )}
+                <PlantImage url={plant.image_url} alt={plant.name} height={160} />
                 <CardContent>
                   <Typography variant="h6">{plant.name}</Typography>
                   {plant.botanical_name && (

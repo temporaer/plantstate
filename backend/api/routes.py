@@ -472,19 +472,33 @@ async def proxy_image(url: str) -> FileResponse:
     cache_path = IMAGE_CACHE_DIR / f"{url_hash}{suffix}"
 
     if not cache_path.exists():
-        try:
-            async with httpx.AsyncClient(
-                timeout=15, follow_redirects=True,
-            ) as client:
-                resp = await client.get(
-                    url, headers={
-                        "User-Agent": "Mozilla/5.0 (compatible; PlantState/1.0)",
-                    },
-                )
-                resp.raise_for_status()
-                cache_path.write_bytes(resp.content)
-        except httpx.HTTPError as e:
-            raise HTTPException(status_code=502, detail=f"Image fetch failed: {e}") from None
+        import asyncio
+
+        last_error: str = ""
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient(
+                    timeout=15, follow_redirects=True,
+                ) as client:
+                    resp = await client.get(
+                        url, headers={
+                            "User-Agent": "Mozilla/5.0 (compatible; PlantState/1.0)",
+                        },
+                    )
+                    if resp.status_code == 429 and attempt < 2:
+                        await asyncio.sleep(2 ** attempt)
+                        continue
+                    resp.raise_for_status()
+                    cache_path.write_bytes(resp.content)
+                    break
+            except httpx.HTTPError as e:
+                last_error = str(e)
+                if attempt < 2:
+                    await asyncio.sleep(2 ** attempt)
+        else:
+            raise HTTPException(
+                status_code=502, detail=f"Image fetch failed: {last_error}",
+            ) from None
 
     media_type = MIME_MAP.get(suffix.lower(), "image/jpeg")
     return FileResponse(

@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Box, Button, CardMedia, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { api, proxyImageUrl } from "../api";
+import { api } from "../api";
 import { RuleCard } from "../components/RuleCard";
+import { PlantImage } from "../components/PlantImage";
 
 export function PlantDetailPage({
   plantId,
@@ -25,19 +26,7 @@ export function PlantDetailPage({
         Zurück
       </Button>
 
-      {plant.image_url && (
-        <CardMedia
-          component="img"
-          image={proxyImageUrl(plant.image_url)}
-          alt={plant.name}
-          sx={{
-            maxHeight: 280,
-            objectFit: "cover",
-            borderRadius: 2,
-            mb: 2,
-          }}
-        />
-      )}
+      <PlantImage url={plant.image_url} alt={plant.name} height={280} borderRadius={2} />
 
       <Typography variant="h4" gutterBottom>
         {plant.name}
