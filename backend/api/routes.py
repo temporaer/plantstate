@@ -146,6 +146,7 @@ class RelevantNowItem(BaseModel):
     plant_name: str
     task_type: str
     priority: str
+    urgency: str
     explanation_summary: str
     explanation_why: str
     explanation_how: str
@@ -440,6 +441,7 @@ def _relevant_item(r: RelevantTask) -> RelevantNowItem:
         plant_name=r.plant.name,
         task_type=r.task.task_type.value,
         priority=r.rule.priority.value,
+        urgency=r.urgency.value,
         explanation_summary=r.rule.explanation.summary,
         explanation_why=r.rule.explanation.why,
         explanation_how=r.rule.explanation.how,

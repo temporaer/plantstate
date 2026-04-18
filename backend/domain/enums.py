@@ -51,11 +51,19 @@ class TaskStatus(StrEnum):
 
 
 class Priority(StrEnum):
-    """Task priority level."""
+    """Task priority level (static importance)."""
 
     HIGH = "high"
     NORMAL = "normal"
     LOW = "low"
+
+
+class Urgency(StrEnum):
+    """Computed urgency level (time pressure)."""
+
+    ACUTE = "acute"       # Do it now or miss the window
+    SOON = "soon"         # In window, no immediate pressure
+    RELAXED = "relaxed"   # Plenty of time
 
 
 # Month-to-season mapping (meteorological)

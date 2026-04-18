@@ -10,11 +10,12 @@ from datetime import date, datetime
 
 from sqlalchemy.orm import Session
 
-from backend.domain.enums import Priority, Season, TaskStatus
+from backend.domain.enums import Priority, Season, TaskStatus, Urgency
 from backend.domain.events import compute_all_events
 from backend.domain.models import EventState, Plant, Rule, Task, WeatherData
 from backend.domain.rules import (
     are_activation_conditions_met,
+    compute_urgency,
     get_current_season,
     is_in_planning_window,
     is_relevant_now,
@@ -92,6 +93,7 @@ class PlantService:
         for plant in plants:
             for rule in plant.rules:
                 if is_relevant_now(rule, event_state, current_season):
+                    urgency = compute_urgency(rule, event_state, current_season)
                     tasks = task_by_rule.get(rule.id, [])
                     for task in tasks:
                         results.append(
@@ -100,10 +102,16 @@ class PlantService:
                                 plant=plant,
                                 rule=rule,
                                 event_state=event_state,
+                                urgency=urgency,
                             )
                         )
+        # Sort: acute before soon, then high before normal before low
+        urgency_order = {Urgency.ACUTE: 0, Urgency.SOON: 1, Urgency.RELAXED: 2}
         priority_order = {Priority.HIGH: 0, Priority.NORMAL: 1, Priority.LOW: 2}
-        results.sort(key=lambda x: priority_order.get(x.rule.priority, 1))
+        results.sort(key=lambda x: (
+            urgency_order.get(x.urgency, 1),
+            priority_order.get(x.rule.priority, 1),
+        ))
         return results
 
     def get_outlook(
@@ -175,11 +183,13 @@ class RelevantTask:
         plant: Plant,
         rule: Rule,
         event_state: EventState,
+        urgency: Urgency = Urgency.SOON,
     ) -> None:
         self.task = task
         self.plant = plant
         self.rule = rule
         self.event_state = event_state
+        self.urgency = urgency
 
 
 class OutlookItem:

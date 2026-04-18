@@ -15,10 +15,10 @@ const PRIORITY_CONFIG: Record<string, { label: string; color: "error" | "default
   low: { label: "Nebensache", color: "info" },
 };
 
-const BORDER_COLOR: Record<string, string> = {
-  high: "error.main",
-  normal: "primary.main",
-  low: "grey.400",
+const URGENCY_CONFIG: Record<string, { label: string; color: "error" | "warning" | "default" }> = {
+  acute: { label: "🔴 Akut", color: "error" },
+  soon: { label: "🟡 Bald", color: "warning" },
+  relaxed: { label: "⚪ Entspannt", color: "default" },
 };
 
 export function RelevantTaskCard({
@@ -32,16 +32,24 @@ export function RelevantTaskCard({
   const emoji = taskLabel.split(" ")[0] ?? "📋";
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
   const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
+  const urg = URGENCY_CONFIG[item.urgency] ?? URGENCY_CONFIG.soon;
+
+  // Border color: acute+high = red, acute = orange, default = primary
+  const borderColor =
+    item.urgency === "acute" ? "error.main" :
+    item.priority === "high" ? "warning.main" :
+    item.priority === "low" ? "grey.400" : "primary.main";
 
   const content = (
     <CardContent>
-      <Stack direction="row" spacing={1} sx={{ mb: 0.5, alignItems: "center" }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 0.5, alignItems: "center", flexWrap: "wrap" }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           {emoji} {item.plant_name}
         </Typography>
         <Chip label={taskLabel} size="small" variant="outlined" />
+        <Chip label={urg.label} color={urg.color} size="small" />
         {item.priority !== "normal" && (
-          <Chip label={prio.label} color={prio.color} size="small" />
+          <Chip label={prio.label} color={prio.color} size="small" variant="outlined" />
         )}
       </Stack>
       <Typography variant="subtitle2" color="primary" gutterBottom>
@@ -57,7 +65,7 @@ export function RelevantTaskCard({
   );
 
   return (
-    <Card sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: BORDER_COLOR[item.priority] ?? "primary.main" }}>
+    <Card sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: borderColor }}>
       {isClickable ? (
         <CardActionArea onClick={() => onNavigateToPlant(item.task.plant_id)}>
           {content}

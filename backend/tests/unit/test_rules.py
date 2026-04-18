@@ -4,7 +4,7 @@ from datetime import date
 
 import pytest
 
-from backend.domain.enums import Season, TaskType, WeatherEventType
+from backend.domain.enums import Season, TaskType, Urgency, WeatherEventType
 from backend.domain.models import (
     ActivationCondition,
     EventState,
@@ -13,6 +13,7 @@ from backend.domain.models import (
 )
 from backend.domain.rules import (
     are_activation_conditions_met,
+    compute_urgency,
     get_current_season,
     is_in_planning_window,
     is_relevant_now,
@@ -187,3 +188,67 @@ class TestIsRelevantNow:
         )
         state = _make_event_state(sustained_mild_nights=True)
         assert is_relevant_now(rule, state, today=date(2026, 12, 15)) is False
+
+
+# --- compute_urgency ---
+
+
+class TestComputeUrgency:
+    def test_relaxed_when_not_in_window(self) -> None:
+        rule = _make_rule(planning_seasons=[Season.SPRING])
+        state = _make_event_state()
+        assert compute_urgency(rule, state, current_season=Season.WINTER) == Urgency.RELAXED
+
+    def test_relaxed_when_conditions_not_met(self) -> None:
+        rule = _make_rule(
+            planning_seasons=[Season.SPRING],
+            required_events=[WeatherEventType.FROST_RISK_PASSED],
+        )
+        state = _make_event_state(frost_risk_passed=False)
+        assert compute_urgency(rule, state, current_season=Season.SPRING) == Urgency.RELAXED
+
+    def test_soon_when_relevant_no_pressure(self) -> None:
+        """In window + conditions met + early in planning window → soon."""
+        rule = _make_rule(
+            planning_seasons=[Season.SPRING, Season.EARLY_SUMMER],
+            required_events=[WeatherEventType.FROST_RISK_PASSED],
+        )
+        state = _make_event_state(frost_risk_passed=True)
+        assert compute_urgency(rule, state, current_season=Season.SPRING) == Urgency.SOON
+
+    def test_acute_when_transient_danger_event(self) -> None:
+        """Frost risk active is a transient danger → acute."""
+        rule = _make_rule(
+            planning_seasons=[Season.AUTUMN, Season.WINTER],
+            required_events=[WeatherEventType.FROST_RISK_ACTIVE],
+        )
+        state = _make_event_state(frost_risk_active=True)
+        assert compute_urgency(rule, state, current_season=Season.AUTUMN) == Urgency.ACUTE
+
+    def test_acute_when_last_planning_season(self) -> None:
+        """In the last planning season for a rule → acute."""
+        rule = _make_rule(
+            planning_seasons=[Season.SPRING, Season.EARLY_SUMMER],
+            required_events=[WeatherEventType.FROST_RISK_PASSED],
+        )
+        state = _make_event_state(frost_risk_passed=True)
+        assert compute_urgency(rule, state, current_season=Season.EARLY_SUMMER) == Urgency.ACUTE
+
+    def test_soon_when_single_season_not_transient(self) -> None:
+        """Single season with no transient events → actually acute (last = only)."""
+        rule = _make_rule(
+            planning_seasons=[Season.SPRING],
+            required_events=[WeatherEventType.FROST_RISK_PASSED],
+        )
+        state = _make_event_state(frost_risk_passed=True)
+        # Single season = last season, so acute
+        assert compute_urgency(rule, state, current_season=Season.SPRING) == Urgency.ACUTE
+
+    def test_acute_heatwave(self) -> None:
+        """Heatwave is transient danger → acute."""
+        rule = _make_rule(
+            planning_seasons=[Season.SUMMER, Season.LATE_SUMMER],
+            required_events=[WeatherEventType.HEATWAVE],
+        )
+        state = _make_event_state(heatwave=True)
+        assert compute_urgency(rule, state, current_season=Season.SUMMER) == Urgency.ACUTE

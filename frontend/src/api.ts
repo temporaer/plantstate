@@ -42,6 +42,7 @@ export interface RelevantNowItem {
   plant_name: string;
   task_type: string;
   priority: string;
+  urgency: string;
   explanation_summary: string;
   explanation_why: string;
   explanation_how: string;
