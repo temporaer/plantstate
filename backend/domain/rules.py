@@ -82,10 +82,15 @@ def compute_urgency(
 ) -> Urgency:
     """Compute how time-pressured a task is.
 
-    - acute: transient danger event active, or in last planning season
+    - acute: transient danger event active (frost, heatwave, …),
+             OR last planning season is ending (2nd month of the season)
     - soon: in planning window and conditions met
     - relaxed: not yet actionable
+
+    Low-priority tasks are capped at "soon" — they're never acute.
     """
+    if today is None:
+        today = date.today()
     if current_season is None:
         current_season = get_current_season(today)
 
@@ -95,23 +100,31 @@ def compute_urgency(
     if not in_window or not conditions_met:
         return Urgency.RELAXED
 
+    # Low-priority tasks are never acute
+    from backend.domain.enums import Priority
+    if rule.priority == Priority.LOW:
+        return Urgency.SOON
+
     # Check if a transient danger event is among the required triggers
     has_transient = any(
         evt in _TRANSIENT_DANGER_EVENTS
         for evt in rule.activation.required_events
     )
-    # Also urgent if a forbidden danger event is *about* to appear
-    # (frost_risk_active is false now but the rule forbids it — if frost
-    # is forecast soon the window may close)
+    if has_transient:
+        return Urgency.ACUTE
 
-    # Check if we're in the last planning season for this rule
-    in_last_season = False
+    # Check if the planning window is about to close:
+    # we're in the last planning season AND in the 2nd month of that season
     if len(rule.planning_seasons) > 0:
         season_positions = [_SEASON_ORDER.index(s) for s in rule.planning_seasons]
         last_season_idx = max(season_positions)
-        in_last_season = _SEASON_ORDER.index(current_season) == last_season_idx
-
-    if has_transient or in_last_season:
-        return Urgency.ACUTE
+        if _SEASON_ORDER.index(current_season) == last_season_idx:
+            # Seasons span 1-2 months. For 1-month seasons we're always
+            # at the end. For 2-month seasons, acute only in the 2nd month.
+            months_in_season = [
+                m for m, s in MONTH_TO_SEASON.items() if s == current_season
+            ]
+            if len(months_in_season) <= 1 or today.month == max(months_in_season):
+                return Urgency.ACUTE
 
     return Urgency.SOON

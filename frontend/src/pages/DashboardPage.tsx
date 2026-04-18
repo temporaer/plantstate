@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Alert,
@@ -7,9 +8,12 @@ import {
   Chip,
   CircularProgress,
   Divider,
+  IconButton,
+  Popover,
   Stack,
   Typography,
 } from "@mui/material";
+import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
 import { api } from "../api";
 import type { OutlookItem, Tip, WeatherStatus } from "../api";
 import { RelevantTaskCard } from "../components/RelevantTaskCard";
@@ -220,6 +224,60 @@ function OutlookSection({ items }: { items: OutlookItem[] }) {
   );
 }
 
+function LegendPopover() {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => setAnchor(anchor ? null : e.currentTarget)}
+        aria-label="Legende anzeigen"
+        sx={{ ml: 0.5 }}
+      >
+        <HelpOutlinedIcon fontSize="small" />
+      </IconButton>
+      <Popover
+        open={!!anchor}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        slotProps={{ paper: { sx: { p: 2, maxWidth: 320 } } }}
+      >
+        <Typography variant="subtitle2" gutterBottom>
+          Dringlichkeit (berechnet)
+        </Typography>
+        <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Chip label="🔴 Akut" color="error" size="small" />
+            <Typography variant="caption">Jetzt handeln — Zeitfenster schließt sich</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Chip label="🟡 Bald" color="warning" size="small" />
+            <Typography variant="caption">Bereit, aber noch etwas Zeit</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Chip label="⚪ Entspannt" color="default" size="small" />
+            <Typography variant="caption">Breites Zeitfenster</Typography>
+          </Stack>
+        </Stack>
+        <Typography variant="subtitle2" gutterBottom>
+          Wichtigkeit (fest pro Regel)
+        </Typography>
+        <Stack spacing={0.5}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Chip label="Wichtig" color="error" size="small" variant="outlined" />
+            <Typography variant="caption">Schadet der Pflanze wenn's ausfällt</Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Chip label="Nebensache" color="info" size="small" variant="outlined" />
+            <Typography variant="caption">Optisch / kosmetisch, kein Schaden</Typography>
+          </Stack>
+        </Stack>
+      </Popover>
+    </>
+  );
+}
+
 export function DashboardPage({
   onNavigateToPlant,
 }: {
@@ -280,9 +338,12 @@ export function DashboardPage({
         </>
       )}
 
-      <Typography variant="h5" gutterBottom sx={{ mt: 2 }}>
-        Jetzt relevant
-      </Typography>
+      <Stack direction="row" sx={{ alignItems: "center", mt: 2, mb: 1 }}>
+        <Typography variant="h5">
+          Jetzt relevant
+        </Typography>
+        <LegendPopover />
+      </Stack>
 
       {relevantQuery.data && relevantQuery.data.length === 0 && (
         <Typography color="text.secondary">
