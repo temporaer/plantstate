@@ -26,7 +26,6 @@ const URG_COLOR = { acute: "#ef5350", soon: "#ffb74d", relaxed: "#bdbdbd" };
 class PlantStateCard extends HTMLElement {
   _config = {};
   _hass = null;
-  _listening = false;
 
   setConfig(config) {
     this._config = {
@@ -43,11 +42,10 @@ class PlantStateCard extends HTMLElement {
     this._render();
   }
 
-  _navigate(path) {
-    if (!this._hass) return;
-    // Find the ingress panel key (e.g. af89232b_plant_state)
+  _panelHref(path) {
+    // Resolve the ingress panel URL for use in <a> tags
     let panelKey = this._config.panel_url;
-    if (!panelKey) {
+    if (!panelKey && this._hass) {
       const panels = this._hass.panels || {};
       for (const key of Object.keys(panels)) {
         if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
@@ -56,9 +54,8 @@ class PlantStateCard extends HTMLElement {
         }
       }
     }
-    if (!panelKey) return;
-    // Full navigation to panel path (same as clicking the sidebar link)
-    window.open(`/${panelKey}` + (path ? `/#${path}` : ""), "_self");
+    if (!panelKey) return "#";
+    return `/${panelKey}` + (path ? `/#${path}` : "");
   }
 
   _render() {
@@ -93,9 +90,9 @@ class PlantStateCard extends HTMLElement {
       .filter((u) => counts[u] > 0)
       .map(
         (u) =>
-          `<span class="badge" style="--c:${URG_COLOR[u]}" data-filter="${u}">
+          `<a class="badge" style="--c:${URG_COLOR[u]}" href="${this._panelHref("/")}">
             ${URG[u]} ${counts[u]} ${URG_LABEL[u]}
-          </span>`
+          </a>`
       )
       .join('<span class="sep">·</span>');
 
@@ -104,9 +101,9 @@ class PlantStateCard extends HTMLElement {
     const chips = shown
       .map(
         (t) =>
-          `<span class="chip" data-plant-id="${t.plant_id}" title="${t.explanation_summary || ""}">
+          `<a class="chip" href="${this._panelHref(`/plants/${t.plant_id}`)}" title="${t.explanation_summary || ""}">
             ${TASK_EMOJI[t.task_type] || "🌱"} ${t.plant_name}
-          </span>`
+          </a>`
       )
       .join("");
     const overflow =
@@ -137,35 +134,9 @@ class PlantStateCard extends HTMLElement {
           </div>
           <div class="badges">${badges}</div>
           <div class="chips">${chips}${overflow}</div>
-          <div class="footer"><span class="open-link">▸ Öffnen</span></div>
+          <div class="footer"><a class="open-link" href="${this._panelHref("/")}">▸ Öffnen</a></div>
         </div>
       </ha-card>`;
-
-    // --- Delegated click handler (survives re-renders) ---
-    if (!this._listening) {
-      this._listening = true;
-      this.addEventListener("click", (e) => {
-        // Use composedPath to see through ha-card's shadow DOM boundary
-        const path = e.composedPath();
-        let target = null;
-        for (const el of path) {
-          if (el.matches && el.matches("[data-plant-id], [data-filter], .open-link")) {
-            target = el;
-            break;
-          }
-        }
-        if (!target) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (target.dataset && target.dataset.plantId) {
-          this._navigate(`/plants/${target.dataset.plantId}`);
-        } else if (target.dataset && target.dataset.filter) {
-          this._navigate("/");
-        } else if (target.classList && target.classList.contains("open-link")) {
-          this._navigate("/");
-        }
-      });
-    }
   }
 
   _styles() {
@@ -198,6 +169,7 @@ class PlantStateCard extends HTMLElement {
         border-radius: 12px;
         background: color-mix(in srgb, var(--c) 15%, transparent);
         color: var(--primary-text-color);
+        text-decoration: none;
         transition: background .15s;
       }
       .badge:hover {
@@ -219,6 +191,7 @@ class PlantStateCard extends HTMLElement {
         border-radius: 16px;
         background: var(--secondary-background-color, #f5f5f5);
         color: var(--primary-text-color);
+        text-decoration: none;
         cursor: pointer;
         white-space: nowrap;
         transition: background .15s;
@@ -242,6 +215,7 @@ class PlantStateCard extends HTMLElement {
         color: var(--primary-color);
         cursor: pointer;
         font-weight: 500;
+        text-decoration: none;
       }
       .open-link:hover {
         text-decoration: underline;
