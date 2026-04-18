@@ -32,33 +32,6 @@ template:
 # =============================================================================
 # Step 3: Lovelace Markdown Card
 # =============================================================================
-# In your HA dashboard, add a Manual Card and paste this YAML:
-#
-# type: markdown
-# title: 🌱 Garten
-# content: >-
-#   {% set data = state_attr('sensor.garten_tasks', 'tasks') %}
-#   {% if data %}
-#   {% set tasks = data | from_json %}
-#   {% set labels = {
-#     'sow': '🌱 Aussaat',
-#     'transplant': '🌿 Auspflanzen',
-#     'harvest': '🍎 Ernte',
-#     'prune_maintenance': '✂️ Pflegeschnitt',
-#     'prune_structural': '🪚 Formschnitt',
-#     'cut_back': '✂️ Rückschnitt',
-#     'deadhead': '🌸 Verblühtes entfernen',
-#     'thin_fruit': '🍏 Fruchtausdünnung',
-#     'remove_deadwood': '🪵 Totholz entfernen'
-#   } %}
-#   {% set urg = {'acute': '🔴', 'soon': '🟡', 'relaxed': '⚪'} %}
-#   {% for t in tasks %}
-#   {{ urg.get(t.urgency, '⚪') }} **{{ labels.get(t.task_type, t.task_type) }}** {{ t.plant_name }}
-#   <small>{{ t.explanation_summary }}</small>
-#
-#   {% endfor %}
-#   {% else %}
-#   Keine Aufgaben gerade — alles gut! 🎉
-#   {% endif %}
-
+# In your HA dashboard, add a Manual Card and paste the contents of
+# ha-addon/lovelace-card.yaml
 

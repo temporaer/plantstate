@@ -15,12 +15,31 @@ content: >-
     'thin_fruit': '🍏 Fruchtausdünnung',
     'remove_deadwood': '🪵 Totholz entfernen'
   } %}
-  {% set urg = {'acute': '🔴', 'soon': '🟡', 'relaxed': '⚪'} %}
-  {% for t in tasks %}
-  {{ urg.get(t.urgency, '⚪') }} **{{ labels.get(t.task_type, t.task_type) }}** {{ t.plant_name }}
-  <small>{{ t.explanation_summary }}</small>
-
+  {% set prio = {'high': '❗', 'low': '💤'} %}
+  {% set acute = tasks | selectattr('urgency', 'eq', 'acute') | list %}
+  {% set soon = tasks | selectattr('urgency', 'eq', 'soon') | list %}
+  {% set relaxed = tasks | selectattr('urgency', 'eq', 'relaxed') | list %}
+  {% if acute | length > 0 %}
+  🔴 **Akut** ({{ acute | length }})
+  {% for t in acute %}
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  > {{ t.explanation_summary }}
   {% endfor %}
+  {% endif %}
+  {% if soon | length > 0 %}
+  🟡 **Bald** ({{ soon | length }})
+  {% for t in soon %}
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  > {{ t.explanation_summary }}
+  {% endfor %}
+  {% endif %}
+  {% if relaxed | length > 0 %}
+  ⚪ **Entspannt** ({{ relaxed | length }})
+  {% for t in relaxed %}
+  {{ prio.get(t.priority, '') }} {{ labels.get(t.task_type, t.task_type) }} **{{ t.plant_name }}**
+  > {{ t.explanation_summary }}
+  {% endfor %}
+  {% endif %}
   {% else %}
   Keine Aufgaben gerade — alles gut! 🎉
   {% endif %}
