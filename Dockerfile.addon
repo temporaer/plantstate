@@ -44,6 +44,7 @@ RUN mkdir -p /data
 
 # Copy and prepare entrypoint
 COPY ha-addon/run.sh /run.sh
+COPY ha-addon/plant-state-card.js /app/ha-addon/plant-state-card.js
 RUN chmod +x /run.sh
 
 EXPOSE 8099

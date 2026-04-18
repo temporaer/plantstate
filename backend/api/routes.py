@@ -765,6 +765,23 @@ async def proxy_image(url: str) -> FileResponse:
     )
 
 
+# --- Lovelace card JS served from add-on (auto-updates with add-on) ---
+_CARD_JS = Path(__file__).resolve().parent.parent.parent / "ha-addon" / "plant-state-card.js"
+if not _CARD_JS.exists():
+    _CARD_JS = Path("/app/ha-addon/plant-state-card.js")
+
+
+@app.get("/plant-state-card.js", include_in_schema=False)
+async def _serve_card_js() -> FileResponse:
+    if _CARD_JS.exists():
+        return FileResponse(
+            _CARD_JS,
+            media_type="application/javascript",
+            headers={"Cache-Control": "no-cache"},
+        )
+    raise HTTPException(status_code=404, detail="Card JS not found")
+
+
 # --- Static file serving for HA add-on mode (single process) ---
 _FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend_dist"
 if not _FRONTEND_DIR.exists():
