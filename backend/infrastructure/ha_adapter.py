@@ -195,3 +195,30 @@ class HomeAssistantAdapter:
                     # Calendar entity may not exist — skip silently
                     break
         return created
+
+    async def update_sensor(
+        self,
+        entity_id: str,
+        state: str,
+        attributes: dict,
+    ) -> bool:
+        """Set a sensor state via the HA API (creates it if needed)."""
+        async with httpx.AsyncClient(timeout=15) as client:
+            try:
+                resp = await client.post(
+                    f"{self._base_url}/api/states/{entity_id}",
+                    headers=self._headers,
+                    json={
+                        "state": state,
+                        "attributes": {
+                            "friendly_name": attributes.get("friendly_name", entity_id),
+                            "icon": attributes.get("icon", "mdi:flower"),
+                            "unit_of_measurement": attributes.get("unit_of_measurement"),
+                            **attributes,
+                        },
+                    },
+                )
+                resp.raise_for_status()
+                return True
+            except (httpx.HTTPStatusError, httpx.ConnectError):
+                return False

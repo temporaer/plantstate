@@ -94,8 +94,52 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             except Exception:
                 log.exception("Calendar sync failed")
 
+        async def scheduled_sensor_update() -> None:
+            """Push task data to HA sensor every 15 minutes."""
+            import json
+            import logging
+            log = logging.getLogger("plant_state.scheduler")
+            try:
+                db = SessionLocal()
+                try:
+                    service = PlantService(db)
+                    adapter = _get_ha_adapter()
+                    if adapter is None:
+                        return
+                    weather = await adapter.fetch_weather_data()
+                    tasks = service.get_relevant_now_live(weather)
+                    task_dicts = [
+                        {
+                            "task_id": t.task.id,
+                            "plant_id": t.task.plant_id,
+                            "plant_name": t.plant_name,
+                            "task_type": t.task_type,
+                            "priority": t.priority,
+                            "urgency": t.urgency,
+                            "explanation_summary": t.explanation_summary,
+                        }
+                        for t in tasks
+                    ]
+                    await adapter.update_sensor(
+                        "sensor.garten_tasks",
+                        state=str(len(task_dicts)),
+                        attributes={
+                            "friendly_name": "Garten Aufgaben",
+                            "icon": "mdi:flower-tulip",
+                            "unit_of_measurement": "Aufgaben",
+                            "tasks": json.dumps(task_dicts),
+                        },
+                    )
+                    log.info("Sensor update: %d tasks", len(task_dicts))
+                finally:
+                    db.close()
+            except Exception:
+                log.exception("Sensor update failed")
+
         scheduler = AsyncIOScheduler()
         scheduler.add_job(scheduled_calendar_sync, "interval", hours=6, id="calendar_sync")
+        scheduler.add_job(scheduled_sensor_update, "interval", minutes=15, id="sensor_update")
+        scheduler.add_job(scheduled_sensor_update, "date", id="sensor_update_boot")
         scheduler.start()
 
     yield
