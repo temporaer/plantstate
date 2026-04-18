@@ -133,7 +133,7 @@ export function PlantListPage({
             </DialogTitle>
             <DialogContent dividers>
               {rulesPlant.rules.map((rule) => (
-                <RuleCard key={rule.id} rule={rule} />
+                <RuleCard key={rule.id} rule={rule} debug />
               ))}
             </DialogContent>
           </>
