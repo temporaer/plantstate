@@ -93,6 +93,28 @@ export function RelevantTaskCard({
         <Typography variant="body2">
           <strong>Wie:</strong> {item.explanation_how}
         </Typography>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 1.5 }}>
+          {SNOOZABLE_TYPES.has(item.task_type) && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="inherit"
+              startIcon={<ScheduleOutlinedIcon />}
+              onClick={(e) => { e.stopPropagation(); onSnooze?.(item.task.id); }}
+            >
+              In 2 Wochen
+            </Button>
+          )}
+          <Button
+            size="small"
+            variant="outlined"
+            color="success"
+            startIcon={<CheckCircleOutlinedIcon />}
+            onClick={(e) => { e.stopPropagation(); onComplete?.(item.task.id); }}
+          >
+            Erledigt
+          </Button>
+        </Box>
       </Collapse>
     </CardContent>
   );
@@ -106,28 +128,6 @@ export function RelevantTaskCard({
       ) : (
         cardBody
       )}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, px: 2, pb: 1.5 }}>
-        {SNOOZABLE_TYPES.has(item.task_type) && (
-          <Button
-            size="small"
-            variant="outlined"
-            color="inherit"
-            startIcon={<ScheduleOutlinedIcon />}
-            onClick={(e) => { e.stopPropagation(); onSnooze?.(item.task.id); }}
-          >
-            In 2 Wochen
-          </Button>
-        )}
-        <Button
-          size="small"
-          variant="outlined"
-          color="success"
-          startIcon={<CheckCircleOutlinedIcon />}
-          onClick={(e) => { e.stopPropagation(); onComplete?.(item.task.id); }}
-        >
-          Erledigt
-        </Button>
-      </Box>
     </Card>
   );
 }
