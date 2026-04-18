@@ -3,6 +3,16 @@ set -euo pipefail
 
 echo "[plant-state] Starting add-on..."
 
+# Auto-deploy Lovelace card JS to HA's www directory
+if [ -d /config/www ]; then
+    cp /app/ha-addon/plant-state-card.js /config/www/plant-state-card.js
+    echo "[plant-state] Lovelace card JS updated in /config/www/"
+else
+    mkdir -p /config/www
+    cp /app/ha-addon/plant-state-card.js /config/www/plant-state-card.js
+    echo "[plant-state] Created /config/www/ and deployed card JS"
+fi
+
 # Read options from /data/options.json
 if [ -f /data/options.json ]; then
     export HA_WEATHER_ENTITY=$(python3 -c "import json; print(json.load(open('/data/options.json')).get('weather_entity', 'weather.home'))")
