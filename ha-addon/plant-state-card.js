@@ -44,30 +44,27 @@ class PlantStateCard extends HTMLElement {
   }
 
   _navigate(path) {
-    // Auto-detect ingress panel from HA's panel registry
-    let panelKey = this._config.panel_url;
-    if (!panelKey && this._hass) {
+    if (!this._hass) return;
+    // Determine the add-on slug for ingress navigation
+    let slug = this._config.addon_slug;
+    if (!slug) {
+      // Auto-detect from HA panel registry: find the hashed panel key
       const panels = this._hass.panels || {};
-      // Prefer the hashed slug (e.g. af89232b_plant_state) over local_ prefix
-      const candidates = Object.keys(panels).filter((k) =>
-        k.endsWith("plant_state")
-      );
-      // Pick the one that looks like an ingress panel (has hex prefix), or first match
-      const ingress = candidates.find((k) => /^[0-9a-f]{8}_/.test(k));
-      panelKey = "/" + (ingress || candidates[0] || "");
-      console.log("[plant-state-card] panels:", Object.keys(panels).filter(k => k.includes("plant")));
-      console.log("[plant-state-card] candidates:", candidates, "ingress:", ingress, "→", panelKey);
+      for (const key of Object.keys(panels)) {
+        if (key.endsWith("_plant_state") && /^[0-9a-f]{8}_/.test(key)) {
+          slug = key;
+          break;
+        }
+      }
     }
-    if (!panelKey || panelKey === "/") return;
-    // Use HA's SPA navigation (pushState + event) to avoid full page reload
-    const target = panelKey + (path ? "/#" + path : "");
-    history.pushState(null, "", target);
-    window.dispatchEvent(new CustomEvent("location-changed"));
+    if (!slug) return;
+    const target = `/hassio/ingress/${slug}` + (path ? `/#${path}` : "");
+    this._hass.navigate(target);
+  }
   }
 
   _render() {
     const entity = this._hass?.states[this._config.entity];
-    console.log("[plant-state-card] render, panels:", this._hass ? Object.keys(this._hass.panels || {}).filter(k => k.includes("plant")) : "no hass");
 
     // --- Loading / not found ---
     if (!entity) {
