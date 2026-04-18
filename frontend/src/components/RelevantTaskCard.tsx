@@ -14,7 +14,7 @@ import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import type { RelevantNowItem } from "../api";
-import { TASK_TYPE_LABELS } from "../labels";
+import { TASK_TYPE_TEXT } from "../labels";
 
 // Task types where recurring within a season makes sense
 const SNOOZABLE_TYPES = new Set([
@@ -44,7 +44,7 @@ export function RelevantTaskCard({
   onComplete?: (taskId: string) => void;
   onSnooze?: (taskId: string) => void;
 }) {
-  const taskLabel = TASK_TYPE_LABELS[item.task_type] ?? item.task_type;
+  const taskText = TASK_TYPE_TEXT[item.task_type] ?? item.task_type;
   const isClickable = !!onNavigateToPlant && !!item.task.plant_id;
   const prio = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.normal;
   const urg = URGENCY_CONFIG[item.urgency] ?? URGENCY_CONFIG.soon;
@@ -78,10 +78,9 @@ export function RelevantTaskCard({
             }
           }}
         >
-          {item.plant_name}
+          {taskText} {item.plant_name}
         </Typography>
         <Stack direction="row" spacing={0.75} sx={{ mb: 0.75, flexWrap: "wrap" }}>
-          <Chip label={taskLabel} size="small" variant="outlined" sx={{ borderColor: "grey.300", color: "text.secondary" }} />
           <Chip
             label={urg.label}
             size="small"
