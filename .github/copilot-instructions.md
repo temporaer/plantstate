@@ -116,9 +116,44 @@ The version in `ha-addon/config.yaml` is the **only** version that matters for t
 
 Plants are additive — use the seed script or the UI's "Add Plant" dialog. The seed script is HTTP-based and idempotent (checks by name before inserting). Never drop/recreate the DB to add plants.
 
+## Regenerating plants
+
+Plants can be regenerated (re-interpreted by LLM) to pick up schema changes or improved rules.
+
+### Via UI (requires HA conversation agent)
+- **Single plant**: Plant detail page → "Neu generieren" button (picks an HA agent).
+- **All plants**: Plant list page → "Alle neu generieren" button. Sequential LLM calls; can take 5-10 min for 20+ plants.
+
+### Via API (no HA needed — direct JSON)
+Use `PUT /plants/{id}/update-json` to update a single plant with pre-built JSON. Same schema as LLM output. Validates with Pydantic, then calls `regenerate_plant()` internally (preserves completed/skipped tasks, replaces rules + planned tasks).
+
+```bash
+# Example: generate JSON externally (e.g. ChatGPT, Claude), then POST
+curl -X PUT "https://<ha>/api/hassio_ingress/<slug>/plants/<id>/update-json" \
+  -H "Content-Type: application/json" \
+  -d @plant.json
+```
+
+### Via HA conversation agent (API)
+- `POST /plants/{id}/regenerate` — body: `{"plant_name": "...", "agent_id": "..."}`
+- `POST /plants/regenerate-all` — body: `{"agent_id": "..."}`
+
+### Getting the LLM prompt
+Use `POST /plants/prompt` with `{"user_input": "Tomate"}` to get the full system prompt + user input, ready to paste into an external LLM. The response JSON can then be sent to `PUT /plants/{id}/update-json`.
+
+### Regeneration preserves
+- Completed and skipped tasks (history)
+- Image URL (kept if new plant has none)
+- Plant ID
+
+### Regeneration replaces
+- All rules
+- All planned/active tasks
+- Plant metadata (name, description, water_needs, fertilizer_needs, etc.)
+
 ## Allowed task types
 
-`sow`, `transplant`, `harvest`, `prune_maintenance`, `prune_structural`, `cut_back`, `deadhead`, `thin_fruit`, `remove_deadwood`
+`sow`, `transplant`, `harvest`, `prune_maintenance`, `prune_structural`, `cut_back`, `deadhead`, `thin_fruit`, `remove_deadwood`, `water`, `fertilize`
 
 ## Allowed weather events
 

@@ -113,7 +113,7 @@ RULES:
 10. Include a "water_needs" field: describe the plant's water requirements clearly
     (e.g. "Mäßig feucht halten, Staunässe vermeiden. Bei Trockenheit durchdringend gießen.").
 11. Include a "fertilizer_needs" field: describe fertilizer type, timing, and frequency
-    when relevant (e.g. "Im Frühjahr Langzeitdünger, ab Juni bis August alle 2 Wochen Flüssigdünger.").
+    when relevant (e.g. "Frühjahr Langzeitdünger, Jun-Aug alle 2 Wo Flüssigdünger.").
     Leave empty if the plant needs no special fertilization.
 12. Generate water rules (task_type: "water") when the plant has notable water needs.
     Use dry_spell or heatwave as activation events. Use warm_spell for regular season watering.

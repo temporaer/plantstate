@@ -510,6 +510,36 @@ async def regenerate_plant(
     return _plant_response(updated)
 
 
+@app.put("/plants/{plant_id}/update-json", response_model=PlantResponse)
+def update_plant_json(
+    plant_id: str,
+    body: dict[str, Any],
+    service: PlantService = Depends(get_service),
+) -> PlantResponse:
+    """Update a plant directly from pre-built JSON (no LLM call needed).
+
+    Accepts the same JSON schema as LLM output.  Validates, then replaces
+    rules/tasks via regenerate_plant while preserving completed task history.
+    """
+    existing = service.get_plant(plant_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    try:
+        validated = validate_llm_output(body)
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": f"JSON does not match plant schema: {e}", "raw_json": body},
+        ) from e
+
+    new_plant = llm_output_to_plant(validated)
+    updated = service.regenerate_plant(plant_id, new_plant)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    return _plant_response(updated)
+
+
 class RegenerateAllRequest(BaseModel):
     agent_id: str
 
