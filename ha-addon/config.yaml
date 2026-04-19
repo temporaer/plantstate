@@ -1,5 +1,5 @@
 name: Plant-State
-version: "0.6.0"
+version: "0.6.1"
 slug: plant_state
 description: "Wetterbasierte Gartenplanung – Aufgaben, Kalender, Lifecycle"
 url: https://github.com/temporaer/plantstate

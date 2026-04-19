@@ -75,22 +75,23 @@ def compute_heatwave(data: WeatherData) -> bool:
     return False
 
 
-def compute_dry_spell(data: WeatherData) -> bool:
-    """dry_spell: 5 consecutive days < 1mm rain AND last 7 days total < 5mm.
+def compute_dry_spell(data: WeatherData, threshold: int = 5) -> bool:
+    """dry_spell: N consecutive days < 1mm rain AND last 7 days total < 5mm.
 
     A short rainless stretch after heavy rain isn't a real dry spell.
     We require both a streak of dry days and low overall recent precipitation.
+    The threshold (default 5) can be lowered for drought-sensitive plants.
     """
     all_days = list(data.history) + list(data.forecast)
-    if len(all_days) < 5:
+    if len(all_days) < threshold:
         return False
-    # Check streak: 5 consecutive days < 1mm
+    # Check streak: N consecutive days < 1mm
     consecutive = 0
     has_streak = False
     for d in all_days:
         if d.precipitation_mm < 1.0:
             consecutive += 1
-            if consecutive >= 5:
+            if consecutive >= threshold:
                 has_streak = True
                 break
         else:

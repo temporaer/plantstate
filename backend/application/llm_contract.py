@@ -28,6 +28,7 @@ class LLMRuleOutput(BaseModel):
     required_events: list[WeatherEventType] = Field(default_factory=list)
     forbidden_events: list[WeatherEventType] = Field(default_factory=list)
     recurrence_years: int = 1
+    dry_days_threshold: int = 5
     priority: Priority = Priority.NORMAL
     explanation: RuleExplanation
     event_explanations: dict[str, EventExplanation] = Field(default_factory=dict)
@@ -75,6 +76,7 @@ def llm_output_to_plant(output: LLMPlantOutput) -> Plant:
                     event_explanations=event_explanations,
                 ),
                 recurrence_years=r.recurrence_years,
+                dry_days_threshold=r.dry_days_threshold,
                 priority=r.priority,
                 explanation=r.explanation,
             )
@@ -121,8 +123,10 @@ RULES:
     would suffer real damage without intervention (e.g. Hortensie, Tomate, Rhododendron).
     Do NOT generate water tasks for robust/native plants, trees, or established shrubs.
     Use ONLY heatwave or dry_spell as activation events (never warm_spell — too frequent).
-    The system already considers recent rainfall; dry_spell only fires after 5+ dry days
-    with <5mm total in the last week.
+    Set "dry_days_threshold" per plant: very sensitive (Gurke, Tomate) = 3,
+    moderately sensitive (Erdbeeren, Feigenbaum) = 4, default = 5.
+    The system considers recent rainfall; dry_spell fires after N dry days with <5mm
+    total in the last week.
 13. Generate a fertilize TASK (task_type: "fertilize") ONLY for heavy feeders
     (e.g. Rosen, Tomaten, Rasen). Do NOT generate for plants that thrive without feeding.
     Use appropriate seasons. Require warm_spell or sustained_mild_nights as activation
@@ -143,6 +147,7 @@ Output ONLY valid JSON matching this schema:
       "required_events": ["enum", ...],
       "forbidden_events": ["enum", ...],
       "recurrence_years": 1,
+      "dry_days_threshold": 5,
       "explanation": {
         "summary": "string",
         "why": "string",

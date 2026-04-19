@@ -160,6 +160,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             )
         conn.commit()
 
+    # --- Migration: add dry_days_threshold to rules ---
+    with engine.connect() as conn:
+        cols = {
+            row[1]
+            for row in conn.execute(
+                __import__("sqlalchemy").text("PRAGMA table_info(rules)")
+            )
+        }
+        if "dry_days_threshold" not in cols:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE rules ADD COLUMN dry_days_threshold INTEGER DEFAULT 5"
+                )
+            )
+        conn.commit()
+
     # Start background scheduler for periodic calendar sync
     scheduler = None
     if HA_BASE_URL and HA_TOKEN:

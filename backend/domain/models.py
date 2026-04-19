@@ -111,6 +111,7 @@ class Rule(BaseModel):
     recurrence_years: int = 1
     priority: Priority = Priority.NORMAL
     explanation: RuleExplanation
+    dry_days_threshold: int = 5
 
 
 # --- Plant ---

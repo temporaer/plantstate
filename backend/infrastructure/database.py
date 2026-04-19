@@ -46,6 +46,7 @@ class RuleRow(Base):
     planning_seasons: Mapped[dict] = mapped_column(JSON, nullable=False)  # list[str]
     activation: Mapped[dict] = mapped_column(JSON, nullable=False)
     recurrence_years: Mapped[int] = mapped_column(default=1)
+    dry_days_threshold: Mapped[int] = mapped_column(default=5)
     priority: Mapped[str] = mapped_column(String(10), default="normal")
     explanation: Mapped[dict] = mapped_column(JSON, nullable=False)
 

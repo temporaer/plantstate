@@ -158,8 +158,10 @@ class PlantService:
             if not plant.active:
                 continue
             for rule in plant.rules:
-                if is_relevant_now(rule, event_state, current_season):
-                    urgency = compute_urgency(rule, event_state, current_season)
+                if is_relevant_now(rule, event_state, current_season,
+                                   weather_data=weather_data):
+                    urgency = compute_urgency(rule, event_state, current_season,
+                                              weather_data=weather_data)
                     tasks = task_by_rule.get(rule.id, [])
                     for task in tasks:
                         # Skip snoozed tasks
@@ -208,6 +210,7 @@ class PlantService:
                 in_window = is_in_planning_window(rule, current_season)
                 conditions_met = are_activation_conditions_met(
                     rule.activation, event_state,
+                    rule=rule, weather_data=weather_data,
                 )
 
                 # Determine what's blocking activation

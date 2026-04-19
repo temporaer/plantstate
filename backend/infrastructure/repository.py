@@ -52,6 +52,7 @@ class PlantRepository:
                 planning_seasons=[s.value for s in rule.planning_seasons],
                 activation=rule.activation.model_dump(mode="json"),
                 recurrence_years=rule.recurrence_years,
+                dry_days_threshold=rule.dry_days_threshold,
                 priority=rule.priority.value,
                 explanation=rule.explanation.model_dump(),
             )
@@ -136,6 +137,7 @@ class PlantRepository:
                     planning_seasons=[Season(s) for s in r.planning_seasons],
                     activation=activation,
                     recurrence_years=r.recurrence_years,
+                    dry_days_threshold=getattr(r, 'dry_days_threshold', 5),
                     priority=Priority(r.priority) if r.priority else Priority.NORMAL,
                     explanation=RuleExplanation(**r.explanation),
                 )

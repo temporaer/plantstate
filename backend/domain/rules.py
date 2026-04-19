@@ -11,7 +11,8 @@ from __future__ import annotations
 from datetime import date
 
 from backend.domain.enums import MONTH_TO_SEASON, Season, Urgency, WeatherEventType
-from backend.domain.models import ActivationCondition, EventState, Rule
+from backend.domain.events import compute_dry_spell
+from backend.domain.models import ActivationCondition, EventState, Rule, WeatherData
 
 # Events that signal immediate time pressure when they are a required trigger
 _TRANSIENT_DANGER_EVENTS = {
@@ -37,19 +38,36 @@ def is_in_planning_window(rule: Rule, current_season: Season) -> bool:
     return current_season in rule.planning_seasons
 
 
+def _is_dry_spell_met(
+    rule: Rule, event_state: EventState, weather_data: WeatherData | None,
+) -> bool:
+    """Check dry_spell with the rule's per-plant threshold."""
+    if rule.dry_days_threshold == 5:
+        # Default threshold — use pre-computed global event
+        return event_state.is_active(WeatherEventType.DRY_SPELL)
+    if weather_data is None:
+        return event_state.is_active(WeatherEventType.DRY_SPELL)
+    return compute_dry_spell(weather_data, threshold=rule.dry_days_threshold)
+
+
 def are_activation_conditions_met(
-    activation: ActivationCondition, event_state: EventState
+    activation: ActivationCondition,
+    event_state: EventState,
+    rule: Rule | None = None,
+    weather_data: WeatherData | None = None,
 ) -> bool:
     """Check if all activation conditions are satisfied.
 
     All required_events must be active.
     No forbidden_events may be active.
+    For dry_spell, uses the rule's per-plant dry_days_threshold if available.
     """
-    if not all(
-        event_state.is_active(event)
-        for event in activation.required_events
-    ):
-        return False
+    for event in activation.required_events:
+        if event == WeatherEventType.DRY_SPELL and rule is not None:
+            if not _is_dry_spell_met(rule, event_state, weather_data):
+                return False
+        elif not event_state.is_active(event):
+            return False
     return all(
         not event_state.is_active(event)
         for event in activation.forbidden_events
@@ -61,6 +79,7 @@ def is_relevant_now(
     event_state: EventState,
     current_season: Season | None = None,
     today: date | None = None,
+    weather_data: WeatherData | None = None,
 ) -> bool:
     """Determine if a rule's task is relevant right now.
 
@@ -69,7 +88,7 @@ def is_relevant_now(
     if current_season is None:
         current_season = get_current_season(today)
     return is_in_planning_window(rule, current_season) and are_activation_conditions_met(
-        rule.activation, event_state
+        rule.activation, event_state, rule=rule, weather_data=weather_data,
     )
 
 
@@ -78,6 +97,7 @@ def compute_urgency(
     event_state: EventState,
     current_season: Season | None = None,
     today: date | None = None,
+    weather_data: WeatherData | None = None,
 ) -> Urgency:
     """Compute how time-pressured a task is.
 
@@ -94,7 +114,9 @@ def compute_urgency(
         current_season = get_current_season(today)
 
     in_window = is_in_planning_window(rule, current_season)
-    conditions_met = are_activation_conditions_met(rule.activation, event_state)
+    conditions_met = are_activation_conditions_met(
+        rule.activation, event_state, rule=rule, weather_data=weather_data,
+    )
 
     if not in_window or not conditions_met:
         return Urgency.RELAXED
