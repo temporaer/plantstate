@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -33,6 +34,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
 import { api } from "../api";
 import type { Plant } from "../api";
@@ -315,6 +317,30 @@ export function PlantListPage({
   const [rulesPlant, setRulesPlant] = useState<Plant | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<Plant | null>(null);
+  const [regenAgentId, setRegenAgentId] = useState("");
+  const [regenRunning, setRegenRunning] = useState(false);
+  const [regenResult, setRegenResult] = useState<{ succeeded: number; total: number; failed: { name: string; error: string }[] } | null>(null);
+
+  const { data: agents } = useQuery({
+    queryKey: ["ha-agents"],
+    queryFn: () => api.listHaAgents(),
+  });
+
+  const handleRegenerateAll = async () => {
+    if (!regenAgentId) return;
+    setRegenRunning(true);
+    setRegenResult(null);
+    try {
+      const result = await api.regenerateAll(regenAgentId);
+      setRegenResult(result);
+      queryClient.invalidateQueries({ queryKey: ["plants"] });
+      queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
+    } catch {
+      setRegenResult({ succeeded: 0, total: 0, failed: [{ name: "?", error: "Request failed" }] });
+    } finally {
+      setRegenRunning(false);
+    }
+  };
 
   const toggleMutation = useMutation({
     mutationFn: ({ id, active }: { id: string; active: boolean }) =>
@@ -358,6 +384,47 @@ export function PlantListPage({
         onChange={(e) => setFilter(e.target.value)}
         sx={{ mb: 2 }}
       />
+
+      {agents && agents.length > 0 && (
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel>KI-Agent</InputLabel>
+            <Select
+              value={regenAgentId}
+              label="KI-Agent"
+              onChange={(e) => setRegenAgentId(e.target.value)}
+            >
+              {agents.map((a) => (
+                <MenuItem key={a.agent_id} value={a.agent_id}>
+                  {a.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={regenRunning ? <CircularProgress size={16} /> : <RefreshIcon />}
+            disabled={!regenAgentId || regenRunning}
+            onClick={handleRegenerateAll}
+          >
+            {regenRunning ? "Generiere…" : "Alle neu generieren"}
+          </Button>
+        </Stack>
+      )}
+
+      {regenResult && (
+        <Alert
+          severity={regenResult.failed.length === 0 ? "success" : "warning"}
+          onClose={() => setRegenResult(null)}
+          sx={{ mb: 2 }}
+        >
+          {regenResult.succeeded}/{regenResult.total} Pflanzen aktualisiert.
+          {regenResult.failed.length > 0 && (
+            <> Fehler bei: {regenResult.failed.map((f) => f.name).join(", ")}</>
+          )}
+        </Alert>
+      )}
       <Grid container spacing={2}>
         {filtered.map((plant: Plant) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>

@@ -510,6 +510,57 @@ async def regenerate_plant(
     return _plant_response(updated)
 
 
+class RegenerateAllRequest(BaseModel):
+    agent_id: str
+
+
+class RegenerateAllResult(BaseModel):
+    total: int
+    succeeded: int
+    failed: list[dict]
+
+
+@app.post("/plants/regenerate-all", response_model=RegenerateAllResult)
+async def regenerate_all_plants(
+    body: RegenerateAllRequest,
+    service: PlantService = Depends(get_service),
+) -> RegenerateAllResult:
+    """Re-generate all active plants via LLM sequentially."""
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not connected")
+
+    plants = service.list_plants()
+    active_plants = [p for p in plants if p.active]
+    succeeded = 0
+    failed: list[dict] = []
+
+    for plant in active_plants:
+        try:
+            combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {plant.name}"
+            raw_response = await adapter.conversation_process(body.agent_id, combined)
+            if raw_response is None:
+                failed.append({"name": plant.name, "error": "No response from agent"})
+                continue
+
+            from backend.application.json_extract import extract_json
+            plant_json = extract_json(raw_response)
+            if plant_json is None:
+                failed.append({"name": plant.name, "error": "Could not extract JSON"})
+                continue
+
+            validated = validate_llm_output(plant_json)
+            new_plant = llm_output_to_plant(validated)
+            service.regenerate_plant(plant.id, new_plant)
+            succeeded += 1
+        except Exception as e:
+            failed.append({"name": plant.name, "error": str(e)})
+
+    return RegenerateAllResult(
+        total=len(active_plants), succeeded=succeeded, failed=failed,
+    )
+
+
 @app.post("/tasks/{task_id}/complete", response_model=TaskResponse)
 def complete_task(
     task_id: str, bg: BackgroundTasks, service: PlantService = Depends(get_service)

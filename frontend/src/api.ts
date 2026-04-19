@@ -143,4 +143,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
     }),
+  regenerateAll: (agentId: string) =>
+    apiFetch<{ total: number; succeeded: number; failed: { name: string; error: string }[] }>(
+      "/plants/regenerate-all",
+      { method: "POST", body: JSON.stringify({ agent_id: agentId }) },
+    ),
 };
