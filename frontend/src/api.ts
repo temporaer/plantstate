@@ -5,6 +5,8 @@ export interface Plant {
   name: string;
   botanical_name: string | null;
   description: string;
+  water_needs: string;
+  fertilizer_needs: string;
   image_url: string | null;
   language: string;
   active: boolean;

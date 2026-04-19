@@ -125,6 +125,8 @@ class Plant(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     botanical_name: str | None = None
     description: str = ""
+    water_needs: str = ""
+    fertilizer_needs: str = ""
     image_url: str | None = None
     language: str = "en"
     active: bool = True

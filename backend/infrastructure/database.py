@@ -19,6 +19,8 @@ class PlantRow(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     botanical_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     description: Mapped[str] = mapped_column(Text, default="")
+    water_needs: Mapped[str] = mapped_column(Text, default="")
+    fertilizer_needs: Mapped[str] = mapped_column(Text, default="")
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     language: Mapped[str] = mapped_column(String(5), default="en")
     active: Mapped[bool] = mapped_column(default=True)

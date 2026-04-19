@@ -141,6 +141,25 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             )
             conn.commit()
 
+    # Idempotent migration: add water_needs/fertilizer_needs columns
+    with engine.connect() as conn:
+        cols = [r[1] for r in conn.execute(
+            __import__("sqlalchemy").text("PRAGMA table_info(plants)")
+        )]
+        if "water_needs" not in cols:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE plants ADD COLUMN water_needs TEXT DEFAULT ''"
+                )
+            )
+        if "fertilizer_needs" not in cols:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE plants ADD COLUMN fertilizer_needs TEXT DEFAULT ''"
+                )
+            )
+        conn.commit()
+
     # Start background scheduler for periodic calendar sync
     scheduler = None
     if HA_BASE_URL and HA_TOKEN:
@@ -251,6 +270,8 @@ class PlantResponse(BaseModel):
     name: str
     botanical_name: str | None = None
     description: str = ""
+    water_needs: str = ""
+    fertilizer_needs: str = ""
     image_url: str | None = None
     language: str = "en"
     active: bool = True
@@ -663,6 +684,8 @@ def _plant_response(plant: Plant) -> PlantResponse:
         name=plant.name,
         botanical_name=plant.botanical_name,
         description=plant.description,
+        water_needs=plant.water_needs,
+        fertilizer_needs=plant.fertilizer_needs,
         image_url=plant.image_url,
         language=plant.language,
         active=plant.active,

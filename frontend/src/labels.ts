@@ -10,6 +10,8 @@ export const TASK_TYPE_LABELS: Record<string, string> = {
   deadhead: "🌸 Verblühtes entfernen",
   thin_fruit: "🍏 Fruchtausdünnung",
   remove_deadwood: "🪵 Totholz entfernen",
+  water: "💧 Gießen",
+  fertilize: "🧪 Düngen",
 };
 
 /** Task type text without emoji (for composite titles). */
@@ -23,6 +25,8 @@ export const TASK_TYPE_TEXT: Record<string, string> = {
   deadhead: "Verblühtes entfernen",
   thin_fruit: "Fruchtausdünnung",
   remove_deadwood: "Totholz entfernen",
+  water: "Gießen",
+  fertilize: "Düngen",
 };
 
 export const TASK_TYPE_EMOJI: Record<string, string> = {
@@ -35,6 +39,8 @@ export const TASK_TYPE_EMOJI: Record<string, string> = {
   deadhead: "🌸",
   thin_fruit: "🍏",
   remove_deadwood: "🪵",
+  water: "💧",
+  fertilize: "🧪",
 };
 
 export function taskTypeLabel(type: string): string {

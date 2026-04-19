@@ -15,6 +15,8 @@ class TaskType(StrEnum):
     DEADHEAD = "deadhead"
     THIN_FRUIT = "thin_fruit"
     REMOVE_DEADWOOD = "remove_deadwood"
+    WATER = "water"
+    FERTILIZE = "fertilize"
 
 
 class WeatherEventType(StrEnum):

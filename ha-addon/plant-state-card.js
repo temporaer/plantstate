@@ -17,6 +17,8 @@ const TASK_EMOJI = {
   deadhead: "🌸",
   thin_fruit: "🍏",
   remove_deadwood: "🪵",
+  water: "💧",
+  fertilize: "🧪",
 };
 
 const URG = { acute: "🔴", soon: "🟡", relaxed: "⚪" };

@@ -39,6 +39,8 @@ class LLMPlantOutput(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     botanical_name: str | None = None
     description: str = ""
+    water_needs: str = ""
+    fertilizer_needs: str = ""
     image_url: str | None = None
     language: str = Field(..., pattern=r"^(de|en)$")
     rules: list[LLMRuleOutput] = Field(..., min_length=1)
@@ -82,6 +84,8 @@ def llm_output_to_plant(output: LLMPlantOutput) -> Plant:
         name=output.name,
         botanical_name=output.botanical_name,
         description=output.description,
+        water_needs=output.water_needs,
+        fertilizer_needs=output.fertilizer_needs,
         image_url=output.image_url,
         language=output.language,
         rules=rules,
@@ -98,7 +102,7 @@ RULES:
 1. Detect the language (de or en) from the input. Localize name, description, and explanations.
 2. Keep ALL enum values in English (task_type, planning_seasons, events).
 3. Use ONLY these task types: sow, transplant, harvest, prune_maintenance, prune_structural,
-   cut_back, deadhead, thin_fruit, remove_deadwood
+   cut_back, deadhead, thin_fruit, remove_deadwood, water, fertilize
 4. Use ONLY these weather events: frost_risk_active, frost_risk_passed, sustained_mild_nights,
    warm_spell, heatwave, dry_spell, persistent_rain
 5. Use ONLY these seasons: early_spring, spring, early_summer, summer, late_summer, autumn, winter
@@ -106,12 +110,23 @@ RULES:
 7. Each rule MUST have an explanation with summary, why, and how fields.
 8. Each referenced event MUST have an event_explanation with why and how fields.
 9. Explanations must be beginner-friendly, concrete, 1-3 sentences each.
+10. Include a "water_needs" field: describe the plant's water requirements clearly
+    (e.g. "Mäßig feucht halten, Staunässe vermeiden. Bei Trockenheit durchdringend gießen.").
+11. Include a "fertilizer_needs" field: describe fertilizer type, timing, and frequency
+    when relevant (e.g. "Im Frühjahr Langzeitdünger, ab Juni bis August alle 2 Wochen Flüssigdünger.").
+    Leave empty if the plant needs no special fertilization.
+12. Generate water rules (task_type: "water") when the plant has notable water needs.
+    Use dry_spell or heatwave as activation events. Use warm_spell for regular season watering.
+13. Generate fertilize rules (task_type: "fertilize") when the plant benefits from feeding.
+    Use appropriate seasons and activation events.
 
 Output ONLY valid JSON matching this schema:
 {
   "name": "string",
   "botanical_name": "string or null",
   "description": "string",
+  "water_needs": "string",
+  "fertilizer_needs": "string",
   "language": "de" or "en",
   "rules": [
     {

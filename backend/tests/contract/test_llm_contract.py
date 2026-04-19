@@ -76,7 +76,7 @@ class TestLLMContract:
             "name": "Test",
             "language": "en",
             "rules": [{
-                "task_type": "water",  # not allowed
+                "task_type": "mulch",  # not allowed
                 "planning_seasons": ["spring"],
                 "explanation": {"summary": "x", "why": "x", "how": "x"},
             }],

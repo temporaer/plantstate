@@ -45,6 +45,21 @@ export function PlantDetailPage({
         {plant.description}
       </Typography>
 
+      {(plant.water_needs || plant.fertilizer_needs) && (
+        <Box sx={{ mb: 3 }}>
+          {plant.water_needs && (
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              💧 <strong>Wasserbedarf:</strong> {plant.water_needs}
+            </Typography>
+          )}
+          {plant.fertilizer_needs && (
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              🧪 <strong>Düngung:</strong> {plant.fertilizer_needs}
+            </Typography>
+          )}
+        </Box>
+      )}
+
       <Typography variant="h5" gutterBottom>
         Pflege-Regeln
       </Typography>
