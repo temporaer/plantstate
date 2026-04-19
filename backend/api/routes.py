@@ -526,26 +526,32 @@ async def regenerate_all_plants(
     service: PlantService = Depends(get_service),
 ) -> RegenerateAllResult:
     """Re-generate all active plants via LLM sequentially."""
+    import logging
+    log = logging.getLogger("plant_state.regenerate")
     adapter = _get_ha_adapter()
     if adapter is None:
         raise HTTPException(status_code=503, detail="Home Assistant not connected")
 
     plants = service.list_plants()
     active_plants = [p for p in plants if p.active]
+    log.info("Regenerate-all: %d active plants, agent=%s", len(active_plants), body.agent_id)
     succeeded = 0
     failed: list[dict] = []
 
     for plant in active_plants:
         try:
+            log.info("Regenerating: %s", plant.name)
             combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {plant.name}"
             raw_response = await adapter.conversation_process(body.agent_id, combined)
             if raw_response is None:
+                log.warning("No response for %s", plant.name)
                 failed.append({"name": plant.name, "error": "No response from agent"})
                 continue
 
             from backend.application.json_extract import extract_json
             plant_json = extract_json(raw_response)
             if plant_json is None:
+                log.warning("No JSON for %s: %s", plant.name, raw_response[:200])
                 failed.append({"name": plant.name, "error": "Could not extract JSON"})
                 continue
 
@@ -553,9 +559,12 @@ async def regenerate_all_plants(
             new_plant = llm_output_to_plant(validated)
             service.regenerate_plant(plant.id, new_plant)
             succeeded += 1
+            log.info("Regenerated: %s (%d rules)", plant.name, len(new_plant.rules))
         except Exception as e:
+            log.exception("Failed to regenerate %s", plant.name)
             failed.append({"name": plant.name, "error": str(e)})
 
+    log.info("Regenerate-all done: %d/%d succeeded", succeeded, len(active_plants))
     return RegenerateAllResult(
         total=len(active_plants), succeeded=succeeded, failed=failed,
     )

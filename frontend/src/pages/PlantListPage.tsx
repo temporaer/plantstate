@@ -335,8 +335,9 @@ export function PlantListPage({
       setRegenResult(result);
       queryClient.invalidateQueries({ queryKey: ["plants"] });
       queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
-    } catch {
-      setRegenResult({ succeeded: 0, total: 0, failed: [{ name: "?", error: "Request failed" }] });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setRegenResult({ succeeded: 0, total: 0, failed: [{ name: "Request", error: msg }] });
     } finally {
       setRegenRunning(false);
     }
@@ -421,7 +422,7 @@ export function PlantListPage({
         >
           {regenResult.succeeded}/{regenResult.total} Pflanzen aktualisiert.
           {regenResult.failed.length > 0 && (
-            <> Fehler bei: {regenResult.failed.map((f) => f.name).join(", ")}</>
+            <> Fehler: {regenResult.failed.map((f) => `${f.name} (${f.error})`).join(", ")}</>
           )}
         </Alert>
       )}
