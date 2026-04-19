@@ -138,10 +138,10 @@ export function PlantDetailPage({
             display: "flex",
             overflowX: "auto",
             scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
             gap: 2,
             pb: 1,
             mx: -2, px: 2,
-            // Hide scrollbar but keep functionality
             "&::-webkit-scrollbar": { display: "none" },
             scrollbarWidth: "none",
           }}
@@ -150,9 +150,10 @@ export function PlantDetailPage({
             <Box
               key={rule.id}
               sx={{
-                minWidth: "85%",
-                maxWidth: "85%",
-                scrollSnapAlign: "start",
+                minWidth: "90%",
+                maxWidth: "90%",
+                scrollSnapAlign: "center",
+                scrollSnapStop: "always",
                 flexShrink: 0,
               }}
             >
