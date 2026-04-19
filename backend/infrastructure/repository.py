@@ -90,6 +90,15 @@ class PlantRepository:
         self._session.flush()
         return True
 
+    def delete_rule(self, rule_id: str) -> bool:
+        """Delete a single rule by ID."""
+        row = self._session.get(RuleRow, rule_id)
+        if row is None:
+            return False
+        self._session.delete(row)
+        self._session.flush()
+        return True
+
     def set_active(self, plant_id: str, active: bool) -> Plant | None:
         """Enable or disable a plant."""
         row = self._session.get(PlantRow, plant_id)
@@ -205,6 +214,15 @@ class TaskRepository:
         row.snoozed_until = until
         self._session.flush()
         return self._to_domain(row)
+
+    def delete(self, task_id: str) -> bool:
+        """Delete a task by ID."""
+        row = self._session.get(TaskRow, task_id)
+        if row is None:
+            return False
+        self._session.delete(row)
+        self._session.flush()
+        return True
 
     @staticmethod
     def _to_domain(row: TaskRow) -> Task:

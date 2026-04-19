@@ -464,6 +464,52 @@ Output ONLY the JSON, no additional text."""
     }
 
 
+@app.post("/plants/{plant_id}/regenerate", response_model=PlantResponse)
+async def regenerate_plant(
+    plant_id: str,
+    body: GenerateRequest,
+    service: PlantService = Depends(get_service),
+) -> PlantResponse:
+    """Re-generate a plant's rules via LLM, preserving completed task history."""
+    existing = service.get_plant(plant_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    adapter = _get_ha_adapter()
+    if adapter is None:
+        raise HTTPException(status_code=503, detail="Home Assistant not connected")
+
+    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}"
+    raw_response = await adapter.conversation_process(body.agent_id, combined)
+    if raw_response is None:
+        raise HTTPException(status_code=502, detail="No response from HA agent")
+
+    from backend.application.json_extract import extract_json
+    plant_json = extract_json(raw_response)
+    if plant_json is None:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "Could not extract valid JSON from agent response",
+                "raw_response": raw_response[:2000],
+            },
+        )
+
+    try:
+        validated = validate_llm_output(plant_json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=422,
+            detail={"error": f"JSON does not match plant schema: {e}", "raw_json": plant_json},
+        ) from e
+
+    new_plant = llm_output_to_plant(validated)
+    updated = service.regenerate_plant(plant_id, new_plant)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Plant not found")
+    return _plant_response(updated)
+
+
 @app.post("/tasks/{task_id}/complete", response_model=TaskResponse)
 def complete_task(
     task_id: str, bg: BackgroundTasks, service: PlantService = Depends(get_service)

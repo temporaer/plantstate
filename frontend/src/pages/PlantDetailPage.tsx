@@ -1,6 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
-import { Box, Button, Typography } from "@mui/material";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  Typography,
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { api } from "../api";
 import { RuleCard } from "../components/RuleCard";
 import { PlantImage } from "../components/PlantImage";
@@ -12,10 +25,34 @@ export function PlantDetailPage({
   plantId: string;
   onBack: () => void;
 }) {
+  const queryClient = useQueryClient();
   const { data: plant, isLoading } = useQuery({
     queryKey: ["plant", plantId],
     queryFn: () => api.getPlant(plantId),
   });
+  const { data: agents } = useQuery({
+    queryKey: ["ha-agents"],
+    queryFn: () => api.listHaAgents(),
+  });
+
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState("");
+  const [agentId, setAgentId] = useState("");
+
+  const handleRegenerate = async () => {
+    if (!plant || !agentId) return;
+    setRegenerating(true);
+    setRegenError("");
+    try {
+      await api.regeneratePlant(plant.id, plant.name, agentId);
+      queryClient.invalidateQueries({ queryKey: ["plant", plantId] });
+      queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
+    } catch (e: unknown) {
+      setRegenError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setRegenerating(false);
+    }
+  };
 
   if (isLoading) return <Typography>Laden…</Typography>;
   if (!plant) return <Typography>Pflanze nicht gefunden</Typography>;
@@ -60,9 +97,41 @@ export function PlantDetailPage({
         </Box>
       )}
 
-      <Typography variant="h5" gutterBottom>
-        Pflege-Regeln
-      </Typography>
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+        <Typography variant="h5">Pflege-Regeln</Typography>
+        {agents && agents.length > 0 && (
+          <>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>KI-Agent</InputLabel>
+              <Select
+                value={agentId}
+                label="KI-Agent"
+                onChange={(e) => setAgentId(e.target.value)}
+              >
+                {agents.map((a) => (
+                  <MenuItem key={a.agent_id} value={a.agent_id}>
+                    {a.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={regenerating ? <CircularProgress size={16} /> : <RefreshIcon />}
+              disabled={!agentId || regenerating}
+              onClick={handleRegenerate}
+            >
+              {regenerating ? "Generiere…" : "Neu generieren"}
+            </Button>
+          </>
+        )}
+      </Stack>
+
+      {regenError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{regenError}</Alert>
+      )}
+
       {plant.rules.map((rule) => (
         <RuleCard key={rule.id} rule={rule} />
       ))}

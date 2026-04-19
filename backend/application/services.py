@@ -65,6 +65,54 @@ class PlantService:
             self._session.commit()
         return result
 
+    def regenerate_plant(self, plant_id: str, new_plant: Plant) -> Plant | None:
+        """Update a plant's metadata and rules from new LLM output.
+
+        Preserves completed/skipped tasks. Deletes old rules and planned tasks,
+        then creates new rules and tasks from the new LLM output.
+        """
+        existing = self._plants.get(plant_id)
+        if existing is None:
+            return None
+
+        # Delete planned tasks (keep completed/skipped history)
+        all_tasks = self._tasks.list_by_plant(plant_id)
+        for t in all_tasks:
+            if t.status in (TaskStatus.PLANNED, TaskStatus.ACTIVE):
+                self._tasks.delete(t.id)
+
+        # Delete old rules
+        for rule in existing.rules:
+            self._plants.delete_rule(rule.id)
+
+        # Update plant metadata
+        existing.name = new_plant.name
+        existing.botanical_name = new_plant.botanical_name
+        existing.description = new_plant.description
+        existing.water_needs = new_plant.water_needs
+        existing.fertilizer_needs = new_plant.fertilizer_needs
+        existing.image_url = new_plant.image_url or existing.image_url
+        existing.language = new_plant.language
+        existing.rules = new_plant.rules
+        existing.updated_at = datetime.now()
+
+        saved = self._plants.save(existing)
+
+        # Generate new tasks
+        year = date.today().year
+        for rule in saved.rules:
+            task = Task(
+                plant_id=saved.id,
+                rule_id=rule.id,
+                task_type=rule.task_type,
+                status=TaskStatus.PLANNED,
+                year=year,
+            )
+            self._tasks.save(task)
+
+        self._session.commit()
+        return saved
+
     def set_plant_active(self, plant_id: str, active: bool) -> Plant | None:
         plant = self._plants.set_active(plant_id, active)
         if plant:

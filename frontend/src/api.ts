@@ -138,4 +138,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
     }),
+  regeneratePlant: (plantId: string, plantName: string, agentId: string) =>
+    apiFetch<Plant>(`/plants/${plantId}/regenerate`, {
+      method: "POST",
+      body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
+    }),
 };
