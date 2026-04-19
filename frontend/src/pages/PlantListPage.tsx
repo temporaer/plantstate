@@ -386,7 +386,7 @@ export function PlantListPage({
       />
 
       {agents && agents.length > 0 && (
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 2 }}>
           <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel>KI-Agent</InputLabel>
             <Select

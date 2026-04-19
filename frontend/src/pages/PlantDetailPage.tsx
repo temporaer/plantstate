@@ -97,7 +97,7 @@ export function PlantDetailPage({
         </Box>
       )}
 
-      <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 2 }}>
         <Typography variant="h5">Pflege-Regeln</Typography>
         {agents && agents.length > 0 && (
           <>
