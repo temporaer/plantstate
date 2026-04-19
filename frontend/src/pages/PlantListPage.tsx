@@ -13,6 +13,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Fab,
   FormControl,
   Grid,
@@ -386,46 +387,6 @@ export function PlantListPage({
         sx={{ mb: 2 }}
       />
 
-      {agents && agents.length > 0 && (
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>KI-Agent</InputLabel>
-            <Select
-              value={regenAgentId}
-              label="KI-Agent"
-              onChange={(e) => setRegenAgentId(e.target.value)}
-            >
-              {agents.map((a) => (
-                <MenuItem key={a.agent_id} value={a.agent_id}>
-                  {a.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={regenRunning ? <CircularProgress size={16} /> : <RefreshIcon />}
-            disabled={!regenAgentId || regenRunning}
-            onClick={handleRegenerateAll}
-          >
-            {regenRunning ? "Generiere…" : "Alle neu generieren"}
-          </Button>
-        </Stack>
-      )}
-
-      {regenResult && (
-        <Alert
-          severity={regenResult.failed.length === 0 ? "success" : "warning"}
-          onClose={() => setRegenResult(null)}
-          sx={{ mb: 2 }}
-        >
-          {regenResult.succeeded}/{regenResult.total} Pflanzen aktualisiert.
-          {regenResult.failed.length > 0 && (
-            <> Fehler: {regenResult.failed.map((f) => `${f.name} (${f.error})`).join(", ")}</>
-          )}
-        </Alert>
-      )}
       <Grid container spacing={2}>
         {filtered.map((plant: Plant) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={plant.id}>
@@ -458,19 +419,7 @@ export function PlantListPage({
                   </Stack>
                 </CardContent>
               </CardActionArea>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 1, pb: 0.5 }}>
-                <Tooltip title={plant.active ? "Deaktivieren" : "Aktivieren"}>
-                  <Switch
-                    size="small"
-                    checked={plant.active}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      e.stopPropagation();
-                      toggleMutation.mutate({ id: plant.id, active: !plant.active });
-                    }}
-                  />
-                </Tooltip>
-                <Box>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", px: 1, pb: 0.5 }}>
                   <IconButton
                     size="small"
                     onClick={(e) => {
@@ -481,23 +430,58 @@ export function PlantListPage({
                   >
                     <InfoOutlinedIcon fontSize="small" />
                   </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteConfirm(plant);
-                    }}
-                    aria-label="Löschen"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Box>
               </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
+
+      {/* KI Regeneration — below the grid */}
+      {agents && agents.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Divider sx={{ mb: 2 }} />
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+            🤖 KI-Regeneration
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>KI-Agent</InputLabel>
+              <Select
+                value={regenAgentId}
+                label="KI-Agent"
+                onChange={(e) => setRegenAgentId(e.target.value)}
+              >
+                {agents.map((a) => (
+                  <MenuItem key={a.agent_id} value={a.agent_id}>
+                    {a.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={regenRunning ? <CircularProgress size={16} /> : <RefreshIcon />}
+              disabled={!regenAgentId || regenRunning}
+              onClick={handleRegenerateAll}
+            >
+              {regenRunning ? "Generiere…" : "Alle neu generieren"}
+            </Button>
+          </Stack>
+          {regenResult && (
+            <Alert
+              severity={regenResult.failed.length === 0 ? "success" : "warning"}
+              onClose={() => setRegenResult(null)}
+              sx={{ mt: 1 }}
+            >
+              {regenResult.succeeded}/{regenResult.total} Pflanzen aktualisiert.
+              {regenResult.failed.length > 0 && (
+                <> Fehler: {regenResult.failed.map((f) => `${f.name} (${f.error})`).join(", ")}</>
+              )}
+            </Alert>
+          )}
+        </Box>
+      )}
 
       {/* FAB: Add Plant */}
       <Fab
@@ -561,6 +545,41 @@ export function PlantListPage({
               {rulesPlant.rules.map((rule) => (
                 <RuleCard key={rule.id} rule={rule} debug />
               ))}
+
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                Verwaltung
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                <Tooltip title={rulesPlant.active ? "Deaktivieren" : "Aktivieren"}>
+                  <Switch
+                    size="small"
+                    checked={rulesPlant.active}
+                    onChange={() =>
+                      toggleMutation.mutate(
+                        { id: rulesPlant.id, active: !rulesPlant.active },
+                        { onSuccess: (updated) => setRulesPlant({ ...rulesPlant, active: (updated as Plant).active }) },
+                      )
+                    }
+                  />
+                </Tooltip>
+                <Typography variant="body2">
+                  {rulesPlant.active ? "Aktiv" : "Deaktiviert"}
+                </Typography>
+                <Box sx={{ flex: 1 }} />
+                <Button
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  startIcon={<DeleteIcon />}
+                  onClick={() => {
+                    setRulesPlant(null);
+                    setDeleteConfirm(rulesPlant);
+                  }}
+                >
+                  Löschen
+                </Button>
+              </Stack>
             </DialogContent>
           </>
         )}

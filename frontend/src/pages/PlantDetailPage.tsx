@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -97,10 +98,68 @@ export function PlantDetailPage({
         </Box>
       )}
 
-      <Stack direction="row" spacing={2} sx={{ alignItems: "center", mb: 2 }}>
-        <Typography variant="h5">Pflege-Regeln</Typography>
-        {agents && agents.length > 0 && (
-          <>
+      <Typography variant="h5" sx={{ mb: 2 }}>Pflege-Regeln</Typography>
+
+      {plant.rules.length > 1 ? (
+        <Box
+          sx={{
+            // Mobile: horizontal swipe
+            display: "flex",
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
+            gap: 2,
+            pb: 1,
+            mx: -2, px: 2,
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+            // Desktop: stack vertically
+            "@media (min-width: 600px)": {
+              flexDirection: "column",
+              overflowX: "visible",
+              scrollSnapType: "none",
+              mx: 0, px: 0,
+            },
+          }}
+        >
+          {plant.rules.map((rule, idx) => (
+            <Box
+              key={rule.id}
+              sx={{
+                minWidth: "90%",
+                maxWidth: "90%",
+                scrollSnapAlign: "center",
+                scrollSnapStop: "always",
+                flexShrink: 0,
+                "@media (min-width: 600px)": {
+                  minWidth: "100%",
+                  maxWidth: "100%",
+                  scrollSnapAlign: "unset",
+                  scrollSnapStop: "unset",
+                },
+              }}
+            >
+              <RuleCard
+                rule={rule}
+                badge={plant.rules.length > 1 ? `${idx + 1}/${plant.rules.length}` : undefined}
+              />
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        plant.rules.map((rule) => (
+          <RuleCard key={rule.id} rule={rule} />
+        ))
+      )}
+
+      {/* KI Regeneration — below rules */}
+      {agents && agents.length > 0 && (
+        <Box sx={{ mt: 4 }}>
+          <Divider sx={{ mb: 2 }} />
+          <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+            🤖 KI-Regeneration
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <FormControl size="small" sx={{ minWidth: 180 }}>
               <InputLabel>KI-Agent</InputLabel>
               <Select
@@ -124,47 +183,11 @@ export function PlantDetailPage({
             >
               {regenerating ? "Generiere…" : "Neu generieren"}
             </Button>
-          </>
-        )}
-      </Stack>
-
-      {regenError && (
-        <Alert severity="error" sx={{ mb: 2 }}>{regenError}</Alert>
-      )}
-
-      {plant.rules.length > 1 ? (
-        <Box
-          sx={{
-            display: "flex",
-            overflowX: "auto",
-            scrollSnapType: "x mandatory",
-            WebkitOverflowScrolling: "touch",
-            gap: 2,
-            pb: 1,
-            mx: -2, px: 2,
-            "&::-webkit-scrollbar": { display: "none" },
-            scrollbarWidth: "none",
-          }}
-        >
-          {plant.rules.map((rule, idx) => (
-            <Box
-              key={rule.id}
-              sx={{
-                minWidth: "90%",
-                maxWidth: "90%",
-                scrollSnapAlign: "center",
-                scrollSnapStop: "always",
-                flexShrink: 0,
-              }}
-            >
-              <RuleCard rule={rule} badge={`${idx + 1}/${plant.rules.length}`} />
-            </Box>
-          ))}
+          </Stack>
+          {regenError && (
+            <Alert severity="error" sx={{ mt: 1 }}>{regenError}</Alert>
+          )}
         </Box>
-      ) : (
-        plant.rules.map((rule) => (
-          <RuleCard key={rule.id} rule={rule} />
-        ))
       )}
     </Box>
   );
