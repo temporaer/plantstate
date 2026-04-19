@@ -38,13 +38,18 @@ const EVENT_CRITERIA: Record<string, string> = {
   persistent_rain: "3 aufeinanderfolgende Tage Niederschlag ≥ 5 mm",
 };
 
-export function RuleCard({ rule, debug = false }: { rule: Rule; debug?: boolean }) {
+export function RuleCard({ rule, debug = false, badge }: { rule: Rule; debug?: boolean; badge?: string }) {
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {TASK_TYPE_LABELS[rule.task_type] ?? rule.task_type}
-        </Typography>
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+          <Typography variant="h6">
+            {TASK_TYPE_LABELS[rule.task_type] ?? rule.task_type}
+          </Typography>
+          {badge && (
+            <Chip label={badge} size="small" variant="outlined" sx={{ color: "text.secondary" }} />
+          )}
+        </Stack>
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {rule.explanation.summary}
         </Typography>

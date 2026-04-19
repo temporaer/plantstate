@@ -9,17 +9,20 @@ import {
   CircularProgress,
   Collapse,
   Divider,
+  FormControlLabel,
   IconButton,
   Popover,
   Stack,
+  Switch,
   Typography,
 } from "@mui/material";
 import HelpOutlinedIcon from "@mui/icons-material/HelpOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { api } from "../api";
-import type { OutlookItem, Tip, WeatherStatus } from "../api";
+import type { CompletedTaskItem, OutlookItem, Tip, WeatherStatus } from "../api";
 import { RelevantTaskCard } from "../components/RelevantTaskCard";
+import { TASK_TYPE_EMOJI, TASK_TYPE_TEXT } from "../labels";
 
 const SEASON_LABELS: Record<string, string> = {
   early_spring: "🌱 Vorfrühling",
@@ -340,6 +343,35 @@ function LegendPopover() {
   );
 }
 
+function CompletedCard({ item }: { item: CompletedTaskItem }) {
+  const emoji = TASK_TYPE_EMOJI[item.task_type] ?? "📋";
+  const text = TASK_TYPE_TEXT[item.task_type] ?? item.task_type;
+  const status = item.task.status === "skipped" ? "⏭️ Übersprungen" : "✅ Erledigt";
+  const when = item.completed_at
+    ? new Date(item.completed_at).toLocaleDateString("de-DE", {
+        day: "numeric", month: "short",
+      })
+    : null;
+
+  return (
+    <Card sx={{ mb: 1, borderLeft: "4px solid", borderLeftColor: "grey.400" }}>
+      <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
+          <Typography variant="body2">
+            {emoji} {text} — {item.plant_name}
+          </Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            {when && (
+              <Typography variant="caption" color="text.disabled">{when}</Typography>
+            )}
+            <Chip label={status} size="small" variant="outlined" sx={{ borderColor: "grey.400" }} />
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function DashboardPage({
   onNavigateToPlant,
 }: {
@@ -376,6 +408,7 @@ export function DashboardPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
       queryClient.invalidateQueries({ queryKey: ["outlook"] });
+      queryClient.invalidateQueries({ queryKey: ["completed-tasks"] });
     },
   });
 
@@ -384,6 +417,13 @@ export function DashboardPage({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
     },
+  });
+
+  const [showCompleted, setShowCompleted] = useState(false);
+  const completedQuery = useQuery({
+    queryKey: ["completed-tasks"],
+    queryFn: api.getCompletedTasks,
+    enabled: showCompleted,
   });
 
   const isLoading = weatherQuery.isLoading || relevantQuery.isLoading;
@@ -460,6 +500,26 @@ export function DashboardPage({
           onSnooze={(id) => snoozeMutation.mutate(id)}
         />
       ))}
+
+      <FormControlLabel
+        control={
+          <Switch
+            size="small"
+            checked={showCompleted}
+            onChange={(_, v) => setShowCompleted(v)}
+          />
+        }
+        label="Erledigte anzeigen"
+        sx={{ mt: 1, mb: 1, color: "text.secondary" }}
+      />
+
+      {showCompleted && completedQuery.data && completedQuery.data.length > 0 && (
+        <Box sx={{ opacity: 0.5 }}>
+          {completedQuery.data.map((item) => (
+            <CompletedCard key={item.task.id} item={item} />
+          ))}
+        </Box>
+      )}
 
       <Divider sx={{ my: 3 }} />
 

@@ -132,9 +132,39 @@ export function PlantDetailPage({
         <Alert severity="error" sx={{ mb: 2 }}>{regenError}</Alert>
       )}
 
-      {plant.rules.map((rule) => (
-        <RuleCard key={rule.id} rule={rule} />
-      ))}
+      {plant.rules.length > 1 ? (
+        <Box
+          sx={{
+            display: "flex",
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            gap: 2,
+            pb: 1,
+            mx: -2, px: 2,
+            // Hide scrollbar but keep functionality
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+          }}
+        >
+          {plant.rules.map((rule, idx) => (
+            <Box
+              key={rule.id}
+              sx={{
+                minWidth: "85%",
+                maxWidth: "85%",
+                scrollSnapAlign: "start",
+                flexShrink: 0,
+              }}
+            >
+              <RuleCard rule={rule} badge={`${idx + 1}/${plant.rules.length}`} />
+            </Box>
+          ))}
+        </Box>
+      ) : (
+        plant.rules.map((rule) => (
+          <RuleCard key={rule.id} rule={rule} />
+        ))
+      )}
     </Box>
   );
 }

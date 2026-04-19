@@ -65,6 +65,13 @@ export interface OutlookItem {
   ready: boolean;
 }
 
+export interface CompletedTaskItem {
+  task: Task;
+  plant_name: string;
+  task_type: string;
+  completed_at: string | null;
+}
+
 export interface WeatherStatus {
   season: string;
   events: Record<string, boolean>;
@@ -123,6 +130,8 @@ export const api = {
   getOutlook: () => apiFetch<OutlookItem[]>("/dashboard/outlook"),
   getRelevantNowLive: () =>
     apiFetch<RelevantNowItem[]>("/dashboard/relevant-now-live"),
+  getCompletedTasks: () =>
+    apiFetch<CompletedTaskItem[]>("/dashboard/completed"),
   syncCalendar: () =>
     apiFetch<{ synced: number; calendar: string }>("/sync/calendar", {
       method: "POST",

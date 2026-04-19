@@ -140,6 +140,18 @@ class PlantService:
             self._session.commit()
         return task
 
+    def get_completed_tasks(self, year: int | None = None) -> list[CompletedTask]:
+        """Get completed/skipped tasks with plant names."""
+        tasks = self._tasks.list_completed(year=year)
+        plant_ids = {t.plant_id for t in tasks}
+        plants_by_id = {p.id: p for p in self._plants.list_all() if p.id in plant_ids}
+        result: list[CompletedTask] = []
+        for task in tasks:
+            plant = plants_by_id.get(task.plant_id)
+            if plant:
+                result.append(CompletedTask(task=task, plant=plant))
+        return result
+
     def get_relevant_now(self, weather_data: WeatherData) -> list[RelevantTask]:
         """Get all tasks that are relevant right now."""
         event_state = compute_all_events(weather_data)
@@ -286,3 +298,11 @@ class OutlookItem:
         self.conditions_met = conditions_met
         self.blocking = blocking
         self.season_sort = season_sort
+
+
+class CompletedTask:
+    """A completed or skipped task, with its plant context."""
+
+    def __init__(self, task: Task, plant: Plant) -> None:
+        self.task = task
+        self.plant = plant

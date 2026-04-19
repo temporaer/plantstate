@@ -341,6 +341,13 @@ class TipResponse(BaseModel):
     detail: str
 
 
+class CompletedTaskItem(BaseModel):
+    task: TaskResponse
+    plant_name: str
+    task_type: str
+    completed_at: str | None = None
+
+
 # --- Routes ---
 
 
@@ -728,6 +735,27 @@ async def get_relevant_now_live(
     weather = await adapter.fetch_weather_data()
     results = service.get_relevant_now(weather)
     return [_relevant_item(r) for r in results]
+
+
+@app.get("/dashboard/completed", response_model=list[CompletedTaskItem])
+def get_completed_tasks(
+    service: PlantService = Depends(get_service),
+) -> list[CompletedTaskItem]:
+    """Get recently completed/skipped tasks."""
+    year = date.today().year
+    items = service.get_completed_tasks(year=year)
+    return [
+        CompletedTaskItem(
+            task=_task_response(item.task),
+            plant_name=item.plant.name,
+            task_type=item.task.task_type.value,
+            completed_at=(
+                item.task.completed_at.isoformat()
+                if item.task.completed_at else None
+            ),
+        )
+        for item in items
+    ]
 
 
 def _outlook_response(item: OutlookItem) -> OutlookItemResponse:

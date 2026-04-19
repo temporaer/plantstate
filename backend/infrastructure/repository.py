@@ -197,6 +197,16 @@ class TaskRepository:
         rows = self._session.execute(stmt).scalars().all()
         return [self._to_domain(r) for r in rows]
 
+    def list_completed(self, *, year: int | None = None) -> list[Task]:
+        stmt = select(TaskRow).where(
+            TaskRow.status.in_(["completed", "skipped"]),
+        )
+        if year is not None:
+            stmt = stmt.where(TaskRow.year == year)
+        stmt = stmt.order_by(TaskRow.completed_at.desc())
+        rows = self._session.execute(stmt).scalars().all()
+        return [self._to_domain(r) for r in rows]
+
     def update_status(self, task_id: str, status: TaskStatus) -> Task | None:
         row = self._session.get(TaskRow, task_id)
         if row is None:
