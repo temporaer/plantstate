@@ -45,81 +45,107 @@ const EVENT_LABELS: Record<string, string> = {
 };
 
 function WeatherCard({ weather }: { weather: WeatherStatus }) {
+  const [expanded, setExpanded] = useState(false);
+  // Count active events for the summary line
+  const activeEvents = Object.entries(weather.events).filter(([, v]) => v);
+
   return (
-    <Card sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          🌤️ Wetter & Jahreszeit
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 1.5 }}>
-          Saison: <strong>{SEASON_LABELS[weather.season] ?? weather.season}</strong>
-        </Typography>
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-          {Object.entries(weather.events).map(([event, active]) => (
-            <Chip
-              key={event}
-              label={EVENT_LABELS[event] ?? event}
-              size="small"
-              variant="outlined"
-              sx={active
-                ? { borderColor: "success.main", color: "success.main" }
-                : { borderColor: "grey.300", color: "text.disabled" }
-              }
-            />
-          ))}
+    <Card
+      sx={{ mb: 3, cursor: "pointer" }}
+      onClick={() => setExpanded((prev) => !prev)}
+    >
+      <CardContent sx={{ pb: expanded ? undefined : "12px !important" }}>
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+            <Typography variant="h6" sx={{ mr: 1 }}>
+              {SEASON_LABELS[weather.season] ?? weather.season}
+            </Typography>
+            {activeEvents.map(([event]) => (
+              <Chip
+                key={event}
+                label={EVENT_LABELS[event] ?? event}
+                size="small"
+                color="success"
+                variant="outlined"
+              />
+            ))}
+            {activeEvents.length === 0 && (
+              <Typography variant="body2" color="text.secondary">
+                Keine aktiven Wetterereignisse
+              </Typography>
+            )}
+          </Stack>
+          {expanded ? <ExpandLessIcon color="action" /> : <ExpandMoreIcon color="action" />}
         </Stack>
 
-        {weather.history.length > 0 && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>
-              Letzte Tage
-            </Typography>
-            <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
-              {weather.history.slice(-5).map((d) => (
-                <Box key={d.date} sx={{ textAlign: "center", minWidth: 70, opacity: 0.75 }}>
-                  <Typography variant="caption" sx={{ display: "block" }}>
-                    {new Date(d.date).toLocaleDateString("de-DE", { weekday: "short" })}
-                  </Typography>
-                  <Typography variant="body2">
-                    {d.temp_min.toFixed(0)}° / {d.temp_max.toFixed(0)}°
-                  </Typography>
-                  {d.precipitation_mm > 0 && (
-                    <Typography variant="caption" color="primary">
-                      {d.precipitation_mm.toFixed(1)} mm
-                    </Typography>
-                  )}
-                </Box>
-              ))}
-            </Stack>
-          </>
-        )}
+        <Collapse in={expanded}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mt: 2 }}>
+            {Object.entries(weather.events).map(([event, active]) => (
+              <Chip
+                key={event}
+                label={EVENT_LABELS[event] ?? event}
+                size="small"
+                variant="outlined"
+                sx={active
+                  ? { borderColor: "success.main", color: "success.main" }
+                  : { borderColor: "grey.300", color: "text.disabled" }
+                }
+              />
+            ))}
+          </Stack>
 
-        {weather.forecast.length > 0 && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>
-              Vorhersage
-            </Typography>
-            <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
-              {weather.forecast.slice(0, 5).map((d) => (
-                <Box key={d.date} sx={{ textAlign: "center", minWidth: 70 }}>
-                  <Typography variant="caption" sx={{ display: "block" }}>
-                    {new Date(d.date).toLocaleDateString("de-DE", { weekday: "short" })}
-                  </Typography>
-                  <Typography variant="body2">
-                    {d.temp_min.toFixed(0)}° / {d.temp_max.toFixed(0)}°
-                  </Typography>
-                  {d.precipitation_mm > 0 && (
-                    <Typography variant="caption" color="primary">
-                      {d.precipitation_mm.toFixed(1)} mm
+          {weather.history.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" gutterBottom>
+                Letzte Tage
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
+                {weather.history.slice(-5).map((d) => (
+                  <Box key={d.date} sx={{ textAlign: "center", minWidth: 70, opacity: 0.75 }}>
+                    <Typography variant="caption" sx={{ display: "block" }}>
+                      {new Date(d.date).toLocaleDateString("de-DE", { weekday: "short" })}
                     </Typography>
-                  )}
-                </Box>
-              ))}
-            </Stack>
-          </>
-        )}
+                    <Typography variant="body2">
+                      {d.temp_min.toFixed(0)}° / {d.temp_max.toFixed(0)}°
+                    </Typography>
+                    {d.precipitation_mm > 0 && (
+                      <Typography variant="caption" color="primary">
+                        {d.precipitation_mm.toFixed(1)} mm
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            </>
+          )}
+
+          {weather.forecast.length > 0 && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" gutterBottom>
+                Vorhersage
+              </Typography>
+              <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
+                {weather.forecast.slice(0, 5).map((d) => (
+                  <Box key={d.date} sx={{ textAlign: "center", minWidth: 70 }}>
+                    <Typography variant="caption" sx={{ display: "block" }}>
+                      {new Date(d.date).toLocaleDateString("de-DE", { weekday: "short" })}
+                    </Typography>
+                    <Typography variant="body2">
+                      {d.temp_min.toFixed(0)}° / {d.temp_max.toFixed(0)}°
+                    </Typography>
+                    {d.precipitation_mm > 0 && (
+                      <Typography variant="caption" color="primary">
+                        {d.precipitation_mm.toFixed(1)} mm
+                      </Typography>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            </>
+          )}
+        </Collapse>
       </CardContent>
     </Card>
   );
