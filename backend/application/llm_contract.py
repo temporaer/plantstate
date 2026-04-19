@@ -110,15 +110,23 @@ RULES:
 7. Each rule MUST have an explanation with summary, why, and how fields.
 8. Each referenced event MUST have an event_explanation with why and how fields.
 9. Explanations must be beginner-friendly, concrete, 1-3 sentences each.
-10. Include a "water_needs" field: describe the plant's water requirements clearly
+10. Include a "water_needs" field: describe the plant's water requirements clearly.
+    This is INFORMATIONAL — always filled, shown on the plant profile card.
     (e.g. "Mäßig feucht halten, Staunässe vermeiden. Bei Trockenheit durchdringend gießen.").
-11. Include a "fertilizer_needs" field: describe fertilizer type, timing, and frequency
-    when relevant (e.g. "Frühjahr Langzeitdünger, Jun-Aug alle 2 Wo Flüssigdünger.").
-    Leave empty if the plant needs no special fertilization.
-12. Generate water rules (task_type: "water") when the plant has notable water needs.
-    Use dry_spell or heatwave as activation events. Use warm_spell for regular season watering.
-13. Generate fertilize rules (task_type: "fertilize") when the plant benefits from feeding.
-    Use appropriate seasons and activation events.
+11. Include a "fertilizer_needs" field: describe fertilizer type, timing, and frequency.
+    This is INFORMATIONAL — always filled, shown on the plant profile card.
+    (e.g. "Frühjahr Langzeitdünger, Jun-Aug alle 2 Wo Flüssigdünger.").
+    Write "Keine besondere Düngung nötig" if the plant needs none.
+12. Generate a water TASK (task_type: "water") ONLY for drought-sensitive plants that
+    would suffer real damage without intervention (e.g. Hortensie, Tomate, Rhododendron).
+    Do NOT generate water tasks for robust/native plants, trees, or established shrubs.
+    Use ONLY heatwave or dry_spell as activation events (never warm_spell — too frequent).
+    The system already considers recent rainfall; dry_spell only fires after 5+ dry days
+    with <5mm total in the last week.
+13. Generate a fertilize TASK (task_type: "fertilize") ONLY for heavy feeders
+    (e.g. Rosen, Tomaten, Rasen). Do NOT generate for plants that thrive without feeding.
+    Use appropriate seasons. Require warm_spell or sustained_mild_nights as activation
+    (no point fertilizing in cold soil).
 
 Output ONLY valid JSON matching this schema:
 {

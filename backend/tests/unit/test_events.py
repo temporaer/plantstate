@@ -265,27 +265,69 @@ class TestHeatwave:
 
 
 class TestDrySpell:
-    def test_dry_3_consecutive(self) -> None:
+    def test_dry_5_consecutive_with_low_history(self) -> None:
+        """5 dry forecast days + dry history = dry spell."""
         data = WeatherData(
+            history=[
+                _day("2026-05-25", 14.0, 22.0, 0.5),
+                _day("2026-05-26", 15.0, 23.0, 0.0),
+                _day("2026-05-27", 14.0, 21.0, 0.0),
+                _day("2026-05-28", 15.0, 24.0, 0.0),
+                _day("2026-05-29", 16.0, 25.0, 0.5),
+                _day("2026-05-30", 16.0, 26.0, 0.0),
+                _day("2026-05-31", 17.0, 27.0, 0.0),
+            ],
+            forecast=[
+                _day("2026-06-01", 15.0, 25.0, 0.0),
+                _day("2026-06-02", 16.0, 26.0, 0.0),
+                _day("2026-06-03", 17.0, 27.0, 0.0),
+                _day("2026-06-04", 18.0, 28.0, 0.0),
+                _day("2026-06-05", 19.0, 29.0, 0.0),
+            ],
+        )
+        assert compute_dry_spell(data) is True
+
+    def test_no_dry_spell_rain_breaks_streak(self) -> None:
+        """Rain every 3-4 days prevents a 5-day streak."""
+        data = WeatherData(
+            history=[
+                _day("2026-05-25", 15.0, 25.0, 2.0),
+                _day("2026-05-26", 15.0, 25.0, 0.0),
+                _day("2026-05-27", 15.0, 25.0, 0.0),
+                _day("2026-05-28", 15.0, 25.0, 3.0),
+                _day("2026-05-29", 15.0, 25.0, 0.0),
+                _day("2026-05-30", 15.0, 25.0, 0.0),
+                _day("2026-05-31", 15.0, 25.0, 2.0),
+            ],
             forecast=[
                 _day("2026-06-01", 15.0, 25.0, 0.0),
                 _day("2026-06-02", 16.0, 26.0, 0.5),
                 _day("2026-06-03", 17.0, 27.0, 0.0),
                 _day("2026-06-04", 18.0, 28.0, 5.0),
                 _day("2026-06-05", 19.0, 29.0, 0.0),
-            ]
+            ],
         )
-        assert compute_dry_spell(data) is True
+        assert compute_dry_spell(data) is False
 
-    def test_no_dry_spell(self) -> None:
+    def test_no_dry_spell_recent_rain_high(self) -> None:
+        """5 dry forecast days but recent history had plenty of rain = no dry spell."""
         data = WeatherData(
+            history=[
+                _day("2026-05-25", 14.0, 22.0, 0.0),
+                _day("2026-05-26", 15.0, 23.0, 3.0),
+                _day("2026-05-27", 14.0, 21.0, 0.0),
+                _day("2026-05-28", 15.0, 24.0, 4.0),
+                _day("2026-05-29", 16.0, 25.0, 0.0),
+                _day("2026-05-30", 16.0, 26.0, 0.0),
+                _day("2026-05-31", 17.0, 27.0, 0.0),
+            ],
             forecast=[
                 _day("2026-06-01", 15.0, 25.0, 0.0),
-                _day("2026-06-02", 16.0, 26.0, 0.5),
-                _day("2026-06-03", 17.0, 27.0, 2.0),
+                _day("2026-06-02", 16.0, 26.0, 0.0),
+                _day("2026-06-03", 17.0, 27.0, 0.0),
                 _day("2026-06-04", 18.0, 28.0, 0.0),
                 _day("2026-06-05", 19.0, 29.0, 0.0),
-            ]
+            ],
         )
         assert compute_dry_spell(data) is False
 

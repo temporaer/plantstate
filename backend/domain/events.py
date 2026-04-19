@@ -76,20 +76,34 @@ def compute_heatwave(data: WeatherData) -> bool:
 
 
 def compute_dry_spell(data: WeatherData) -> bool:
-    """dry_spell: 3 consecutive days < 1mm rain (history + forecast)."""
-    # Combine recent history and forecast for a full picture
+    """dry_spell: 5 consecutive days < 1mm rain AND last 7 days total < 5mm.
+
+    A short rainless stretch after heavy rain isn't a real dry spell.
+    We require both a streak of dry days and low overall recent precipitation.
+    """
     all_days = list(data.history) + list(data.forecast)
-    if len(all_days) < 3:
+    if len(all_days) < 5:
         return False
+    # Check streak: 5 consecutive days < 1mm
     consecutive = 0
+    has_streak = False
     for d in all_days:
         if d.precipitation_mm < 1.0:
             consecutive += 1
-            if consecutive >= 3:
-                return True
+            if consecutive >= 5:
+                has_streak = True
+                break
         else:
             consecutive = 0
-    return False
+    if not has_streak:
+        return False
+    # Also require low total rainfall in recent history
+    history = _get_history_days(data.history, 7)
+    if history:
+        total_rain = sum(d.precipitation_mm for d in history)
+        if total_rain >= 5.0:
+            return False
+    return True
 
 
 def compute_persistent_rain(data: WeatherData) -> bool:

@@ -123,19 +123,27 @@ function WeatherCard({ weather }: { weather: WeatherStatus }) {
 }
 
 function TipsSection({ tips }: { tips: Tip[] }) {
+  const [expanded, setExpanded] = useState(false);
   if (tips.length === 0) return null;
   return (
     <Box sx={{ mb: 3 }}>
       <Stack spacing={1}>
         {tips.map((tip, i) => (
-          <Card key={i} variant="outlined" sx={{ bgcolor: "action.hover" }}>
-            <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
+          <Card
+            key={i}
+            variant="outlined"
+            sx={{ bgcolor: "action.hover", cursor: "pointer" }}
+            onClick={() => setExpanded((prev) => !prev)}
+          >
+            <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {tip.icon} {tip.title}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {tip.detail}
-              </Typography>
+              <Collapse in={expanded}>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {tip.detail}
+                </Typography>
+              </Collapse>
             </CardContent>
           </Card>
         ))}
