@@ -478,10 +478,6 @@ export function DashboardPage({
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        📋 Dashboard
-      </Typography>
-
       {isLoading && <CircularProgress />}
 
       {hasHAError && (
