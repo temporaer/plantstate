@@ -45,7 +45,7 @@ export function PlantDetailPage({
     setRegenerating(true);
     setRegenError("");
     try {
-      await api.regeneratePlant(plant.id, plant.name, agentId);
+      await api.regeneratePlant(plant.id, plant.name, agentId, plant.user_notes);
       queryClient.invalidateQueries({ queryKey: ["plant", plantId] });
       queryClient.invalidateQueries({ queryKey: ["relevant-now"] });
     } catch (e: unknown) {
@@ -95,6 +95,14 @@ export function PlantDetailPage({
               🧪 <strong>Düngung:</strong> {plant.fertilizer_needs}
             </Typography>
           )}
+        </Box>
+      )}
+
+      {plant.user_notes && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            📝 <strong>Hinweise:</strong> {plant.user_notes}
+          </Typography>
         </Box>
       )}
 

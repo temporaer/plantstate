@@ -56,6 +56,7 @@ function AddPlantDialog({
 }) {
   const [step, setStep] = useState(0);
   const [plantName, setPlantName] = useState("");
+  const [userNotes, setUserNotes] = useState("");
   const [method, setMethod] = useState<"prompt" | "agent" | null>(null);
   const [prompt, setPrompt] = useState("");
   const [agentId, setAgentId] = useState("");
@@ -74,6 +75,7 @@ function AddPlantDialog({
   const reset = () => {
     setStep(0);
     setPlantName("");
+    setUserNotes("");
     setMethod(null);
     setPrompt("");
     setAgentId("");
@@ -92,7 +94,7 @@ function AddPlantDialog({
   const handleCopyPrompt = async () => {
     setError("");
     try {
-      const res = await api.getPlantPrompt(plantName);
+      const res = await api.getPlantPrompt(plantName, userNotes);
       setPrompt(res.combined_prompt);
       setMethod("prompt");
       setStep(1);
@@ -106,7 +108,7 @@ function AddPlantDialog({
     setError("");
     setGenerating(true);
     try {
-      const result = await api.generatePlant(plantName, agentId);
+      const result = await api.generatePlant(plantName, agentId, userNotes);
       setPreview(result);
       setJsonText(JSON.stringify(result, null, 2));
       setStep(2);
@@ -132,7 +134,8 @@ function AddPlantDialog({
     if (!preview) return;
     setError("");
     try {
-      await api.createPlant(preview);
+      const payload = { ...(preview as object), user_notes: userNotes };
+      await api.createPlant(payload);
       onSaved();
       handleClose();
     } catch (e: unknown) {
@@ -173,6 +176,17 @@ function AddPlantDialog({
               placeholder="z.B. Tomate, Lavendel, Hortensie…"
               value={plantName}
               onChange={(e) => setPlantName(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              multiline
+              minRows={2}
+              maxRows={4}
+              label="Zusätzliche Hinweise (optional)"
+              placeholder="z.B. 'Wird als Jungpflanze gekauft', 'Steht auf dem Balkon', 'Mehrjährig, bereits etabliert'…"
+              value={userNotes}
+              onChange={(e) => setUserNotes(e.target.value)}
               sx={{ mb: 2 }}
             />
             <Stack spacing={1.5}>

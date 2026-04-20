@@ -143,3 +143,57 @@ class TestRelevantNow:
         resp = client.post("/dashboard/relevant-now", json=weather)
         assert resp.status_code == 200
         assert resp.json() == []
+
+
+class TestUserNotes:
+    def test_create_with_user_notes(self, client, sample_plant):
+        plant_data = {**sample_plant, "user_notes": "Wird als Jungpflanze gekauft"}
+        resp = client.post("/plants", json=plant_data)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["user_notes"] == "Wird als Jungpflanze gekauft"
+
+        # Verify persisted
+        resp = client.get(f"/plants/{data['id']}")
+        assert resp.json()["user_notes"] == "Wird als Jungpflanze gekauft"
+
+    def test_create_without_user_notes(self, client, sample_plant):
+        resp = client.post("/plants", json=sample_plant)
+        assert resp.status_code == 200
+        assert resp.json()["user_notes"] == ""
+
+    def test_user_notes_in_prompt(self, client):
+        resp = client.post("/plants/prompt", json={
+            "user_input": "Tomate",
+            "user_notes": "Wird als Jungpflanze im Mai gekauft",
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "Wird als Jungpflanze im Mai gekauft" in data["combined_prompt"]
+        assert data["user_notes"] == "Wird als Jungpflanze im Mai gekauft"
+
+    def test_prompt_without_notes(self, client):
+        resp = client.post("/plants/prompt", json={"user_input": "Tomate"})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "Additional context" not in data["combined_prompt"]
+
+    def test_user_notes_survives_update_json(self, client, sample_plant):
+        plant_data = {**sample_plant, "user_notes": "Balkonpflanze"}
+        resp = client.post("/plants", json=plant_data)
+        plant_id = resp.json()["id"]
+
+        # Update via JSON — don't pass user_notes, should keep original
+        resp = client.put(f"/plants/{plant_id}/update-json", json=sample_plant)
+        assert resp.status_code == 200
+        assert resp.json()["user_notes"] == "Balkonpflanze"
+
+    def test_user_notes_can_be_updated_via_json(self, client, sample_plant):
+        plant_data = {**sample_plant, "user_notes": "original"}
+        resp = client.post("/plants", json=plant_data)
+        plant_id = resp.json()["id"]
+
+        updated_data = {**sample_plant, "user_notes": "updated notes"}
+        resp = client.put(f"/plants/{plant_id}/update-json", json=updated_data)
+        assert resp.status_code == 200
+        assert resp.json()["user_notes"] == "updated notes"

@@ -41,6 +41,7 @@ class PlantRepository:
             image_url=plant.image_url,
             language=plant.language,
             active=plant.active,
+            user_notes=plant.user_notes,
             created_at=plant.created_at or now,
             updated_at=now,
         )
@@ -153,6 +154,7 @@ class PlantRepository:
             image_url=row.image_url,
             language=row.language,
             active=getattr(row, "active", True),
+            user_notes=getattr(row, "user_notes", "") or "",
             rules=rules,
             created_at=row.created_at,
             updated_at=row.updated_at,

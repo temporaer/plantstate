@@ -131,6 +131,15 @@ RULES:
     (e.g. Rosen, Tomaten, Rasen). Do NOT generate for plants that thrive without feeding.
     Use appropriate seasons. Require warm_spell or sustained_mild_nights as activation
     (no point fertilizing in cold soil).
+14. If the user provides additional notes after the plant name (e.g. "will be bought as
+    seedling", "grows on the balcony", "perennial, already established"), adapt the lifecycle
+    plan accordingly:
+    - For bought seedlings/young plants: skip "sow", focus on transplanting, hardening,
+      and care. Use "transplant" for planting out after frost_risk_passed.
+    - For established plants: skip "sow" and "transplant", focus on maintenance tasks.
+    - For annuals (e.g. tomatoes, peppers): note in rule explanations that the plant is
+      annual and should be removed/deactivated at end of season.
+    - Always incorporate the user's context into the rule explanations.
 
 Output ONLY valid JSON matching this schema:
 {

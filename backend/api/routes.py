@@ -176,6 +176,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             )
         conn.commit()
 
+    # --- Migration: add user_notes to plants ---
+    with engine.connect() as conn:
+        cols = [r[1] for r in conn.execute(
+            __import__("sqlalchemy").text("PRAGMA table_info(plants)")
+        )]
+        if "user_notes" not in cols:
+            conn.execute(
+                __import__("sqlalchemy").text(
+                    "ALTER TABLE plants ADD COLUMN user_notes TEXT DEFAULT ''"
+                )
+            )
+        conn.commit()
+
     # Start background scheduler for periodic calendar sync
     scheduler = None
     if HA_BASE_URL and HA_TOKEN:
@@ -277,6 +290,7 @@ class WeatherDataInput(BaseModel):
 
 class InterpretRequest(BaseModel):
     user_input: str
+    user_notes: str = ""
 
 
 # --- Response models ---
@@ -292,6 +306,7 @@ class PlantResponse(BaseModel):
     image_url: str | None = None
     language: str = "en"
     active: bool = True
+    user_notes: str = ""
     rules: list[dict] = Field(default_factory=list)
 
 
@@ -372,6 +387,7 @@ async def interpret_plant(body: InterpretRequest) -> dict:
     return {
         "system_prompt": LLM_SYSTEM_PROMPT,
         "user_input": body.user_input,
+        "user_notes": body.user_notes,
         "instruction": (
             "Send the system_prompt and user_input to your LLM. "
             "Validate the response JSON via POST /plants before saving."
@@ -384,8 +400,10 @@ def create_plant(
     body: dict[str, Any], service: PlantService = Depends(get_service)
 ) -> PlantResponse:
     """Create a plant from JSON (same schema as LLM output)."""
+    user_notes = body.pop("user_notes", "")
     validated = validate_llm_output(body)
     plant = llm_output_to_plant(validated)
+    plant.user_notes = user_notes
     saved = service.add_plant(plant)
     return _plant_response(saved)
 
@@ -441,6 +459,7 @@ async def list_ha_agents() -> list[dict]:
 class GenerateRequest(BaseModel):
     plant_name: str
     agent_id: str
+    user_notes: str = ""
 
 
 @app.post("/plants/generate")
@@ -450,7 +469,10 @@ async def generate_plant(body: GenerateRequest) -> dict:
     if adapter is None:
         raise HTTPException(status_code=503, detail="Home Assistant not connected")
 
-    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}"
+    notes_section = ""
+    if body.user_notes.strip():
+        notes_section = f"\n\nAdditional context from the user: {body.user_notes.strip()}"
+    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}{notes_section}"
     raw_response = await adapter.conversation_process(body.agent_id, combined)
     if raw_response is None:
         raise HTTPException(status_code=502, detail="No response from HA agent")
@@ -483,16 +505,20 @@ async def generate_plant(body: GenerateRequest) -> dict:
 @app.post("/plants/prompt")
 async def get_plant_prompt(body: InterpretRequest) -> dict:
     """Get a ready-to-paste prompt for external LLMs (ChatGPT etc)."""
+    notes_section = ""
+    if body.user_notes.strip():
+        notes_section = f"\n\nAdditional context from the user: {body.user_notes.strip()}"
     combined = f"""{LLM_SYSTEM_PROMPT}
 
 ---
 
-Generate the lifecycle JSON for this plant: {body.user_input}
+Generate the lifecycle JSON for this plant: {body.user_input}{notes_section}
 
 Output ONLY the JSON, no additional text."""
     return {
         "system_prompt": LLM_SYSTEM_PROMPT,
         "user_input": body.user_input,
+        "user_notes": body.user_notes,
         "combined_prompt": combined,
     }
 
@@ -512,7 +538,12 @@ async def regenerate_plant(
     if adapter is None:
         raise HTTPException(status_code=503, detail="Home Assistant not connected")
 
-    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}"
+    # Use notes from request body if provided, otherwise fall back to stored notes
+    user_notes = body.user_notes.strip() if body.user_notes.strip() else existing.user_notes
+    notes_section = ""
+    if user_notes.strip():
+        notes_section = f"\n\nAdditional context from the user: {user_notes.strip()}"
+    combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {body.plant_name}{notes_section}"
     raw_response = await adapter.conversation_process(body.agent_id, combined)
     if raw_response is None:
         raise HTTPException(status_code=502, detail="No response from HA agent")
@@ -558,6 +589,7 @@ def update_plant_json(
     if existing is None:
         raise HTTPException(status_code=404, detail="Plant not found")
 
+    user_notes = body.pop("user_notes", None)
     try:
         validated = validate_llm_output(body)
     except Exception as e:
@@ -567,6 +599,8 @@ def update_plant_json(
         ) from e
 
     new_plant = llm_output_to_plant(validated)
+    if user_notes is not None:
+        new_plant.user_notes = user_notes
     updated = service.regenerate_plant(plant_id, new_plant)
     if updated is None:
         raise HTTPException(status_code=404, detail="Plant not found")
@@ -604,7 +638,12 @@ async def regenerate_all_plants(
     for plant in active_plants:
         try:
             log.info("Regenerating: %s", plant.name)
-            combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {plant.name}"
+            notes_section = ""
+            if plant.user_notes.strip():
+                notes_section = (
+                    f"\n\nAdditional context from the user: {plant.user_notes.strip()}"
+                )
+            combined = f"{LLM_SYSTEM_PROMPT}\n\n---\n\nPlant: {plant.name}{notes_section}"
             raw_response = await adapter.conversation_process(body.agent_id, combined)
             if raw_response is None:
                 log.warning("No response for %s", plant.name)
@@ -879,6 +918,7 @@ def _plant_response(plant: Plant) -> PlantResponse:
         image_url=plant.image_url,
         language=plant.language,
         active=plant.active,
+        user_notes=plant.user_notes,
         rules=[r.model_dump(mode="json") for r in plant.rules],
     )
 

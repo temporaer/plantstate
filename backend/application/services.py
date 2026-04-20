@@ -93,6 +93,7 @@ class PlantService:
         existing.fertilizer_needs = new_plant.fertilizer_needs
         existing.image_url = new_plant.image_url or existing.image_url
         existing.language = new_plant.language
+        existing.user_notes = new_plant.user_notes if new_plant.user_notes else existing.user_notes
         existing.rules = new_plant.rules
         existing.updated_at = datetime.now()
 

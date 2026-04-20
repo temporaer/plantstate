@@ -131,6 +131,7 @@ class Plant(BaseModel):
     image_url: str | None = None
     language: str = "en"
     active: bool = True
+    user_notes: str = ""
     rules: list[Rule] = Field(default_factory=list)
     created_at: datetime | None = None
     updated_at: datetime | None = None

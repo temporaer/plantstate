@@ -10,6 +10,7 @@ export interface Plant {
   image_url: string | null;
   language: string;
   active: boolean;
+  user_notes: string;
   rules: Rule[];
 }
 
@@ -136,21 +137,23 @@ export const api = {
     apiFetch<{ synced: number; calendar: string }>("/sync/calendar", {
       method: "POST",
     }),
-  getPlantPrompt: (plantName: string) =>
+  getPlantPrompt: (plantName: string, userNotes = "") =>
     apiFetch<{ combined_prompt: string }>("/plants/prompt", {
       method: "POST",
-      body: JSON.stringify({ user_input: plantName }),
+      body: JSON.stringify({ user_input: plantName, user_notes: userNotes }),
     }),
   listHaAgents: () => apiFetch<{ agent_id: string; name: string }[]>("/ha/agents"),
-  generatePlant: (plantName: string, agentId: string) =>
+  generatePlant: (plantName: string, agentId: string, userNotes = "") =>
     apiFetch<object>("/plants/generate", {
       method: "POST",
-      body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
+      body: JSON.stringify({ plant_name: plantName, agent_id: agentId, user_notes: userNotes }),
     }),
-  regeneratePlant: (plantId: string, plantName: string, agentId: string) =>
+  regeneratePlant: (plantId: string, plantName: string, agentId: string, userNotes = "") =>
     apiFetch<Plant>(`/plants/${plantId}/regenerate`, {
       method: "POST",
-      body: JSON.stringify({ plant_name: plantName, agent_id: agentId }),
+      body: JSON.stringify({
+        plant_name: plantName, agent_id: agentId, user_notes: userNotes,
+      }),
     }),
   regenerateAll: (agentId: string) =>
     apiFetch<{ total: number; succeeded: number; failed: { name: string; error: string }[] }>(
