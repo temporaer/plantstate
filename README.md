@@ -18,6 +18,7 @@ A weather-driven garden task planner that runs as a Home Assistant add-on or sta
   <img src="docs/screenshots/plant-state-plant.png" width="180" alt="Plant detail" />
   <img src="docs/screenshots/plant-state-outlook.png" width="180" alt="Weather outlook" />
   <img src="docs/screenshots/plant-state-add.png" width="180" alt="Add plant" />
+  <img src="docs/screenshots/plant-state-card.png" width="180" alt="Lovelace card" />
 </p>
 
 ## Features
