@@ -6,8 +6,11 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)](https://python.org)
 [![Node 25](https://img.shields.io/badge/node-25-green?logo=node.js&logoColor=white)](https://nodejs.org)
 [![Signed with cosign](https://img.shields.io/badge/signed-cosign-blueviolet?logo=sigstore)](https://docs.sigstore.dev)
+[![vibe-coded](https://img.shields.io/badge/vibe--coded-🤖-ff69b4)](https://en.wikipedia.org/wiki/Vibe_coding)
 
 A weather-driven garden task planner that runs as a Home Assistant add-on or standalone via Docker Compose.
+
+> **🤖 Vibe-coded** — Built with extensive AI assistance (GitHub Copilot). Tested (96+ unit tests), scanned (Trivy), and signed (cosign) — but treat it accordingly.
 
 ## Features
 
