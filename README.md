@@ -13,12 +13,18 @@ A weather-driven garden task planner that runs as a Home Assistant add-on or sta
 > **🤖 Vibe-coded** — Built with extensive AI assistance (GitHub Copilot). Tested (96+ unit tests), scanned (Trivy), and signed (cosign) — but treat it accordingly.
 
 <p align="center">
-  <img src="docs/screenshots/plant-state-dashboard.png" width="180" alt="Dashboard" />
-  <img src="docs/screenshots/plant-state-plants.png" width="180" alt="Plant list" />
-  <img src="docs/screenshots/plant-state-plant.png" width="180" alt="Plant detail" />
-  <img src="docs/screenshots/plant-state-outlook.png" width="180" alt="Weather outlook" />
-  <img src="docs/screenshots/plant-state-add.png" width="180" alt="Add plant" />
-  <img src="docs/screenshots/plant-state-card.png" width="180" alt="Lovelace card" />
+  <img src="docs/screenshots/plant-state-dashboard.png" width="200" alt="Dashboard" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/plant-state-plants.png" width="200" alt="Plant list" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/plant-state-plant.png" width="200" alt="Plant detail" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/plant-state-outlook.png" width="220" alt="Weather outlook" />
+  &nbsp;
+  <img src="docs/screenshots/plant-state-add.png" width="220" alt="Add plant" />
+  &nbsp;
+  <img src="docs/screenshots/plant-state-card.png" width="170" alt="Lovelace card" />
 </p>
 
 ## Features
