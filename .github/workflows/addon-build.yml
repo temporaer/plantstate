@@ -10,6 +10,8 @@ on:
       - 'ha-addon/**'
       - 'pyproject.toml'
       - 'environment.yml'
+  schedule:
+    - cron: '0 4 1,15 * *'  # 1st and 15th of each month at 04:00 UTC
   workflow_dispatch:
 
 env:
@@ -47,6 +49,7 @@ jobs:
           context: .
           file: Dockerfile.addon
           push: true
+          no-cache: ${{ github.event_name == 'schedule' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
