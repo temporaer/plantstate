@@ -1,5 +1,12 @@
 # 🌱 Plant-State — Garden Lifecycle Manager
 
+[![Build](https://github.com/temporaer/plantstate/actions/workflows/addon-build.yml/badge.svg)](https://github.com/temporaer/plantstate/actions/workflows/addon-build.yml)
+[![License: MIT](https://img.shields.io/github/license/temporaer/plantstate)](LICENSE)
+[![GHCR](https://img.shields.io/badge/GHCR-plantstate--addon-blue?logo=github)](https://github.com/temporaer/plantstate/pkgs/container/plantstate-addon-amd64)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)](https://python.org)
+[![Node 25](https://img.shields.io/badge/node-25-green?logo=node.js&logoColor=white)](https://nodejs.org)
+[![Signed with cosign](https://img.shields.io/badge/signed-cosign-blueviolet?logo=sigstore)](https://docs.sigstore.dev)
+
 A weather-driven garden task planner that runs as a Home Assistant add-on or standalone via Docker Compose.
 
 ## Features
