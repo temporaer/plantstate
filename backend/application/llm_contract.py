@@ -140,6 +140,10 @@ RULES:
     - For annuals (e.g. tomatoes, peppers): note in rule explanations that the plant is
       annual and should be removed/deactivated at end of season.
     - Always incorporate the user's context into the rule explanations.
+15. Include an "image_url" field: search for a photo of this plant on Wikimedia Commons
+    and provide the direct image URL (must start with "https://upload.wikimedia.org/").
+    Use a real, existing URL to a good-quality photo showing the plant. If you cannot
+    find one, set image_url to null.
 
 Output ONLY valid JSON matching this schema:
 {
@@ -148,6 +152,7 @@ Output ONLY valid JSON matching this schema:
   "description": "string",
   "water_needs": "string",
   "fertilizer_needs": "string",
+  "image_url": "https://upload.wikimedia.org/... or null",
   "language": "de" or "en",
   "rules": [
     {
