@@ -99,11 +99,11 @@ Create a local calendar in HA:
 
 Tasks sync automatically every 6 hours, or manually via `POST /api/sync/calendar`.
 
-### Long-Lived Access Token
+### Authentication
 
-1. Go to your HA profile (bottom-left)
-2. Scroll to **Long-Lived Access Tokens**
-3. Create one and set it as `HA_TOKEN`
+**Add-on mode**: No configuration needed — the Supervisor token is injected automatically.
+
+**Standalone mode**: Create a long-lived access token in HA (Profile → Long-Lived Access Tokens) and set it as `HA_TOKEN` in `.env`.
 
 ## Development
 
