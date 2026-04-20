@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -57,16 +57,14 @@ export function RelevantTaskCard({
     item.priority === "high" ? "warning.main" :
     item.priority === "low" ? "grey.400" : "primary.main";
 
-  const [expanded, setExpanded] = useState(initialExpanded);
-  useEffect(() => {
-    if (initialExpanded) setExpanded(true);
-  }, [initialExpanded]);
+  const [userToggled, setUserToggled] = useState<boolean | null>(null);
+  const expanded = userToggled ?? initialExpanded;
 
   return (
     <Card
       id={`task-${item.task.id}`}
       sx={{ mb: 2, borderLeft: "4px solid", borderLeftColor: borderColor, cursor: "pointer" }}
-      onClick={() => setExpanded(!expanded)}
+      onClick={() => setUserToggled(!expanded)}
     >
       <CardContent sx={{ pb: 1 }}>
         <Typography

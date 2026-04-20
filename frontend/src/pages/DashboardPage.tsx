@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
@@ -458,23 +458,24 @@ export function DashboardPage({
     relevantQuery.error?.message?.includes("503");
 
   // Scroll to task if deep-linked from Lovelace card
-  const [deepLinkedTaskId, setDeepLinkedTaskId] = useState<string | null>(null);
-  useEffect(() => {
-    if (!relevantQuery.data) return;
+  const [deepLinkedTaskId] = useState<string | null>(() => {
     const taskId = localStorage.getItem("plant-state-task");
-    if (taskId) {
-      localStorage.removeItem("plant-state-task");
-      setDeepLinkedTaskId(taskId);
-      requestAnimationFrame(() => {
-        const el = document.getElementById(`task-${taskId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-          el.style.outline = "2px solid #4caf50";
-          setTimeout(() => { el.style.outline = ""; }, 2000);
-        }
-      });
-    }
-  }, [relevantQuery.data]);
+    if (taskId) localStorage.removeItem("plant-state-task");
+    return taskId;
+  });
+  const deepLinkScrolled = useRef(false);
+  useEffect(() => {
+    if (!relevantQuery.data || !deepLinkedTaskId || deepLinkScrolled.current) return;
+    deepLinkScrolled.current = true;
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`task-${deepLinkedTaskId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.style.outline = "2px solid #4caf50";
+        setTimeout(() => { el.style.outline = ""; }, 2000);
+      }
+    });
+  }, [relevantQuery.data, deepLinkedTaskId]);
 
   return (
     <Box>
