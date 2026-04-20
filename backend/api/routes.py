@@ -7,7 +7,7 @@ import hashlib
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -215,9 +215,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(title="Plant-State", version="0.1.0", lifespan=lifespan)
 
+_cors_origins = os.environ.get("CORS_ORIGINS", "*")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in _cors_origins.split(",")] if _cors_origins != "*" else ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -349,6 +350,15 @@ class CompletedTaskItem(BaseModel):
 
 
 # --- Routes ---
+
+_start_time = datetime.now()
+
+
+@app.get("/health")
+def health() -> dict:
+    """Health check endpoint."""
+    uptime = (datetime.now() - _start_time).total_seconds()
+    return {"status": "ok", "uptime_seconds": int(uptime)}
 
 
 @app.post("/plants/interpret")
